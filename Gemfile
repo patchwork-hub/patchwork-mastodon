@@ -242,4 +242,3 @@ gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.
 gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.3'
 
 gem 'faraday-typhoeus', '~> 1.1'
-
