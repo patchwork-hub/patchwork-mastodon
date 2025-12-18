@@ -221,7 +221,7 @@ jobs:
         with:
           task-definition: ${{ env.WEB_DEFINITION }}
           container-name: ${{ secrets.LEICESTER_WEB_STAGING_CONTAINER }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_IMAGE_TAG }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_STAGING_IMAGE_TAG }}
 
       - name: Deploy web service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -237,7 +237,7 @@ jobs:
         with:
           task-definition: ${{ env.SIDEKIQ_DEFINITION }}
           container-name: ${{ secrets.LEICESTER_SIDEKIQ_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_IMAGE_TAG }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_STAGING_IMAGE_TAG }}
 
       - name: Deploy Sidekiq service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -253,7 +253,7 @@ jobs:
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
           container-name: ${{ secrets.LEICESTER_STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_STAGING_IMAGE_TAG }} 
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.LEICESTER_REPOSITORY }}:${{ vars.LEICESTER_STREAMING_STAGING_IMAGE_TAG }} 
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
