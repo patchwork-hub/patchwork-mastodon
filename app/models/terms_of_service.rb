@@ -6,7 +6,7 @@
 #
 #  id                   :bigint(8)        not null, primary key
 #  changelog            :text             default(""), not null
-#  effective_date       :date
+#  effective_date       :date             not null
 #  notification_sent_at :datetime
 #  published_at         :datetime
 #  text                 :text             default(""), not null
