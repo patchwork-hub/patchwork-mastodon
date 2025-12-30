@@ -1,8 +1,8 @@
 {
     "compatibilities": [
         "EC2",
-        "MANAGED_INSTANCES",
-        "FARGATE"
+        "FARGATE",
+        "MANAGED_INSTANCES"
     ],
     "containerDefinitions": [
         {
@@ -45,8 +45,8 @@
     "memory": "2048",
     "networkMode": "awsvpc",
     "placementConstraints": [],
-    "registeredAt": "2025-12-23T11:11:54.220Z",
-    "registeredBy": "arn:aws:iam::672691776916:user/patchwork-github-action",
+    "registeredAt": "2025-11-06T09:41:25.161Z",
+    "registeredBy": "arn:aws:iam::672691776916:user/ahn",
     "requiresAttributes": [
         {
             "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
@@ -85,13 +85,13 @@
     "requiresCompatibilities": [
         "FARGATE"
     ],
-    "revision": 23,
+    "revision": 1,
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
     "status": "ACTIVE",
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-2:672691776916:task-definition/twt-sidekiq:23",
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-2:672691776916:task-definition/twt-sidekiq:1",
     "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
     "volumes": [],
     "tags": []
