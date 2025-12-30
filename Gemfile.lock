@@ -21,7 +21,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/content_filters
   revision: 94fc6f339882ab0f01c9f56b7a61525b99ba3f72
-  branch: mkk-45
+  branch: mastodon-4.5.3
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
