@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 4294cc065ed93f4a7f94916931f2858517404634
+  revision: a2ec09d80428088fb2ac180130d4048837ed8d9b
   branch: feature/quote_post_v4.5.3
   specs:
     posts (0.1.0)
