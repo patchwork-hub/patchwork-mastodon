@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 614c7da1fef7914e112b2c5c6a3ada0d78c692c3
+  revision: 154fa21913a36522fc29bfeb4563cdb7fad37e91
   branch: mastodon-4.5.3
   specs:
     accounts (0.1.0)
@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 10d931eec635770ae8abb4fbbb5e78fc3f73fdde
+  revision: 8c21ce088592cbf1c3190ed263f03b0807074a26
   branch: mastodon-4.5.3
   specs:
     posts (0.1.0)
@@ -532,13 +532,13 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
+    multi_xml (0.8.0)
+      bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
       uri
-    net-http-persistent (4.0.6)
-      connection_pool (~> 2.2, >= 2.2.4)
+    net-http-persistent (4.0.8)
+      connection_pool (>= 2.2.4, < 4)
     net-imap (0.5.12)
       date
       net-protocol
