@@ -1,16 +1,16 @@
-run-name: ${{ github.event_name }}-${{ github.ref }}
-name: Build and Deploy Web-Production
+run-name: Deploy to mome-production production by @${{ github.actor }}
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - mo-me-4.5.3-production
-
+     - mome-4.5.3-production
 env:
-  WEB_DEFINITION: .task/mome_web.json
-  SIDEKIQ_DEFINITION: .task/mome_sidekiq.json
-  STREAMING_DEFINITION: .task/mome_streaming.json
+  WEB_DEFINITION: .task/mome_web_production.json
+  SIDEKIQ_DEFINITION: .task/mome_sidekiq_production.json
+  STREAMING_DEFINITION: .task/mome_streaming_production.json
+  REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
+  REPOSITORY: ${{ secrets.MOME_PRODUCTION_REPOSITORY }}
 
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Enable Corepack
         run: |
@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "Installing dependencies with Yarn..."
           yarn --version
-          yarn install --immutable
+          yarn install
 
   build-web:
     name: Build Web Application
@@ -115,22 +115,24 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.MOME_PRODUCTION_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.MOME_PRODUCTION_IMAGE_TAG }}
+          SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building web application image..."
           docker buildx build \
             --platform linux/amd64 \
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-streaming:
@@ -170,8 +172,9 @@ jobs:
         id: build-streaming-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.STREAMING_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.MOME_PRODUCTION_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.MOME_PRODUCTION_STREAMING_IMAGE_TAG }}
+          SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building streaming service image..."
           docker buildx build \
@@ -179,21 +182,21 @@ jobs:
             --file ./streaming/Dockerfile \
             --cache-from type=local,src=/tmp/.buildx-cache-streaming \
             --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
           mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [build-web]
-    if: github.ref == 'refs/heads/production'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -216,15 +219,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.WEB_DEFINITION }}
-          container-name: ${{ secrets.WEB_CONTAINER_NAME }}
-          image: ${{ secrets.PRODUCTION_IMAGE }}
+          container-name: ${{ secrets.MOME_WEB_PRODUCTION_CONTAINER }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MOME_PRODUCTION_REPOSITORY }}:${{ vars.MOME_PRODUCTION_IMAGE_TAG }}
 
       - name: Deploy web service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-web.outputs.task-definition }}
-          service: ${{ secrets.WEB_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_NAME }}
+          service: ${{ secrets.MOME_WEB_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.MOME_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
       - name: Update Sidekiq task definition
@@ -232,15 +235,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.SIDEKIQ_DEFINITION }}
-          container-name: ${{ secrets.SIDEKIQ_CONTAINER_NAME }}
-          image: ${{ secrets.PRODUCTION_IMAGE }}
+          container-name: ${{ secrets.MOME_SIDEKIQ_PRODUCTION_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MOME_PRODUCTION_REPOSITORY }}:${{ vars.MOME_PRODUCTION_IMAGE_TAG }}
 
       - name: Deploy Sidekiq service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
-          service: ${{ secrets.SIDEKIQ_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_NAME }}
+          service: ${{ secrets.MOME_SIDEKIQ_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.MOME_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
       - name: Update Streaming task definition
@@ -248,13 +251,19 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
-          container-name: ${{ secrets.STREAMING_CONTAINER_NAME }}
-          image: ${{ secrets.STREAMING__IMAGE }}
-
+          container-name: ${{ secrets.MOME_STREAMING_PRODUCTION_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MOME_PRODUCTION_REPOSITORY }}:${{ vars.MOME_PRODUCTION_STREAMING_IMAGE_TAG }} 
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-          service: ${{ secrets.STREAMING_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_NAME }}
+          service: ${{ secrets.MOME_STREAMING_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.MOME_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
+
+      - name: Deployment complete
+        run: |
+          echo "Deployment to production environment completed successfully!"
+          echo "Web service: ${{ secrets.MOME_WEB_PRODUCTION_SERVICE_NAME }}"
+          echo "Sidekiq service: ${{ secrets.MOME_SIDEKIQ_PRODUCTION_SERVICE_NAME }}"
+          echo "Cluster: ${{ secrets.MOME_CLUSTER_PRODUCTION }}"
