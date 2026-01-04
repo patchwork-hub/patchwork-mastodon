@@ -1,18 +1,16 @@
-run-name: ${{ github.event_name }}-${{ github.ref }}
-name: Build and Deploy Web-Staging
+run-name: Deploy to newsmast-staging staging by @${{ github.actor }}
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - newsmast-4.5.3-staging
-
+     - newsmast-4.5.3-staging
 env:
   WEB_DEFINITION: .task/newsmast_web_staging.json
   SIDEKIQ_DEFINITION: .task/newsmast_sidekiq_staging.json
   STREAMING_DEFINITION: .task/newsmast_streaming_staging.json
   REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
-  REPOSITORY: ${{ secrets.REPOSITORY }}
+  REPOSITORY: ${{ secrets.NEWSMAST_STAGING_REPOSITORY }}
 
 permissions:
   contents: read
@@ -117,8 +115,8 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.NEWSMAST_STAGING_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.NEWSMAST_STAGING_IMAGE_TAG }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building web application image..."
@@ -130,11 +128,11 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-streaming:
@@ -174,8 +172,8 @@ jobs:
         id: build-streaming-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.STREAMING_STAGING_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.NEWSMAST_STAGING_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.NEWSMAST_STAGING_STREAMING_IMAGE_TAG }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building streaming service image..."
@@ -188,18 +186,17 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
           mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [build-web]
-    if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/mastodon-deployment'
     environment: staging
     steps:
       - name: Checkout code
@@ -223,15 +220,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.WEB_DEFINITION }}
-          container-name: ${{ secrets.WEB_STAGING_CONTAINER }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ vars.IMAGE_TAG }}
+          container-name: ${{ secrets.NEWSMAST_WEB_STAGING_CONTAINER }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_STAGING_REPOSITORY }}:${{ vars.NEWSMAST_STAGING_IMAGE_TAG }}
 
       - name: Deploy web service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-web.outputs.task-definition }}
-          service: ${{ secrets.WEB_STAGING_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_STAGING }}
+          service: ${{ secrets.NEWSMAST_WEB_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_STAGING }}
           wait-for-service-stability: false
 
       - name: Update Sidekiq task definition
@@ -239,15 +236,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.SIDEKIQ_DEFINITION }}
-          container-name: ${{ secrets.SIDEKIQ_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ vars.IMAGE_TAG }}
+          container-name: ${{ secrets.NEWSMAST_SIDEKIQ_STAGING_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_STAGING_REPOSITORY }}:${{ vars.NEWSMAST_STAGING_IMAGE_TAG }}
 
       - name: Deploy Sidekiq service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
-          service: ${{ secrets.SIDEKIQ_STAGING_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_STAGING }}
+          service: ${{ secrets.NEWSMAST_SIDEKIQ_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_STAGING }}
           wait-for-service-stability: false
 
       - name: Update Streaming task definition
@@ -255,19 +252,19 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
-          container-name: ${{ secrets.STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ vars.STREAMING_STAGING_IMAGE_TAG }}
+          container-name: ${{ secrets.NEWSMAST_STREAMING_STAGING_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_STAGING_REPOSITORY }}:${{ vars.NEWSMAST_STREAMING_STAGING_IMAGE_TAG }} 
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-          service: ${{ secrets.STREAMING_STAGING_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_STAGING }}
+          service: ${{ secrets.NEWSMAST_STREAMING_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_STAGING }}
           wait-for-service-stability: false
 
       - name: Deployment complete
         run: |
           echo "Deployment to staging environment completed successfully!"
-          echo "Web service: ${{ secrets.WEB_STAGING_SERVICE_NAME }}"
-          echo "Sidekiq service: ${{ secrets.SIDEKIQ_STAGING_SERVICE_NAME }}"
-          echo "Cluster: ${{ secrets.CLUSTER_STAGING }}"
+          echo "Web service: ${{ secrets.NEWSMAST_STAGING_WEB_STAGING_SERVICE_NAME }}"
+          echo "Sidekiq service: ${{ secrets.NEWSMAST_STAGING_SIDEKIQ_STAGING_SERVICE_NAME }}"
+          echo "Cluster: ${{ secrets.NEWSMAST_STAGING_CLUSTER_STAGING }}"
