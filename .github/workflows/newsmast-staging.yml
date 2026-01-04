@@ -253,7 +253,7 @@ jobs:
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
           container-name: ${{ secrets.NEWSMAST_STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_STAGING_REPOSITORY }}:${{ vars.NEWSMAST_STREAMING_STAGING_IMAGE_TAG }} 
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_STAGING_REPOSITORY }}:${{ vars.NEWSMAST_STAGING_STREAMING_IMAGE_TAG }} 
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
@@ -265,6 +265,6 @@ jobs:
       - name: Deployment complete
         run: |
           echo "Deployment to staging environment completed successfully!"
-          echo "Web service: ${{ secrets.NEWSMAST_STAGING_WEB_STAGING_SERVICE_NAME }}"
-          echo "Sidekiq service: ${{ secrets.NEWSMAST_STAGING_SIDEKIQ_STAGING_SERVICE_NAME }}"
-          echo "Cluster: ${{ secrets.NEWSMAST_STAGING_CLUSTER_STAGING }}"
+          echo "Web service: ${{ secrets.NEWSMAST_WEB_STAGING_SERVICE_NAME }}"
+          echo "Sidekiq service: ${{ secrets.NEWSMAST_SIDEKIQ_STAGING_SERVICE_NAME }}"
+          echo "Cluster: ${{ secrets.NEWSMAST_CLUSTER_STAGING }}"
