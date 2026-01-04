@@ -1,18 +1,16 @@
-run-name: ${{ github.event_name }}-${{ github.ref }}
-name: Build and Deploy Web-Production
+run-name: Deploy to newsmast-production production by @${{ github.actor }}
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - newsmast-4.5.3-production
-
+     - newsmast-4.5.3-production
 env:
   WEB_DEFINITION: .task/newsmast_web_production.json
   SIDEKIQ_DEFINITION: .task/newsmast_sidekiq_production.json
   STREAMING_DEFINITION: .task/newsmast_streaming_production.json
   REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
-  REPOSITORY: ${{ secrets.REPOSITORY }}
+  REPOSITORY: ${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}
 
 permissions:
   contents: read
@@ -34,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Enable Corepack
         run: |
@@ -76,9 +74,9 @@ jobs:
       - name: Install dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
-          echo "Installing dependencies with Yarn 4.9.1..."
+          echo "Installing dependencies with Yarn..."
           yarn --version
-          yarn install --immutable
+          yarn install
 
   build-web:
     name: Build Web Application
@@ -117,22 +115,24 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.PRODUCTION_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.NEWSMAST_PRODUCTION_IMAGE_TAG }}
+          SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building web application image..."
           docker buildx build \
             --platform linux/amd64 \
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-streaming:
@@ -172,8 +172,9 @@ jobs:
         id: build-streaming-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPOSITORY }}
-          IMAGE_TAG: ${{ vars.STREAMING_PRODUCTION_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}
+          IMAGE_TAG: ${{ vars.NEWSMAST_PRODUCTION_STREAMING_IMAGE_TAG }}
+          SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building streaming service image..."
           docker buildx build \
@@ -181,22 +182,21 @@ jobs:
             --file ./streaming/Dockerfile \
             --cache-from type=local,src=/tmp/.buildx-cache-streaming \
             --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-
+          
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
           mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
-
+          
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [build-web]
-    if: github.ref == 'refs/heads/production'
-    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -219,15 +219,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.WEB_DEFINITION }}
-          container-name: ${{ secrets.WEB_PRODUCTION_CONTAINER }}
-          image: ${{ secrets.WEB_PRODUCTION_IMAGE }}
+          container-name: ${{ secrets.NEWSMAST_WEB_PRODUCTION_CONTAINER }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}:${{ vars.NEWSMAST_PRODUCTION_IMAGE_TAG }}
 
       - name: Deploy web service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-web.outputs.task-definition }}
-          service: ${{ secrets.WEB_PRODUCTION_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_PRODUCTION }}
+          service: ${{ secrets.NEWSMAST_WEB_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
       - name: Update Sidekiq task definition
@@ -235,15 +235,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.SIDEKIQ_DEFINITION }}
-          container-name: ${{ secrets.SIDEKIQ_PRODUCTION_CONTAINER_NAME }}
-          image: ${{ secrets.WEB_PRODUCTION_IMAGE }}
+          container-name: ${{ secrets.NEWSMAST_SIDEKIQ_PRODUCTION_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}:${{ vars.NEWSMAST_PRODUCTION_IMAGE_TAG }}
 
       - name: Deploy Sidekiq service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
-          service: ${{ secrets.SIDEKIQ_PRODUCTION_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_PRODUCTION }}
+          service: ${{ secrets.NEWSMAST_SIDEKIQ_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
       - name: Update Streaming task definition
@@ -251,21 +251,19 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
-          container-name: ${{ secrets.STREAMING_PRODUCTION_CONTAINER_NAME }}
-          image: ${{ secrets.STREAMING_PRODUCTION_IMAGE }}
-
+          container-name: ${{ secrets.NEWSMAST_STREAMING_PRODUCTION_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.NEWSMAST_PRODUCTION_REPOSITORY }}:${{ vars.NEWSMAST_PRODUCTION_STREAMING_IMAGE_TAG }} 
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-          service: ${{ secrets.STREAMING_PRODUCTION_SERVICE_NAME }}
-          cluster: ${{ secrets.CLUSTER_PRODUCTION }}
+          service: ${{ secrets.NEWSMAST_STREAMING_PRODUCTION_SERVICE_NAME }}
+          cluster: ${{ secrets.NEWSMAST_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
       - name: Deployment complete
         run: |
           echo "Deployment to production environment completed successfully!"
-          echo "Web service: ${{ secrets.WEB_PRODUCTION_SERVICE_NAME }}"
-          echo "Sidekiq service: ${{ secrets.SIDEKIQ_PRODUCTION_SERVICE_NAME }}"
-          echo "Streaming service: ${{ secrets.STREAMING_PRODUCTION_SERVICE_NAME }}"
-          echo "Cluster: ${{ secrets.CLUSTER_PRODUCTION }}"
+          echo "Web service: ${{ secrets.NEWSMAST_WEB_PRODUCTION_SERVICE_NAME }}"
+          echo "Sidekiq service: ${{ secrets.NEWSMAST_SIDEKIQ_PRODUCTION_SERVICE_NAME }}"
+          echo "Cluster: ${{ secrets.NEWSMAST_CLUSTER_PRODUCTION }}"
