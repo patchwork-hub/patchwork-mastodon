@@ -1,0 +1,93 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:eu-west-2:672691776916:task-definition/mome-sidekiq:11",
+  "containerDefinitions": [
+    {
+      "name": "mome-sidekiq",
+      "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/mo-me:prod",
+      "cpu": 0,
+      "portMappings": [],
+      "essential": true,
+      "command": [
+        "bash",
+        "-c",
+        "aws s3 cp s3://patchwork-private-env/fcm_mo_me_service.json /opt/mastodon/config && bundle exec sidekiq"
+      ],
+      "environment": [],
+      "environmentFiles": [
+        {
+          "value": "arn:aws:s3:::patchwork-private-env/mome.env",
+          "type": "s3"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "workingDirectory": "/opt/mastodon",
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mome-sidekiq",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "mome-sidekiq",
+  "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+  "networkMode": "awsvpc",
+  "revision": 11,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+    },
+    {
+      "name": "ecs.capability.env-files.s3"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "placementConstraints": [],
+  "compatibilities": ["EC2", "FARGATE"],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2025-07-24T06:30:47.160Z",
+  "registeredBy": "arn:aws:iam::672691776916:user/ahn",
+  "enableFaultInjection": false,
+  "tags": []
+}
