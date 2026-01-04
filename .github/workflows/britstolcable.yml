@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - bristol-4.5.3-production
+     - bristol-cable-4.5.3-production
 env:
   WEB_DEFINITION: .task/bristol_web.json
   SIDEKIQ_DEFINITION: .task/bristol_sidekiq.json
