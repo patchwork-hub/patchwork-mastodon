@@ -6,9 +6,9 @@ on:
     branches:
      - mo-me-4.5.3-production
 env:
-  WEB_DEFINITION: .task/mome_web_production.json
-  SIDEKIQ_DEFINITION: .task/mome_sidekiq_production.json
-  STREAMING_DEFINITION: .task/mome_streaming_production.json
+  WEB_DEFINITION: .task/mome_web.json
+  SIDEKIQ_DEFINITION: .task/mome_sidekiq.json
+  STREAMING_DEFINITION: .task/mome_streaming.json
   REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
   REPOSITORY: ${{ secrets.MOME_PRODUCTION_REPOSITORY }}
 
