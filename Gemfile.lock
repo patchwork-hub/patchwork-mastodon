@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 7267924bd660d7ff908398783c16c5d9b20a8570
+  revision: 81f059b02fe676db06222558c96b3c5743e208a8
   branch: mastodon-4.5.3
   specs:
     accounts (0.1.0)
@@ -302,6 +302,7 @@ GEM
     fast_blank (1.0.1)
     fastimage (2.4.0)
     ffi (1.17.2)
+    ffi (1.17.2-x86_64-linux-gnu)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake
@@ -335,6 +336,9 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
     google-protobuf (4.32.1)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.32.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
@@ -556,6 +560,8 @@ GEM
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-gnu)
+      racc (~> 1.4)
     oga (3.4)
       ast
       ruby-ll (~> 2.1)
@@ -683,6 +689,7 @@ GEM
     pastel (0.8.0)
       tty-color (~> 0.5)
     pg (1.6.2)
+    pg (1.6.2-x86_64-linux)
     pghero (3.7.0)
       activerecord (>= 7.1)
     playwright-ruby-client (1.55.0)
@@ -1037,6 +1044,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-linux
 
 DEPENDENCIES
   accounts!
