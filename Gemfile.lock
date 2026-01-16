@@ -19,6 +19,15 @@ GIT
       rails (>= 7.1, < 9.0)
 
 GIT
+  remote: https://github.com/patchwork-hub/content_filters
+  revision: 3df936ada8c4d70dd911b14b6a63ae30e37c96a6
+  branch: mastodon-4.5.3-custom-timeline-leicester
+  specs:
+    content_filters (0.1.0)
+      httparty (~> 0.23.1)
+      rails (>= 7.1, < 9.0)
+
+GIT
   remote: https://github.com/patchwork-hub/conversations
   revision: 0adb4ac11e1a616794fcc2801242e4498b457c6f
   branch: mastodon-4.5.3
@@ -26,6 +35,14 @@ GIT
     conversations (0.1.0)
       annotaterb (~> 4.13)
       byebug (~> 11.1)
+      rails (>= 7.1, < 9.0)
+
+GIT
+  remote: https://github.com/patchwork-hub/custom_feeds
+  revision: 8e2967be9995a26638857417b24e824e83d09cb8
+  branch: mastodon-4.5.3-custom-timeline
+  specs:
+    custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
 
 GIT
@@ -1052,8 +1069,10 @@ DEPENDENCIES
   color_diff (~> 0.1)
   concurrent-ruby
   connection_pool
+  content_filters!
   conversations!
   csv (~> 3.2)
+  custom_feeds!
   database_cleaner-active_record
   debug (~> 1.8)
   devise (~> 4.9)
