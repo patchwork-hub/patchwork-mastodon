@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 8e2967be9995a26638857417b24e824e83d09cb8
+  revision: 8be2523d39a5a2eb03b761720ed843c5be255609
   branch: mastodon-4.5.3-custom-timeline
   specs:
     custom_feeds (0.1.0)
@@ -302,6 +302,7 @@ GEM
     fast_blank (1.0.1)
     fastimage (2.4.0)
     ffi (1.17.2)
+    ffi (1.17.2-x86_64-linux-gnu)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake
@@ -335,6 +336,9 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
     google-protobuf (4.32.1)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.32.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
@@ -556,6 +560,8 @@ GEM
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-gnu)
+      racc (~> 1.4)
     oga (3.4)
       ast
       ruby-ll (~> 2.1)
@@ -683,6 +689,7 @@ GEM
     pastel (0.8.0)
       tty-color (~> 0.5)
     pg (1.6.2)
+    pg (1.6.2-x86_64-linux)
     pghero (3.7.0)
       activerecord (>= 7.1)
     playwright-ruby-client (1.55.0)
@@ -1037,6 +1044,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-linux
 
 DEPENDENCIES
   accounts!
