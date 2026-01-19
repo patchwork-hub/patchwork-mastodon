@@ -29,6 +29,14 @@ GIT
       rails (>= 7.1, < 9.0)
 
 GIT
+  remote: https://github.com/patchwork-hub/custom_feeds
+  revision: 8be2523d39a5a2eb03b761720ed843c5be255609
+  branch: mastodon-4.5.3-custom-timeline
+  specs:
+    custom_feeds (0.1.0)
+      rails (>= 7.1, < 9.0)
+
+GIT
   remote: https://github.com/patchwork-hub/posts
   revision: 10d931eec635770ae8abb4fbbb5e78fc3f73fdde
   branch: mastodon-4.5.3
@@ -1054,6 +1062,7 @@ DEPENDENCIES
   connection_pool
   conversations!
   csv (~> 3.2)
+  custom_feeds!
   database_cleaner-active_record
   debug (~> 1.8)
   devise (~> 4.9)
