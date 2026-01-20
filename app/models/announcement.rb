@@ -4,18 +4,17 @@
 #
 # Table name: announcements
 #
-#  id                   :bigint(8)        not null, primary key
-#  all_day              :boolean          default(FALSE), not null
-#  ends_at              :datetime
-#  notification_sent_at :datetime
-#  published            :boolean          default(FALSE), not null
-#  published_at         :datetime
-#  scheduled_at         :datetime
-#  starts_at            :datetime
-#  status_ids           :bigint(8)        is an Array
-#  text                 :text             default(""), not null
-#  created_at           :datetime         not null
-#  updated_at           :datetime         not null
+#  id           :bigint(8)        not null, primary key
+#  all_day      :boolean          default(FALSE), not null
+#  ends_at      :datetime
+#  published    :boolean          default(FALSE), not null
+#  published_at :datetime
+#  scheduled_at :datetime
+#  starts_at    :datetime
+#  status_ids   :bigint(8)        is an Array
+#  text         :text             default(""), not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
 
 class Announcement < ApplicationRecord
