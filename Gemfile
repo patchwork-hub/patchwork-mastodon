@@ -234,3 +234,11 @@ gem 'hcaptcha', '~> 7.1'
 gem 'mail', '~> 2.8'
 
 gem 'vite_rails', '~> 3.0.19'
+
+gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'feature-v4.5.4'
+gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.3'
+gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.3'
+gem 'timelines_extension', git: 'http://github.com/patchwork-hub/timelines_extension', branch: 'mastodon-4.5.3'
+
+# *** Add this alongside Post Gems ***
+gem 'faraday-typhoeus', '~> 1.1'
