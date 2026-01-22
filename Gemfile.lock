@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: d5cb959b6664d67ff81ed6455d755c369f0cad6f
+  revision: 6fb0b491d9e5ae92c6744a1afb1d9182227b764b
   branch: feature-4.5.3
   specs:
     accounts (0.1.0)
@@ -339,7 +339,7 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.16.0)
+    googleauth (1.16.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)

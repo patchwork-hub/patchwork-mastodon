@@ -241,7 +241,5 @@ gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', bran
 gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.3-custom-timeline'
 gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.3'
 
-# gem 'accounts', path: '/Users/sayamac/workplace/patchwork/gems/accounts'
-
 # *** Add this alongside Post Gems ***
 gem 'faraday-typhoeus', '~> 1.1'
