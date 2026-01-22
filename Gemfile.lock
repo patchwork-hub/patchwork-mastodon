@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 577c71fdbad46a7bdd929ea70e827633cc09db39
+  revision: ed1726885de3b4eebb55a7dac84b73354fd76fd0
   branch: mastodon-4.5.3-custom-timeline
   specs:
     content_filters (0.1.0)
@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/conversations
-  revision: 0adb4ac11e1a616794fcc2801242e4498b457c6f
+  revision: d537a6f978f86a536d59282102d8acac95bf3ce1
   branch: mastodon-4.5.3
   specs:
     conversations (0.1.0)
@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: e206f3db894556e70a8cad365d9227598e90199f
+  revision: 8be2523d39a5a2eb03b761720ed843c5be255609
   branch: mastodon-4.5.3-custom-timeline
   specs:
     custom_feeds (0.1.0)
@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 8c21ce088592cbf1c3190ed263f03b0807074a26
+  revision: b3dd0e83f7626a1ac93b43f5021d97a708e88fbd
   branch: mastodon-4.5.3
   specs:
     posts (0.1.0)
@@ -532,7 +532,7 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.8.0)
+    multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
