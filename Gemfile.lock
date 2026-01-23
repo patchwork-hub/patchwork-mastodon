@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 614c7da1fef7914e112b2c5c6a3ada0d78c692c3
+  revision: 62856f39ff1c8bc180195da955655b1264769a37
   branch: mastodon-4.5.3
   specs:
     accounts (0.1.0)
@@ -20,8 +20,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 577c71fdbad46a7bdd929ea70e827633cc09db39
-  branch: mastodon-4.5.3-custom-timeline
+  revision: ed1726885de3b4eebb55a7dac84b73354fd76fd0
+  branch: mastodon-4.5.3
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/conversations
-  revision: 0adb4ac11e1a616794fcc2801242e4498b457c6f
+  revision: d537a6f978f86a536d59282102d8acac95bf3ce1
   branch: mastodon-4.5.3
   specs:
     conversations (0.1.0)
@@ -39,15 +39,15 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 8be2523d39a5a2eb03b761720ed843c5be255609
-  branch: mastodon-4.5.3-custom-timeline
+  revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
+  branch: mastodon-4.5.3
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 10d931eec635770ae8abb4fbbb5e78fc3f73fdde
+  revision: bab145ebe1f235a91b3f4dcf0af8196e11a88433
   branch: mastodon-4.5.3
   specs:
     posts (0.1.0)
@@ -343,7 +343,7 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.16.0)
+    googleauth (1.16.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -536,13 +536,13 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
+    multi_xml (0.8.1)
+      bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
       uri
-    net-http-persistent (4.0.6)
-      connection_pool (~> 2.2, >= 2.2.4)
+    net-http-persistent (4.0.8)
+      connection_pool (>= 2.2.4, < 4)
     net-imap (0.5.12)
       date
       net-protocol
