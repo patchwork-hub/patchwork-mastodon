@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 6fb0b491d9e5ae92c6744a1afb1d9182227b764b
-  branch: mastodon-4.5.3
+  revision: 86bc06dca1458fc090b60d52f6076cfd8e8d1a30
+  branch: mastodon-4.5.3-feat-email-notification-fix
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
