@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 2a6c0962b200b5898408ace707c2045e8fc12d4b
+  revision: 62856f39ff1c8bc180195da955655b1264769a37
   branch: mastodon-4.5.3
   specs:
     accounts (0.1.0)
@@ -30,8 +30,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 8be2523d39a5a2eb03b761720ed843c5be255609
-  branch: mastodon-4.5.3-custom-timeline
+  revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
+  branch: mastodon-4.5.3
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
