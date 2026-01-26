@@ -238,7 +238,7 @@ gem 'vite_rails', '~> 3.0.19'
 gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'mastodon-4.5.3-feat-search-opt-out-change'
 gem 'content_filters', git: 'https://github.com/patchwork-hub/content_filters', branch: 'mastodon-4.5.3'
 gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.3'
-gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.3-custom-timeline'
+gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.3'
 gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.3'
 
 # *** Add this alongside Post Gems ***
