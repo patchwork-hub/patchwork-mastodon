@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - patchwork-mastodon-demo-4.5.3-staging
+     - patchwork-mastodon-demo-4.5.5-staging
 env:
   WEB_DEFINITION: .task/patchwork-demo_web_staging.json
   SIDEKIQ_DEFINITION: .task/patchwork-demo_sidekiq_staging.json
