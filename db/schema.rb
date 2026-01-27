@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_02_143553) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -961,6 +961,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
     t.datetime "deleted_at"
     t.integer "post_visibility", default: 2, null: false
     t.string "about"
+    t.boolean "no_boost_channel", default: false
     t.index ["ip_address_id"], name: "index_patchwork_communities_on_ip_address_id"
     t.index ["name"], name: "index_patchwork_communities_on_name", unique: true
     t.index ["patchwork_collection_id"], name: "index_patchwork_communities_on_patchwork_collection_id"
@@ -1636,6 +1637,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
     t.datetime "age_verified_at"
     t.boolean "require_tos_interstitial", default: false, null: false
     t.boolean "alttext_enabled", default: false, null: false
+    t.string "did_value"
+    t.boolean "bluesky_bridge_enabled", default: false, null: false
     t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["created_by_application_id"], name: "index_users_on_created_by_application_id", where: "(created_by_application_id IS NOT NULL)"
