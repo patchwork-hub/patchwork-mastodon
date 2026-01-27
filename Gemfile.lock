@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: be6b641102b42d4224c7929b0dd7f223263f1717
-  branch: mastodon-4.5.3-feat-search-opt-out-change
+  revision: a1f5014a58a09e45aa8b5f2d7c771fc52ac81c67
+  branch: mastodon-4.5.3
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
