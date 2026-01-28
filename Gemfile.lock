@@ -1,7 +1,7 @@
 GIT
   remote: http://github.com/patchwork-hub/timelines_extension
   revision: 6b807b0f05f12bb47db2f1fff64ea6636ee822c6
-  branch: mastodon-4.5.3
+  branch: mastodon-4.5.5
   specs:
     timelines_extension (0.1.0)
       annotaterb (~> 4.13)
@@ -19,8 +19,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: c7777d96a55d78dc74ecc25d75892ab9bff7aa60
-  branch: feature-v4.5.4
+  revision: a1f5014a58a09e45aa8b5f2d7c771fc52ac81c67
+  branch: mastodon-4.5.5
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -31,7 +31,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/conversations
   revision: d537a6f978f86a536d59282102d8acac95bf3ce1
-  branch: mastodon-4.5.3
+  branch: mastodon-4.5.5
   specs:
     conversations (0.1.0)
       annotaterb (~> 4.13)
@@ -40,8 +40,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: b3dd0e83f7626a1ac93b43f5021d97a708e88fbd
-  branch: mastodon-4.5.3
+  revision: bab145ebe1f235a91b3f4dcf0af8196e11a88433
+  branch: mastodon-4.5.5
   specs:
     posts (0.1.0)
       annotaterb (~> 4.13)
