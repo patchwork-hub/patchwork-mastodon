@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - findout-4.5.3-staging
+      - findout-4.5.5-staging
 env:
   WEB_DEFINITION: .task/findout_web_staging.json
   SIDEKIQ_DEFINITION: .task/findout_sidekiq_staging.json
@@ -128,11 +128,11 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-          
+
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-          
+
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-streaming:
@@ -186,11 +186,11 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-          
+
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
           mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
-          
+
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy-staging:
@@ -253,7 +253,7 @@ jobs:
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
           container-name: ${{ secrets.FINDOUT_STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.FINDOUT_REPOSITORY }}:${{ vars.FINDOUT_STREAMING_STAGING_IMAGE_TAG }} 
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.FINDOUT_REPOSITORY }}:${{ vars.FINDOUT_STREAMING_STAGING_IMAGE_TAG }}
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
