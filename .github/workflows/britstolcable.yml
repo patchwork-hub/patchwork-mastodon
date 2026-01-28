@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - bristol-cable-4.5.3-production
+      - bristol-cable-4.5.5-production
 env:
   WEB_DEFINITION: .task/bristol_web.json
   SIDEKIQ_DEFINITION: .task/bristol_sidekiq.json
@@ -128,11 +128,11 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-          
+
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-          
+
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   build-streaming:
@@ -186,11 +186,11 @@ jobs:
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --push \
             .
-          
+
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
           mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
-          
+
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy-production:
@@ -252,7 +252,7 @@ jobs:
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
           container-name: ${{ secrets.BRISTOL_STREAMING_PRODUCTION_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.BRISTOL_PRODUCTION_REPOSITORY }}:${{ vars.BRISTOL_PRODUCTION_STREAMING_IMAGE_TAG }} 
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.BRISTOL_PRODUCTION_REPOSITORY }}:${{ vars.BRISTOL_PRODUCTION_STREAMING_IMAGE_TAG }}
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
