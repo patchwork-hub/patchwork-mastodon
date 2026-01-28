@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - leicester-gazette-4.5.3-staging
+     - leicester-gazette-4.5.5-staging
 env:
   WEB_DEFINITION: .task/leicester_web_staging.json
   SIDEKIQ_DEFINITION: .task/leicester_sidekiq_staging.json
