@@ -19,15 +19,6 @@ GIT
       rails (>= 7.1, < 9.0)
 
 GIT
-  remote: https://github.com/patchwork-hub/content_filters
-  revision: ed1726885de3b4eebb55a7dac84b73354fd76fd0
-  branch: mastodon-4.5.5
-  specs:
-    content_filters (0.1.0)
-      httparty (~> 0.23.1)
-      rails (>= 7.1, < 9.0)
-
-GIT
   remote: https://github.com/patchwork-hub/conversations
   revision: d537a6f978f86a536d59282102d8acac95bf3ce1
   branch: mastodon-4.5.5
@@ -35,14 +26,6 @@ GIT
     conversations (0.1.0)
       annotaterb (~> 4.13)
       byebug (~> 11.1)
-      rails (>= 7.1, < 9.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
-  branch: mastodon-4.5.5
-  specs:
-    custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
 
 GIT
@@ -54,6 +37,16 @@ GIT
       annotaterb (~> 4.13)
       byebug (~> 11.1)
       link_thumbnailer (~> 3.4)
+      rails (>= 7.1, < 9.0)
+
+GIT
+  remote: https://github.com/patchwork-hub/timelines_extension
+  revision: 6b807b0f05f12bb47db2f1fff64ea6636ee822c6
+  branch: mastodon-4.5.5
+  specs:
+    timelines_extension (0.1.0)
+      annotaterb (~> 4.13)
+      byebug (~> 11.1)
       rails (>= 7.1, < 9.0)
 
 GEM
@@ -1069,10 +1062,8 @@ DEPENDENCIES
   color_diff (~> 0.1)
   concurrent-ruby
   connection_pool
-  content_filters!
   conversations!
   csv (~> 3.2)
-  custom_feeds!
   database_cleaner-active_record
   debug (~> 1.8)
   devise (~> 4.9)
@@ -1197,6 +1188,7 @@ DEPENDENCIES
   strong_migrations
   test-prof
   thor (~> 1.2)
+  timelines_extension!
   tty-prompt (~> 0.23)
   twitter-text (~> 3.1.0)
   tzinfo-data (~> 1.2023)
