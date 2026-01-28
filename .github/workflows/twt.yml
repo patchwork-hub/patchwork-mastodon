@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - twoot-wales-4.5.3-staging
+     - twoot-wales-4.5.5-staging
 env:
   WEB_DEFINITION: .task/twoot-wales_web_staging.json
   SIDEKIQ_DEFINITION: .task/twoot-wales_sidekiq_staging.json
