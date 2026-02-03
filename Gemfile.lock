@@ -30,7 +30,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: bab145ebe1f235a91b3f4dcf0af8196e11a88433
+  revision: 60632d424b0934bd93ae78a7985ac6f167d26f9c
   branch: mastodon-4.5.5
   specs:
     posts (0.1.0)
