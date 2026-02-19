@@ -241,5 +241,5 @@ gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', bran
 gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.6'
 gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.5'
 
-# *** Add this alongside Post Gems ***
+# ***  Add this alongside Post Gems ***
 gem 'faraday-typhoeus', '~> 1.1'
