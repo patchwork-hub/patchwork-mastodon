@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - mo-me-4.5.5-production
+      - mo-me-4.5.6-production
 env:
   WEB_DEFINITION: .task/mome_web.json
   SIDEKIQ_DEFINITION: .task/mome_sidekiq.json
