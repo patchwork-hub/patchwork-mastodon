@@ -46,6 +46,14 @@ GIT
       rails (>= 7.1, < 9.0)
 
 GIT
+  remote: https://github.com/patchwork-hub/local_only_posts
+  revision: c03f7bd3b1360fe4613da135f861e5f9f2184f6a
+  branch: mastodon-4.5.5
+  specs:
+    local_only_posts (0.1.0)
+      rails (>= 8.0)
+
+GIT
   remote: https://github.com/patchwork-hub/posts
   revision: 60632d424b0934bd93ae78a7985ac6f167d26f9c
   branch: mastodon-4.5.5
@@ -1115,6 +1123,7 @@ DEPENDENCIES
   letter_opener_web (~> 3.0)
   link_header (~> 0.0)
   linzer (~> 0.7.7)
+  local_only_posts!
   lograge (~> 0.12)
   mail (~> 2.8)
   mario-redis-lock (~> 1.2)

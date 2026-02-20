@@ -240,6 +240,7 @@ gem 'content_filters', git: 'https://github.com/patchwork-hub/content_filters', 
 gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.5'
 gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.5'
 gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.5'
+gem 'local_only_posts', git: 'https://github.com/patchwork-hub/local_only_posts', branch: 'mastodon-4.5.5'
 
 # *** Add this alongside Post Gems ***
 gem 'faraday-typhoeus', '~> 1.1'
