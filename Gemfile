@@ -239,7 +239,7 @@ gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'masto
 gem 'content_filters', git: 'https://github.com/patchwork-hub/content_filters', branch: 'mastodon-4.5.6'
 gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.6'
 gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.6'
-gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.5'
+gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.6'
 
 # ***  Add this alongside Post Gems ***
 gem 'faraday-typhoeus', '~> 1.1'
