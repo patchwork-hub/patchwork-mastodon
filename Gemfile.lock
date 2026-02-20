@@ -10,7 +10,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/accounts
   revision: 12ddff16b5fb3206378ec093c885dff27b0a0528
-  branch: mastodon-4.5.5
+  branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -21,7 +21,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/content_filters
   revision: ed1726885de3b4eebb55a7dac84b73354fd76fd0
-  branch: mastodon-4.5.5
+  branch: mastodon-4.5.6
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
@@ -30,7 +30,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/conversations
   revision: d537a6f978f86a536d59282102d8acac95bf3ce1
-  branch: mastodon-4.5.5
+  branch: mastodon-4.5.6
   specs:
     conversations (0.1.0)
       annotaterb (~> 4.13)
@@ -40,7 +40,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
   revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
-  branch: mastodon-4.5.5
+  branch: mastodon-4.5.6
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
@@ -48,7 +48,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/posts
   revision: 3e5df2ef5e5a18bce41657bd6b5e4a4502821abe
-  branch: mastodon-4.5.5
+  branch: mastodon-4.5.6
   specs:
     posts (0.1.0)
       annotaterb (~> 4.13)
