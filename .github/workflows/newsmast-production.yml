@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - newsmast-4.5.3-production
+     - newsmast-4.5.6-production
 env:
   WEB_DEFINITION: .task/newsmast_web_production.json
   SIDEKIQ_DEFINITION: .task/newsmast_sidekiq_production.json
