@@ -1,0 +1,147 @@
+{
+    "compatibilities": [
+        "EC2",
+        "MANAGED_INSTANCES",
+        "FARGATE"
+    ],
+    "containerDefinitions": [
+        {
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://patchwork-private-env/leicester-gazette-firebase-adminsdk-fbsvc-9ced644dea.json /opt/mastodon/config && bundle exec rails db:create &&bundle exec rails db:migrate && bundle exec rails s -p 3000"
+            ],
+            "cpu": 0,
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "type": "s3",
+                    "value": "arn:aws:s3:::patchwork-private-env/leicester.env"
+                }
+            ],
+            "essential": true,
+            "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/leicester-mastodon:staging",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/leicester-web",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "mountPoints": [],
+            "name": "leicester-web",
+            "portMappings": [
+                {
+                    "appProtocol": "http",
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "name": "leicester-web-3000-tcp",
+                    "protocol": "tcp"
+                }
+            ],
+            "systemControls": [],
+            "ulimits": [
+                {
+                    "hardLimit": 4096,
+                    "name": "nofile",
+                    "softLimit": 1024
+                },
+                {
+                    "hardLimit": 0,
+                    "name": "core",
+                    "softLimit": 0
+                },
+                {
+                    "hardLimit": 64,
+                    "name": "memlock",
+                    "softLimit": 64
+                },
+                {
+                    "hardLimit": 819200,
+                    "name": "msgqueue",
+                    "softLimit": 819200
+                },
+                {
+                    "hardLimit": 0,
+                    "name": "nice",
+                    "softLimit": 0
+                },
+                {
+                    "hardLimit": 15471,
+                    "name": "nproc",
+                    "softLimit": 15471
+                },
+                {
+                    "hardLimit": 0,
+                    "name": "rtprio",
+                    "softLimit": 0
+                },
+                {
+                    "hardLimit": 15471,
+                    "name": "sigpending",
+                    "softLimit": 15471
+                }
+            ],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon"
+        }
+    ],
+    "cpu": "1024",
+    "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+    "family": "leicester-web",
+    "memory": "2048",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "registeredAt": "2025-12-16T05:06:45.971Z",
+    "registeredBy": "arn:aws:iam::672691776916:user/ahn",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+        },
+        {
+            "name": "ecs.capability.env-files.s3"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "revision": 2,
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "status": "ACTIVE",
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-2:672691776916:task-definition/leicester-web:2",
+    "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+    "volumes": [],
+    "tags": []
+}
