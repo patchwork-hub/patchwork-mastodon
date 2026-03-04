@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - findout-4.5.3-prod
+     - findout-4.5.6-prod
 env:
   WEB_DEFINITION: .task/findout_web_prod.json
   SIDEKIQ_DEFINITION: .task/findout_sidekiq_prod.json
