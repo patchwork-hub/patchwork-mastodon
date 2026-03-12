@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 9a3fe85fd56ae41ad8fe018ac4b1031f0ea3a4ff
+  revision: 9e038625d2178670dce53ce10612d3fdd3ca148e
   branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
@@ -55,7 +55,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: e3e6eaa34aa8cf8f78121054924ae16b8fc0f9cb
+  revision: bcfb8cbaea92d8bb99076d4eebb49df770b772d1
   branch: mastodon-4.5.6
   specs:
     posts (0.1.0)
@@ -287,8 +287,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
-    ethon (0.15.0)
+    ethon (0.18.0)
       ffi (>= 1.15.0)
+      logger
     excon (1.3.0)
       logger
     fabrication (3.0.0)
@@ -347,7 +348,7 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.16.1)
+    googleauth (1.16.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -984,8 +985,8 @@ GEM
     twitter-text (3.1.0)
       idn-ruby
       unf (~> 0.1.0)
-    typhoeus (1.5.0)
-      ethon (>= 0.9.0, < 0.16.0)
+    typhoeus (1.6.0)
+      ethon (>= 0.18.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2025.2)
