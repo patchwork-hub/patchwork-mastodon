@@ -19,6 +19,15 @@ GIT
       rails (>= 7.1, < 9.0)
 
 GIT
+  remote: https://github.com/patchwork-hub/content_filters
+  revision: 7ba4c1a62d43d471a32cd71991bfe44ea91622e2
+  branch: mastodon-4.5.6
+  specs:
+    content_filters (0.1.0)
+      httparty (~> 0.23.1)
+      rails (>= 7.1, < 9.0)
+
+GIT
   remote: https://github.com/patchwork-hub/conversations
   revision: d537a6f978f86a536d59282102d8acac95bf3ce1
   branch: mastodon-4.5.6
@@ -35,6 +44,14 @@ GIT
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
+
+GIT
+  remote: https://github.com/patchwork-hub/local_only_posts
+  revision: c03f7bd3b1360fe4613da135f861e5f9f2184f6a
+  branch: mastodon-4.5.6
+  specs:
+    local_only_posts (0.1.0)
+      rails (>= 8.0)
 
 GIT
   remote: https://github.com/patchwork-hub/posts
@@ -1061,6 +1078,7 @@ DEPENDENCIES
   color_diff (~> 0.1)
   concurrent-ruby
   connection_pool
+  content_filters!
   conversations!
   csv (~> 3.2)
   custom_feeds!
@@ -1106,6 +1124,7 @@ DEPENDENCIES
   letter_opener_web (~> 3.0)
   link_header (~> 0.0)
   linzer (~> 0.7.7)
+  local_only_posts!
   lograge (~> 0.12)
   mail (~> 2.8)
   mario-redis-lock (~> 1.2)
