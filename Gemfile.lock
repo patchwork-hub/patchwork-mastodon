@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 9e038625d2178670dce53ce10612d3fdd3ca148e
+  revision: 153d49be6b2123e207cb09f8afe79feedb883e41
   branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: abedd13e35e717a0ab61c0dbc79fc3063efb7cd7
+  revision: 7fc663fb42a9052eb913bbc9d7d234ee5c74b04a
   branch: mastodon-4.5.6-delay
   specs:
     content_filters (0.1.0)
@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
+  revision: f93ea4f4d7a76e613476b76c1712cc3153ec4e1a
   branch: mastodon-4.5.6
   specs:
     custom_feeds (0.1.0)
@@ -47,15 +47,15 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/local_only_posts
-  revision: c03f7bd3b1360fe4613da135f861e5f9f2184f6a
-  branch: mastodon-4.5.6
+  revision: b3f62e1d21a0a7b7efa2e2f64d288cdaf3cd5829
+  branch: mastodon-4.5.6-delay
   specs:
     local_only_posts (0.1.0)
       rails (>= 8.0)
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 375817d47e276c0d6a09b137ead13d6568189148
+  revision: 052c7b6ef8a17a85d64f7051b8191473c72863b8
   branch: mastodon-4.5.6
   specs:
     posts (0.1.0)
