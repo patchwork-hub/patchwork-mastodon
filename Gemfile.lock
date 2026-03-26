@@ -20,8 +20,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 4ac74f89c224a449dd06b4e400216a888425c38a
-  branch: mastodon-4.5.6-delay
+  revision: a0a3e196f259549437e0800cc1b8f949dca6ca9f
+  branch: mastodon-4.5.6
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
@@ -48,7 +48,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/local_only_posts
   revision: 37878ed6b658e5187dfc2f2c94b80ba39e7ca0d3
-  branch: mastodon-4.5.6-delay
+  branch: mastodon-4.5.6
   specs:
     local_only_posts (0.1.0)
       rails (>= 8.0)
