@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 6dc75a29298613fd0020e1f86d23f1d832d91fd7
+  revision: 153d49be6b2123e207cb09f8afe79feedb883e41
   branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
@@ -20,8 +20,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 84f82b6f968492c398df86fe007853eb04702bbb
-  branch: mastodon-4.5.6-delay
+  revision: a0a3e196f259549437e0800cc1b8f949dca6ca9f
+  branch: mastodon-4.5.6
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 5a1ec1a5a23aa40a96cd938b1bf5c19e94b37ef4
+  revision: f93ea4f4d7a76e613476b76c1712cc3153ec4e1a
   branch: mastodon-4.5.6
   specs:
     custom_feeds (0.1.0)
@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/local_only_posts
-  revision: c03f7bd3b1360fe4613da135f861e5f9f2184f6a
+  revision: 37878ed6b658e5187dfc2f2c94b80ba39e7ca0d3
   branch: mastodon-4.5.6
   specs:
     local_only_posts (0.1.0)
@@ -55,7 +55,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: e3e6eaa34aa8cf8f78121054924ae16b8fc0f9cb
+  revision: 052c7b6ef8a17a85d64f7051b8191473c72863b8
   branch: mastodon-4.5.6
   specs:
     posts (0.1.0)
