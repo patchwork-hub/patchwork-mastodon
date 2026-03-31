@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 153d49be6b2123e207cb09f8afe79feedb883e41
-  branch: mastodon-4.5.6
+  revision: a05a5fd7e2219d6d26c2140e29625947d409b012
+  branch: mastodon-4.5.6-NM-1756
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -20,8 +20,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: a0a3e196f259549437e0800cc1b8f949dca6ca9f
-  branch: mastodon-4.5.6
+  revision: 0a4a93483edcef43df546db249d09d2c8dfe06e9
+  branch: mastodon-4.5.6-NM-1756
   specs:
     content_filters (0.1.0)
       httparty (~> 0.23.1)
@@ -39,8 +39,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: f93ea4f4d7a76e613476b76c1712cc3153ec4e1a
-  branch: mastodon-4.5.6
+  revision: 0fd405528b1835cef4f017269018df30eb0550f0
+  branch: mastodon-4.5.6-NM-1756
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
@@ -150,7 +150,7 @@ GEM
     annotaterb (4.20.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    ansi (1.5.0)
+    ansi (1.6.0)
     ast (2.4.3)
     attr_required (1.0.2)
     aws-eventstream (1.4.0)
