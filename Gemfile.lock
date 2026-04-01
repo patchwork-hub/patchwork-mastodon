@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 0a4a93483edcef43df546db249d09d2c8dfe06e9
+  revision: 067a165719bdd72f9f8c0bbc69e283d1355e84b4
   branch: mastodon-4.5.6-NM-1756
   specs:
     content_filters (0.1.0)
@@ -1069,6 +1069,7 @@ DEPENDENCIES
   brakeman (~> 7.0)
   browser
   bundler-audit (~> 0.9)
+  byebug (~> 11.1)
   capybara (~> 3.39)
   capybara-playwright-driver
   charlock_holmes (~> 0.7.7)
