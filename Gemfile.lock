@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: 067a165719bdd72f9f8c0bbc69e283d1355e84b4
+  revision: 09ac52f7ef51de3326522a0307a16a5e747f57e7
   branch: mastodon-4.5.6-NM-1756
   specs:
     content_filters (0.1.0)
@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 0fd405528b1835cef4f017269018df30eb0550f0
+  revision: 7844702602e6ff1f1d9258a9a39062cf2830a3a9
   branch: mastodon-4.5.6-NM-1756
   specs:
     custom_feeds (0.1.0)
