@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 7844702602e6ff1f1d9258a9a39062cf2830a3a9
+  revision: 8bd39e9e64892c04827b816ff94cda378c98a045
   branch: mastodon-4.5.6-NM-1756
   specs:
     custom_feeds (0.1.0)
