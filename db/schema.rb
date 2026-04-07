@@ -961,6 +961,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
     t.datetime "deleted_at"
     t.integer "post_visibility", default: 2, null: false
     t.string "about"
+    t.boolean "no_boost_channel", default: false
     t.index ["ip_address_id"], name: "index_patchwork_communities_on_ip_address_id"
     t.index ["name"], name: "index_patchwork_communities_on_name", unique: true
     t.index ["patchwork_collection_id"], name: "index_patchwork_communities_on_patchwork_collection_id"
@@ -1428,6 +1429,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
     t.text "media_descriptions", array: true
     t.string "poll_options", array: true
     t.boolean "sensitive"
+    t.bigint "quote_id"
     t.index ["account_id"], name: "index_status_edits_on_account_id"
     t.index ["status_id"], name: "index_status_edits_on_status_id"
   end
@@ -1488,6 +1490,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
     t.datetime "edited_at", precision: nil
     t.boolean "trendable"
     t.bigint "ordered_media_attachment_ids", array: true
+    t.datetime "fetched_replies_at"
     t.boolean "is_banned", default: false
     t.bigint "quote_id"
     t.integer "quote_approval_policy", default: 0, null: false
@@ -1882,9 +1885,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
   add_index "account_summaries", ["account_id"], name: "index_account_summaries_on_account_id", unique: true
 
   create_view "global_follow_recommendations", materialized: true, sql_definition: <<-SQL
-      SELECT account_id,
-      sum(rank) AS rank,
-      array_agg(reason) AS reason
+      SELECT t0.account_id,
+      sum(t0.rank) AS rank,
+      array_agg(t0.reason) AS reason
      FROM ( SELECT account_summaries.account_id,
               ((count(follows.id))::numeric / (1.0 + (count(follows.id))::numeric)) AS rank,
               'most_followed'::text AS reason
@@ -1908,8 +1911,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
                     WHERE (follow_recommendation_suppressions.account_id = statuses.account_id)))))
             GROUP BY account_summaries.account_id
            HAVING (sum((status_stats.reblogs_count + status_stats.favourites_count)) >= (5)::numeric)) t0
-    GROUP BY account_id
-    ORDER BY (sum(rank)) DESC;
+    GROUP BY t0.account_id
+    ORDER BY (sum(t0.rank)) DESC;
   SQL
   add_index "global_follow_recommendations", ["account_id"], name: "index_global_follow_recommendations_on_account_id", unique: true
 
