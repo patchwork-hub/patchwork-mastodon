@@ -14,6 +14,7 @@
 #  created_at                   :datetime         not null
 #  updated_at                   :datetime         not null
 #  account_id                   :bigint(8)
+#  quote_id                     :bigint(8)
 #  status_id                    :bigint(8)        not null
 #
 

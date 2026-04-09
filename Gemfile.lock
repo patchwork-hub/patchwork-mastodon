@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: a0a3e196f259549437e0800cc1b8f949dca6ca9f
+  revision: e6370959180d44679938c3d55894d038b98a3281
   branch: mastodon-4.5.6
   specs:
     content_filters (0.1.0)
@@ -150,7 +150,7 @@ GEM
     annotaterb (4.20.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    ansi (1.5.0)
+    ansi (1.6.0)
     ast (2.4.3)
     attr_required (1.0.2)
     aws-eventstream (1.4.0)
