@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_09_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1490,11 +1490,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
     t.datetime "edited_at", precision: nil
     t.boolean "trendable"
     t.bigint "ordered_media_attachment_ids", array: true
-    t.datetime "fetched_replies_at"
     t.boolean "is_banned", default: false
     t.bigint "quote_id"
     t.integer "quote_approval_policy", default: 0, null: false
     t.boolean "local_only", default: false
+    t.datetime "fetched_replies_at"
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
     t.index ["account_id"], name: "index_statuses_on_account_id"
     t.index ["conversation_id"], name: "index_statuses_on_conversation_id"
@@ -1942,9 +1942,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
   add_index "instances", ["domain"], name: "index_instances_on_domain", unique: true
 
   create_view "user_ips", sql_definition: <<-SQL
-      SELECT user_id,
-      ip,
-      max(used_at) AS used_at
+      SELECT t0.user_id,
+      t0.ip,
+      max(t0.used_at) AS used_at
      FROM ( SELECT users.id AS user_id,
               users.sign_up_ip AS ip,
               users.created_at AS used_at
@@ -1961,6 +1961,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_06_025133) do
               login_activities.created_at
              FROM login_activities
             WHERE (login_activities.success = true)) t0
-    GROUP BY user_id, ip;
+    GROUP BY t0.user_id, t0.ip;
   SQL
 end

@@ -7,6 +7,7 @@
 #  id                           :bigint(8)        not null, primary key
 #  deleted_at                   :datetime
 #  edited_at                    :datetime
+#  fetched_replies_at           :datetime
 #  is_banned                    :boolean          default(FALSE)
 #  language                     :string
 #  local                        :boolean
