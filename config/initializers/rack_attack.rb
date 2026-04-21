@@ -3,6 +3,8 @@
 require 'doorkeeper/grape/authorization_decorator'
 
 class Rack::Attack
+  # Disable rate limiting for load/stress testing - RE-ENABLE after testing!
+  Rack::Attack.enabled = false
   class Request
     def authenticated_token
       return @authenticated_token if defined?(@authenticated_token)
