@@ -40,7 +40,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
   revision: 8fcb59cabf52820127cbad6f47c7e9c972eae87f
-  branch: mastodon-4.5.6-NM-1756
+  branch: mastodon-4.5.6
   specs:
     custom_feeds (0.1.0)
       rails (>= 7.1, < 9.0)
