@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 8e08c2ddb6e2fc1554dec0193bf041f0d7bbc505
+  revision: 2d6f3baa764742ca4415dbf76bf7f76286dcc658
   branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/content_filters
-  revision: e6370959180d44679938c3d55894d038b98a3281
+  revision: bb1f635f0505b97de23f41de2f541ce594289af2
   branch: mastodon-4.5.6
   specs:
     content_filters (0.1.0)
@@ -39,7 +39,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/custom_feeds
-  revision: f93ea4f4d7a76e613476b76c1712cc3153ec4e1a
+  revision: 8fcb59cabf52820127cbad6f47c7e9c972eae87f
   branch: mastodon-4.5.6
   specs:
     custom_feeds (0.1.0)
