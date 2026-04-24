@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 9a4e3e12b706ac0e054ab3b90f71c3a4553f5423
-  branch: mastodon-4.5.6
+  revision: f5dce16be6f0528ae8ccebb7485b5db2256d7dd7
+  branch: mastodon-4.5.6-article-notification
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -55,8 +55,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 052c7b6ef8a17a85d64f7051b8191473c72863b8
-  branch: mastodon-4.5.6
+  revision: 3a6230bc32d3e96760ad70cf15c98e6397284834
+  branch: mastodon-4.5.6-article-notification
   specs:
     posts (0.1.0)
       annotaterb (~> 4.13)
