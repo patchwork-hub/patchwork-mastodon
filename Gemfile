@@ -235,7 +235,7 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails', '~> 3.0.19'
 
-gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'mastodon-4.5.6-article-notification'
+gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'mastodon-4.5.6-notification'
 gem 'content_filters', git: 'https://github.com/patchwork-hub/content_filters', branch: 'mastodon-4.5.6'
 gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.6'
 gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.6'
