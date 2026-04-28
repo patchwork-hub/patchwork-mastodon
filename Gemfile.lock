@@ -55,8 +55,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/posts
-  revision: 052c7b6ef8a17a85d64f7051b8191473c72863b8
-  branch: mastodon-4.5.6
+  revision: 02d3f452df03a34be1c1110a3a6829d8127e61f3
+  branch: mastodon-4.5.6-media
   specs:
     posts (0.1.0)
       annotaterb (~> 4.13)
