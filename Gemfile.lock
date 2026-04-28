@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 12ddff16b5fb3206378ec093c885dff27b0a0528
+  revision: 1a65c50b8d7a0322d46971d2e7d9da9029d07cf1
   branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
@@ -343,7 +343,7 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.16.1)
+    googleauth (1.16.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
