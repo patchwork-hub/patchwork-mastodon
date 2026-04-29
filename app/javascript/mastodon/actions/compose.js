@@ -59,6 +59,9 @@ export const COMPOSE_SPOILER_TEXT_CHANGE = 'COMPOSE_SPOILER_TEXT_CHANGE';
 export const COMPOSE_COMPOSING_CHANGE    = 'COMPOSE_COMPOSING_CHANGE';
 export const COMPOSE_LANGUAGE_CHANGE     = 'COMPOSE_LANGUAGE_CHANGE';
 
+export const COMPOSE_FEDERATED_CHANGE   = 'COMPOSE_FEDERATED_CHANGE';
+export const COMPOSE_FEDERATED_INIT   = 'COMPOSE_FEDERATED_INIT';
+
 export const COMPOSE_EMOJI_INSERT = 'COMPOSE_EMOJI_INSERT';
 
 export const COMPOSE_UPLOAD_CHANGE_REQUEST     = 'COMPOSE_UPLOAD_UPDATE_REQUEST';
@@ -246,6 +249,7 @@ export function submitCompose(successCallback) {
         visibility: visibility,
         poll: getState().getIn(['compose', 'poll'], null),
         language: getState().getIn(['compose', 'language']),
+        local_only: !getState().getIn(['compose', 'federated']),
         quoted_status_id: getState().getIn(['compose', 'quoted_status_id']),
         quote_approval_policy: visibility === 'private' || visibility === 'direct' ? 'nobody' : getState().getIn(['compose', 'quote_policy']),
       },
@@ -562,6 +566,27 @@ export function clearComposeSuggestions() {
   };
 }
 
+export function fetchLocalOnlySetting() {
+  return (dispatch, getState) => {
+    api().get('/api/v1/local_only_posts/getLocalOnlySetting')
+      .then(({ data }) => {
+        const federated = !data.local_only;
+
+        dispatch({
+          type: COMPOSE_FEDERATED_INIT,
+          localOnlyEnabled: data.local_only,
+        });
+      })
+      .catch(error => {
+        console.error("Failed to fetch local_only setting", error);
+        dispatch({
+          type: COMPOSE_FEDERATED_INIT,
+          localOnlyEnabled: false,
+        });
+      });
+  };
+}
+
 const fetchComposeSuggestionsAccounts = throttle((dispatch, getState, token) => {
   if (fetchComposeSuggestionsAccountsController) {
     fetchComposeSuggestionsAccountsController.abort();
@@ -799,6 +824,13 @@ export function changeComposeSpoilerText(text) {
   return {
     type: COMPOSE_SPOILER_TEXT_CHANGE,
     text,
+  };
+}
+
+export function changeComposeFederated(value) {
+  return {
+    type: COMPOSE_FEDERATED_CHANGE,
+    value,
   };
 }
 
