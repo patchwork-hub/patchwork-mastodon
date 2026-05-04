@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: cef9e9bc8a8d04812109474137902fa801678318
-  branch: mastodon-4.5.6
+  revision: 33b72728b540393cea2a0234828c884564ec67f3
+  branch: mastodon-4.5.6-notification
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -527,7 +527,7 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.8.1)
+    multi_xml (0.9.0)
       bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
