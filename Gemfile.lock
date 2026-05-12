@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 1e6d5a0149e4db599acfb5e461c069bbd240db4e
-  branch: mastodon-4.5.6-notification
+  revision: fea5cfed5b5db1da595b26b1b4bd690e05fe2d1a
+  branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
