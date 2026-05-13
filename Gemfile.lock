@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/accounts
-  revision: 33b72728b540393cea2a0234828c884564ec67f3
-  branch: mastodon-4.5.6-notification
+  revision: 0307c589d61c8378224aa5b33c7ddba0b81f2898
+  branch: mastodon-4.5.6
   specs:
     accounts (0.1.0)
       byebug (~> 11.1)
@@ -270,8 +270,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
-    ethon (0.15.0)
+    ethon (0.18.0)
       ffi (>= 1.15.0)
+      logger
     excon (1.3.0)
       logger
     fabrication (3.0.0)
@@ -527,7 +528,7 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.9.0)
+    multi_xml (0.9.1)
       bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
@@ -974,8 +975,8 @@ GEM
     twitter-text (3.1.0)
       idn-ruby
       unf (~> 0.1.0)
-    typhoeus (1.5.0)
-      ethon (>= 0.9.0, < 0.16.0)
+    typhoeus (1.6.0)
+      ethon (>= 0.18.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2025.2)
