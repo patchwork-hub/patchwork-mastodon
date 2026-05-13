@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_09_100002) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_08_093400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -262,6 +262,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_100002) do
     t.datetime "updated_at", precision: nil, null: false
     t.datetime "published_at", precision: nil
     t.bigint "status_ids", array: true
+    t.datetime "notification_sent_at"
   end
 
   create_table "annual_report_statuses_per_account_counts", force: :cascade do |t|
@@ -1356,6 +1357,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_100002) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "key"
+    t.index ["key"], name: "index_server_settings_on_key", unique: true, where: "(key IS NOT NULL)"
   end
 
   create_table "session_activations", force: :cascade do |t|
