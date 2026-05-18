@@ -113,6 +113,7 @@ RUN \
   procps \
   tini \
   tzdata \
+  unzip \
   wget \
   ; \
   # Patch Ruby to use jemalloc
@@ -121,6 +122,10 @@ RUN \
   apt-get purge -y \
   patchelf \
   ;
+
+#install aws cli 
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip
+RUN ./aws/install && aws --version
 
 # Create temporary build layer from base image
 FROM ruby AS build
