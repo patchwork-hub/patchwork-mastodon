@@ -19,6 +19,7 @@ import EmojiPickerDropdown from '../containers/emoji_picker_dropdown_container';
 import PollButtonContainer from '../containers/poll_button_container';
 import SpoilerButtonContainer from '../containers/spoiler_button_container';
 import UploadButtonContainer from '../containers/upload_button_container';
+import FederatedDropdownContainer from '../containers/federated_dropdown_container';
 import { countableText } from '../util/counter';
 
 import { CharacterCounter } from './character_counter';
@@ -47,6 +48,7 @@ class ComposeForm extends ImmutablePureComponent {
     intl: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
     suggestions: ImmutablePropTypes.list,
+    fetchLocalOnlySetting: PropTypes.func.isRequired,
     spoiler: PropTypes.bool,
     privacy: PropTypes.string,
     spoilerText: PropTypes.string,
@@ -182,6 +184,7 @@ class ComposeForm extends ImmutablePureComponent {
 
   componentDidMount () {
     this._updateFocusAndSelection({ });
+    this.props.fetchLocalOnlySetting();
   }
 
   componentWillUnmount () {
@@ -264,6 +267,7 @@ class ComposeForm extends ImmutablePureComponent {
           <div className='compose-form__dropdowns'>
             <VisibilityButton disabled={this.props.isEditing} />
             <LanguageDropdown />
+            {this.props.localOnlyEnabled && <FederatedDropdownContainer disabled={this.props.isEditing} />}
           </div>
 
           {this.props.spoiler && (
