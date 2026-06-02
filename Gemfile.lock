@@ -7,60 +7,14 @@ GIT
       hkdf (~> 0.2)
       jwt (~> 2.0)
 
-GIT
-  remote: https://github.com/patchwork-hub/accounts
-  revision: 966eafcd7de6aff9f35eaab3ad6adfccd570e497
-  branch: mastodon-4.5.6
+PATH
+  remote: /workspaces/newsmast_mastodon
   specs:
-    accounts (0.1.0)
+    newsmast_mastodon (0.1.0)
+      annotaterb (~> 4.13)
       byebug (~> 11.1)
       googleauth (~> 1.13, >= 1.13.1)
       httparty (~> 0.23.1)
-      rails (>= 7.1, < 9.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/content_filters
-  revision: 532cbbbbfa1c642d1d610f3e1e1c149c0b5bc897
-  branch: mastodon-4.5.6
-  specs:
-    content_filters (0.1.0)
-      httparty (~> 0.23.1)
-      rails (>= 7.1, < 9.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/conversations
-  revision: d537a6f978f86a536d59282102d8acac95bf3ce1
-  branch: mastodon-4.5.6
-  specs:
-    conversations (0.1.0)
-      annotaterb (~> 4.13)
-      byebug (~> 11.1)
-      rails (>= 7.1, < 9.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/custom_feeds
-  revision: 062077336ec68aac9815fd28a4ba971059a99c68
-  branch: mastodon-4.5.6
-  specs:
-    custom_feeds (0.1.0)
-      rails (>= 7.1, < 9.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/local_only_posts
-  revision: 37878ed6b658e5187dfc2f2c94b80ba39e7ca0d3
-  branch: mastodon-4.5.6
-  specs:
-    local_only_posts (0.1.0)
-      rails (>= 8.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/posts
-  revision: cabad1443f4e0cc0a41ce96f1c83cf6342a37330
-  branch: mastodon-4.5.6
-  specs:
-    posts (0.1.0)
-      annotaterb (~> 4.13)
-      byebug (~> 11.1)
       link_thumbnailer (~> 3.4)
       rails (>= 7.1, < 9.0)
 
@@ -1056,7 +1010,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  accounts!
   active_model_serializers (~> 0.10)
   addressable (~> 2.8)
   annotaterb (~> 4.13)
@@ -1078,10 +1031,7 @@ DEPENDENCIES
   color_diff (~> 0.1)
   concurrent-ruby
   connection_pool
-  content_filters!
-  conversations!
   csv (~> 3.2)
-  custom_feeds!
   database_cleaner-active_record
   debug (~> 1.8)
   devise (~> 4.9)
@@ -1124,7 +1074,6 @@ DEPENDENCIES
   letter_opener_web (~> 3.0)
   link_header (~> 0.0)
   linzer (~> 0.7.7)
-  local_only_posts!
   lograge (~> 0.12)
   mail (~> 2.8)
   mario-redis-lock (~> 1.2)
@@ -1133,6 +1082,7 @@ DEPENDENCIES
   mutex_m
   net-http (~> 0.6.0)
   net-ldap (~> 0.18)
+  newsmast_mastodon!
   nokogiri (~> 1.15)
   oj (~> 3.14)
   omniauth (~> 2.0)
@@ -1161,7 +1111,6 @@ DEPENDENCIES
   pg (~> 1.5)
   pghero
   playwright-ruby-client (= 1.55.0)
-  posts!
   premailer-rails
   prometheus_exporter (~> 2.2)
   propshaft

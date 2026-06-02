@@ -6,6 +6,7 @@ services:
       dockerfile: .devcontainer/Dockerfile
     volumes:
       - ..:/workspaces/mastodon:cached
+      - ../../newsmast_mastodon:/workspaces/newsmast_mastodon:cached
     environment:
       RAILS_ENV: development
       NODE_ENV: development
