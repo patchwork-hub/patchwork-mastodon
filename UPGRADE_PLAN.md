@@ -1,114 +1,159 @@
-# Upgrade Plan: patchwork-mastodon v4.5.6 → v4.5.10
+# Mastodon Upgrade Runbook (Reusable Template)
 
-Target upstream tag: `v4.5.10` (commit `f80b1ba92e63c3da771b405b9100f5c9abda909f`)
-Gem change: replace the six separate patchwork gems with the single consolidated `newsmast_mastodon` engine on branch `mastodon-4.5.10`.
+Use this document for every Mastodon upgrade cycle by filling the template values below.
 
-## Summary of what changes
+## Release intake (fill before starting)
 
-- **Core bump 4.5.6 → 4.5.10** is a point-release range: 235 files changed, but ~200 are locale translations. **No new core database migrations.**
-- **Highest risk: Devise 4 → 5.** The gem prepends auth/session/token/user behavior, which is the most likely place to break.
-- **Gem consolidation:** the current `Gemfile` references six gems on branch `mastodon-4.5.6`; these get replaced by one `newsmast_mastodon` gem on `mastodon-4.5.10`.
+- `FROM_VERSION`: `{FROM_VERSION}`
+- `TO_VERSION`: `{TO_VERSION}`
+- `TARGET_TAG`: `{TARGET_TAG}`
+- `TARGET_COMMIT`: `{TARGET_COMMIT}`
+- `BASE_BRANCH`: `{BASE_BRANCH}`
+- `UPGRADE_BRANCH`: `{UPGRADE_BRANCH}`
+- `CORE_REMOTE`: `https://github.com/mastodon/mastodon.git`
+- `GEM_REPO`: `https://github.com/patchwork-hub/newsmast_mastodon`
+- `GEM_BRANCH`: `{GEM_BRANCH}`
+
+## What to collect for each release
+
+- [ ] Release notes delta for `{FROM_VERSION} -> {TO_VERSION}`.
+- [ ] Number and names of upstream core migrations introduced in the range.
+- [ ] Major dependency jumps (especially auth/session stack).
+- [ ] Any API/signature changes that may affect patched concerns.
+- [ ] Estimated risk summary for this cycle.
 
 ## Pre-flight
 
-- [ ] Confirm a clean working tree (`git status`).
-- [ ] Take a backup of the staging database before any migration.
-- [ ] Confirm the `upstream` remote points to `https://github.com/mastodon/mastodon.git`.
-- [ ] Confirm the gem branch `newsmast_mastodon` → `mastodon-4.5.10` exists (create it first if not — see "Gem-specific actions").
+- [ ] Confirm clean working tree: `git status`.
+- [ ] Confirm `upstream` remote URL matches `CORE_REMOTE`.
+- [ ] Backup staging database before migrations.
+- [ ] Confirm `GEM_BRANCH` exists in `newsmast_mastodon`.
+- [ ] Confirm environment variables and credentials are available for boot, migration, and test runs.
 
-## Phase A — Branch & fetch
+## Phase A - Branch and fetch
 
-1. Create a working branch off the current staging branch:
+1. Create an upgrade branch from the selected base branch:
    ```bash
-   git checkout patchwork-mastodon-demo-4.5.6-staging
-   git checkout -b patchwork-mastodon-demo-4.5.10-staging
+   git checkout {BASE_BRANCH}
+   git checkout -b {UPGRADE_BRANCH}
    ```
-2. Fetch upstream tags:
+2. Fetch tags and latest upstream refs:
    ```bash
    git fetch upstream --tags
    ```
 
-## Phase B — Merge the v4.5.10 tag
+## Phase B - Merge target tag
 
-3. Merge without committing so the result can be reviewed:
+1. Merge without auto-commit so conflicts can be reviewed:
    ```bash
-   git merge v4.5.10 --no-commit --no-ff
+   git merge {TARGET_TAG} --no-commit --no-ff
    ```
-4. Resolve conflicts. Because this fork carries no custom in-tree commits, most files apply cleanly. Watch:
-   - `Gemfile` / `Gemfile.lock`
+2. Resolve conflicts and prioritize these files:
+   - `Gemfile`
+   - `Gemfile.lock`
    - `config/initializers/devise.rb`
    - `lib/mastodon/version.rb`
-5. Confirm `lib/mastodon/version.rb` now reports `4.5.10`.
-6. Commit the merge.
+3. Confirm `lib/mastodon/version.rb` reports `{TO_VERSION}`.
+4. Commit merge result.
 
-## Phase C — Swap to the consolidated gem
+## Phase C - Consolidated gem wiring
 
-7. In `Gemfile`, remove the six gems (`accounts`, `content_filters`, `conversations`, `custom_feeds`, `local_only_posts`, `posts`) and add:
+1. Ensure `Gemfile` uses the consolidated engine:
    ```ruby
    gem 'newsmast_mastodon',
        git: 'https://github.com/patchwork-hub/newsmast_mastodon',
-       branch: 'mastodon-4.5.10'
+       branch: '{GEM_BRANCH}'
    ```
-8. Update bundle and resolve dependency conflicts (especially `devise 5.0`):
+2. Remove superseded patchwork gems if still present.
+3. Install dependencies and resolve lock conflicts:
    ```bash
    bundle install
    ```
 
-## Phase D — Database & boot
+## Phase D - Database and boot
 
-9. Run migrations against a copy of the staging database:
+1. Apply migrations against staging clone/copy first:
    ```bash
    bin/rails db:migrate
    ```
-   Verify the gem migrations apply and watch for `column already exists` on:
+2. Check migration overlap for pre-existing columns before editing migrations:
    - `status_edits.quote_id`
    - `statuses.fetched_replies_at`
    - `announcements.notification_sent_at`
-   (These columns may already exist in the 4.5.x core schema — guard the gem migrations if so.)
-10. Boot the app and confirm the prepend/include concerns load with no `already defined` / `NoMethodError`, focusing on the Devise 5 surface:
-    ```bash
-    bin/rails runner 'puts Mastodon::Version.to_s'
-    ```
-    Check: `Auth::SessionsController`, `Auth/OAuth::TokensController`, `User` password override.
+3. If overlap exists, guard migrations with existence checks (`if_not_exists` / `column_exists?`).
+4. Verify app boots and reports the expected version:
+   ```bash
+   bin/rails runner 'puts Mastodon::Version.to_s'
+   ```
 
-## Phase E — Verify
+## Phase E - Verification gates
 
-11. Run the core test suite:
-    ```bash
-    bundle exec rspec
-    ```
-12. Run the gem's own suite against the upgraded core:
-    ```bash
-    cd ../newsmast_mastodon
-    MASTODON_ROOT=/absolute/path/to/patchwork-mastodon bundle exec rspec
-    ```
-13. Manual smoke test of custom features:
-    - Login / session (Devise)
-    - OAuth token issuance
-    - Password change
-    - Posting + drafts
-    - Local-only posts
-    - Custom feeds / timelines
-    - Banned-keyword filtering
-    - Admin dashboard authentication
-14. Build assets if needed:
-    ```bash
-    bin/vite build
-    ```
+1. Core test suite:
+   ```bash
+   bundle exec rspec
+   ```
+2. Gem suite against upgraded core:
+   ```bash
+   cd ../newsmast_mastodon
+   MASTODON_ROOT=/absolute/path/to/patchwork-mastodon bundle exec rspec
+   ```
+3. Manual smoke checklist:
+   - [ ] Login/session
+   - [ ] OAuth token issuance
+   - [ ] Password change/reset flow
+   - [ ] Post create/edit/draft flow
+   - [ ] Local-only post behavior
+   - [ ] Custom feeds/timelines
+   - [ ] Banned-keyword filtering
+   - [ ] Admin authentication/dashboard
+4. Optional assets verification:
+   ```bash
+   bin/vite build
+   ```
+5. Classify failures as one of:
+   - [ ] Environment/infrastructure (missing services, credentials, tooling)
+   - [ ] Upgrade regression in core merge
+   - [ ] Regression in patched gem behavior
 
-## Phase F — Ship
+## High-risk watchlist (every release)
 
-15. Deploy to staging and re-run the smoke tests above.
-16. Plan the production rollout once staging is verified.
+- [ ] Auth stack updates: Devise/Doorkeeper/session strategy/token flow changes.
+- [ ] Controller/service signature changes where gem concerns prepend or override methods.
+- [ ] Model API changes affecting patched `Status`, `Quote`, `MediaAttachment`, `User`, `Account` concerns.
+- [ ] Serializer and autoload constant changes that can break gem namespace loading.
+- [ ] Migration collisions where gem columns may already exist in core schema.
+- [ ] Any upstream security hardening that changes request validation, federation behavior, or URL checks.
 
-## Gem-specific actions (newsmast_mastodon repo)
+## Gem-specific actions (newsmast_mastodon)
 
-- [ ] Create branch `mastodon-4.5.10` from the current gem branch.
-- [ ] Update prepend concerns for Devise 5.0 API changes (session strategies, token controllers, password reset flow).
-- [ ] Re-run gem specs against 4.5.10 core; fix any signature mismatches in `Status` / `Quote` / `MediaAttachment` concerns.
-- [ ] Guard gem migrations (`if_not_exists` / column checks) against columns already in the core schema.
+- [ ] Ensure branch `{GEM_BRANCH}` is created from the correct baseline.
+- [ ] Update auth-related concerns for current Devise/Doorkeeper APIs.
+- [ ] Update patched call sites for upstream signature changes.
+- [ ] Guard migrations for column/index/table existence.
+- [ ] Re-run gem specs with `MASTODON_ROOT` pointed at upgraded core.
+- [ ] Confirm no `already defined` / `NoMethodError` at boot from prepend/include ordering.
+
+## Phase F - Ship
+
+1. Deploy to staging.
+2. Re-run smoke checklist in staging.
+3. Record final go/no-go decision for production rollout.
+
+## Post-upgrade report (fill after completion)
+
+- `Upgrade branch`: `{UPGRADE_BRANCH}`
+- `Merge commit SHA`: `{MERGE_SHA}`
+- `Target tag`: `{TARGET_TAG}`
+- `Gem branch`: `{GEM_BRANCH}`
+- `Migrations applied`: `{MIGRATION_SUMMARY}`
+- `Core test result`: `{CORE_TEST_RESULT}`
+- `Gem test result`: `{GEM_TEST_RESULT}`
+- `Smoke test result`: `{SMOKE_TEST_RESULT}`
+- `Known follow-ups`: `{FOLLOW_UP_ITEMS}`
 
 ## Rollback
 
-- The work is isolated on `patchwork-mastodon-demo-4.5.10-staging`; abandoning it restores 4.5.6.
-- Restore the staging database from the Pre-flight backup if migrations were applied.
+- [ ] Abandon upgrade branch `{UPGRADE_BRANCH}` if release is blocked.
+- [ ] Restore database from pre-migration backup snapshot.
+- [ ] Re-point deploy configuration to last known good branch/tag.
+- [ ] Record rollback reason and remediation tasks.
