@@ -4,15 +4,15 @@ Use this document for every Mastodon upgrade cycle by filling the template value
 
 ## Release intake (fill before starting)
 
-- `FROM_VERSION`: `{FROM_VERSION}`
-- `TO_VERSION`: `{TO_VERSION}`
-- `TARGET_TAG`: `{TARGET_TAG}`
-- `TARGET_COMMIT`: `{TARGET_COMMIT}`
-- `BASE_BRANCH`: `{BASE_BRANCH}`
-- `UPGRADE_BRANCH`: `{UPGRADE_BRANCH}`
+- `FROM_VERSION`: `4.5.10`
+- `TO_VERSION`: `4.5.11`
+- `TARGET_TAG`: `https://github.com/mastodon/mastodon/releases/tag/v4.5.11`
+- `TARGET_COMMIT`: `https://github.com/patchwork-hub/patchwork-mastodon/commit/0748a5ff81b24e666ab10b8ee7fbc6f0362c8cb0`
+- `BASE_BRANCH`: `patchwork-mastodon-demo-4.5.10-staging`
+- `UPGRADE_BRANCH`: `patchwork-mastodon-demo-4.5.11-staging`
 - `CORE_REMOTE`: `https://github.com/mastodon/mastodon.git`
 - `GEM_REPO`: `https://github.com/patchwork-hub/newsmast_mastodon`
-- `GEM_BRANCH`: `{GEM_BRANCH}`
+- `GEM_BRANCH`: `mastodon-4.5.11-fixed`
 
 ## What to collect for each release
 

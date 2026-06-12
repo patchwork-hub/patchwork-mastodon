@@ -1,50 +1,85 @@
-# Conflict Checklist: v4.5.6 → v4.5.10 vs. newsmast_mastodon gem
+# Conflict Checklist: v4.5.10 → v4.5.11 vs. newsmast_mastodon gem
 
-Maps each substantive core change in the v4.5.6 → v4.5.10 range to the gem code that patches the same area, with a resolution strategy.
+Maps each substantive core change in the v4.5.10 → v4.5.11 range to the gem code that patches the same area, with a resolution strategy.
 
-Risk legend: **HIGH** = likely break, must adapt the gem · **MED** = re-verify behavior · **LOW** = unlikely to conflict.
+**Release type:** Security + dependency patch (11 files changed, no core db migrations, no API signature changes).
+
+Risk legend: **HIGH** = likely break, must adapt the gem · **MED** = re-verify behavior · **LOW** = unlikely to conflict · **NONE** = no gem overlap.
+
+## Upstream change summary (v4.5.10 → v4.5.11)
+
+| Commit       | Change                                                                       |
+| ------------ | ---------------------------------------------------------------------------- |
+| `2c103cc487` | Security: fix sanitize_config.rb nil annotation crash (DoS vector)           |
+| `ad8539385d` | Security: harden `ProcessAccountService` attribution_domains parsing         |
+| `0361c8adea` | Backport: `context_helper.rb` attribution_domains `@type` → `@container` fix |
+| `0361c8adea` | Backport: `media_attachment.rb` description validation only for local media  |
+| `f69e387761` | Dependency: `erb` 5.1.3 → 6.0.4                                              |
+| `d3e1923ba1` | Dependency: `css_parser` 1.21.1 → 1.22.0                                     |
+| `19f3a2e0f7` | Dependency: `faraday` 2.14.1 → 2.14.2                                        |
+| `618b4f48e1` | Dependency: `jwt` 2.10.2 → 2.10.3                                            |
+| `0748a5ff81` | Version bump to 4.5.11                                                       |
 
 ## Conflict table
 
-| File changed in core | Gem code that touches it | Risk | Resolution strategy |
-|---|---|---|---|
-| `Gemfile` + `config/initializers/devise.rb` (Devise 4 → 5.0) | `CustomSessionBehavior`, `CustomAuthenticationBehavior`, `OverrideChangedPassword` (prepended on Auth/OAuth controllers + User) | **HIGH** | Adapt gem concerns to Devise 5 strategy/session API; test login, OAuth token, password reset end-to-end |
-| `app/controllers/auth/sessions_controller.rb` | `Auth::SessionsController` ← prepend `CustomSessionBehavior` | **MED/HIGH** | Re-verify prepended actions still match Devise 5 controller; adjust `super` calls / before_actions |
-| `app/controllers/auth/tokens_controller.rb` (via Devise) | `Auth::TokensController` / `OAuth::TokensController` ← prepend `CustomAuthenticationBehavior` | **MED/HIGH** | Confirm strategy hooks still fire under Devise 5 |
-| `app/models/user.rb` (accepts_nested_attributes change) | `User` ← include `UserConcern`, `OverrideChangedPassword`; prepend `UserSettingExtend` | **MED** | Re-run User specs; confirm password override signature still matches |
-| `app/models/quote.rb` (`accept!` now takes `approval_uri:`) | `Status` concern / `PostStatusService` / `UpdateStatusService` / `ProcessHashtagsService` | **MED** | Re-test quote/status flows; update concern call sites if they invoke `accept!` |
-| `app/lib/activitypub/activity/create.rb` (quote_approval_uri) | `Status`, `ProcessHashtagsService` patches | **MED** | Verify federation create path; gem hooks unaffected unless they override create |
-| `app/services/activitypub/process_status_update_service.rb` | `UpdateStatusService` patch | **MED** | Re-run update-status specs |
-| `app/models/media_attachment.rb` (+`MAX_DESCRIPTION_HARD_LENGTH_LIMIT`) | `MediaAttachment` ← include `MediaAttachmentConcern` | **LOW** | New constant only; no override needed |
-| `app/controllers/accounts_controller.rb`, `statuses_controller.rb` (short-url redirects) | not patched by gem | **LOW** | No action |
-| `app/helpers/json_ld_helper.rb`, `context_helper.rb` | not patched | **LOW** | No action |
-| `app/lib/activitypub/linked_data_signature.rb`, `request.rb`, `private_address_check.rb` | not patched | **LOW** | No action |
-| `app/models/account_migration.rb` (normalize username) | `Account` ← include `AccountConcern`, `AccountSearchConcern` | **LOW** | Unrelated method; re-run account specs as a precaution |
-| FASP: `app/models/fasp/provider.rb`, `api/fasp/base_controller.rb`, `workers/fasp/base_worker.rb` | not patched | **LOW** | No action |
-| `config/initializers/fog_connection_cache.rb` (new) | not patched | **LOW** | No action |
-| `app/javascript/**` + locale json/yml (~200 files) | gem does not touch JS/locales | **LOW** | No action |
-| `db/migrate/**` | core added **no** migrations in this range | **NONE** | No core-vs-gem migration conflict from the upgrade |
+| File changed in core                                                                         | Gem code that touches it                                                                                              | Risk     | Resolution strategy                                                                                                                         |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/models/media_attachment.rb` (description validation scoped to `local?`)                 | `MediaAttachment` ← include `MediaAttachmentConcern` (adds `patchwork_drafted_status_id`, scopes, alt-text callbacks) | **LOW**  | Gem concern does not override validation; change only affects remote media acceptance. Verify `MediaAttachmentConcern` still loads cleanly. |
+| `app/services/activitypub/process_account_service.rb` (attribution_domains filter by String) | `Account` ← include `AccountConcern`, `AccountSearchConcern`                                                          | **LOW**  | Gem concerns add `is_banned` and search methods; they do not touch `set_fetchable_attributes!`. No conflict.                                |
+| `app/helpers/context_helper.rb` (attribution_domains type change)                            | not patched by gem                                                                                                    | **NONE** | No action.                                                                                                                                  |
+| `lib/sanitize_ext/sanitize_config.rb` (nil-guard annotation encoding)                        | not patched by gem                                                                                                    | **NONE** | No action.                                                                                                                                  |
+| `Gemfile.lock` (4 dependency bumps)                                                          | gem adds own deps; lockfile regenerated by `bundle install`                                                           | **LOW**  | Run `bundle install` after merge; confirm no version constraint conflicts in `newsmast_mastodon.gemspec`.                                   |
+| `lib/mastodon/version.rb` (4.5.10 → 4.5.11)                                                  | not patched by gem                                                                                                    | **NONE** | Confirm version reports 4.5.11 after merge.                                                                                                 |
+| `.github/actions/setup-ruby/action.yml`                                                      | not relevant to runtime                                                                                               | **NONE** | No action.                                                                                                                                  |
+| `docker-compose.yml`                                                                         | not patched by gem                                                                                                    | **NONE** | No action.                                                                                                                                  |
+| `spec/` (test changes)                                                                       | not patched by gem                                                                                                    | **NONE** | No action (upstream test improvements).                                                                                                     |
 
 ## Migration-specific notes
 
-The gem ships migrations that add columns to core tables:
+The v4.5.11 release introduces **zero** new core migrations. The gem ships pre-existing migrations that add columns to core tables — these need to be re-validated against the 4.5.11 schema (unchanged from 4.5.10):
 
-| Gem migration target | Risk | Check |
-|---|---|---|
-| `statuses` (is_banned, local_only, fetched_replies_at) | MED | `fetched_replies_at` may already exist in 4.5.x core — guard with `if_not_exists` |
-| `status_edits` (quote_id) | MED | `quote_id` may already exist in core quote feature — verify schema before migrating |
-| `announcements` (notification_sent_at) | MED | May already exist in core — verify |
-| `media_attachments` (patchwork_drafted_status_id FK) | LOW | Custom column, no core overlap |
-| `users` (alttext_enabled) | LOW | Custom column |
-| `accounts` (is_banned) | LOW | Custom column |
+| Gem migration target                                   | Risk | Check                                                                |
+| ------------------------------------------------------ | ---- | -------------------------------------------------------------------- |
+| `statuses` (is_banned, local_only, fetched_replies_at) | MED  | `fetched_replies_at` may already exist — guard with `column_exists?` |
+| `status_edits` (quote_id)                              | MED  | `quote_id` may already exist in core quote feature — verify schema   |
+| `announcements` (notification_sent_at)                 | MED  | May already exist — verify before migrating                          |
+| `media_attachments` (patchwork_drafted_status_id FK)   | LOW  | Custom column, no core overlap                                       |
+| `users` (alttext_enabled)                              | LOW  | Custom column                                                        |
+| `accounts` (is_banned)                                 | LOW  | Custom column                                                        |
+| `server_settings` (new table)                          | LOW  | Custom table, no core overlap                                        |
 
-Note: the upgrade itself adds **no** core migrations; the above are pre-existing gem migrations to re-validate against the 4.5.10 schema.
+## Gem boot compatibility checks
+
+These are the critical prepend/include chains to verify after merge:
+
+- [ ] `MediaAttachment.include(MediaAttachmentConcern)` — loads without error; new `if: :local?` validation does not conflict with concern callbacks.
+- [ ] `Account.include(AccountConcern)` / `Account.include(AccountSearchConcern)` — loads without error; upstream `process_account_service.rb` change is in a service, not the model.
+- [ ] `Auth::SessionsController.prepend(CustomSessionBehavior)` — unchanged in this release; verify boot.
+- [ ] `Auth::TokensController.prepend(CustomAuthenticationBehavior)` — unchanged in this release; verify boot.
+- [ ] All other prepend/include declarations in `config/initializers/prepend_concerns.rb` — no upstream changes to base classes in this release.
+
+## Dependency compatibility checks
+
+- [ ] `erb` 6.0.4 — verify no breaking changes to ERB template rendering used by gem mailer views.
+- [ ] `css_parser` 1.22.0 — gem does not use directly; low risk.
+- [ ] `faraday` 2.14.2 — gem does not use directly; low risk.
+- [ ] `jwt` 2.10.3 — gem does not use directly; verify `CustomAuthenticationBehavior` OAuth flow still works.
 
 ## Gem-specific actions
 
-- [ ] Create `newsmast_mastodon` branch `mastodon-4.5.10`.
-- [ ] Update auth concerns for Devise 5.0 (sessions, tokens, password override) — the #1 risk.
-- [ ] Update `Status` / `Quote` concern call sites for the new `accept!(approval_uri:)` signature.
-- [ ] Guard gem migrations with `if_not_exists` / column-existence checks.
+- [ ] Create `newsmast_mastodon` branch `mastodon-4.5.11-fixed` from `mastodon-4.5.10-fixed`.
+- [ ] Verify gem `newsmast_mastodon.gemspec` has no pinned version constraints conflicting with updated deps.
+- [ ] Guard gem migrations with `column_exists?` / `table_exists?` checks.
 - [ ] Run `MASTODON_ROOT=/path/to/patchwork-mastodon bundle exec rspec` in the gem against the upgraded core.
 - [ ] Verify all prepend/include concerns load at boot with no `already defined` / `NoMethodError`.
+- [ ] Run full login/OAuth/password-reset smoke test (auth stack unchanged but verify with new `jwt` version).
+
+## Risk assessment
+
+**Overall risk: LOW.** This is a security + dependency patch release with no schema migrations, no API changes, and no modifications to classes where the gem prepends behavior (controllers, services). The only runtime-relevant code changes are:
+
+1. A nil-guard in sanitize_config (no gem overlap)
+2. Attribution domain parsing hardening (no gem overlap)
+3. Media attachment validation scoped to local (gem includes concern on same model but doesn't touch validation)
+
+**Go/No-Go threshold:** Any failure in boot, auth smoke test, or federation smoke test should block the release.
