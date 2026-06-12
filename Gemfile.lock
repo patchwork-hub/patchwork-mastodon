@@ -10,7 +10,7 @@ GIT
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
   revision: 6b732705088159e8bd941791b6ba1316aaa196b8
-  branch: mastodon-4.5.10-fixed
+  branch: mastodon-4.5.11-fixed
   specs:
     newsmast_mastodon (0.1.0)
       annotaterb (~> 4.13)
