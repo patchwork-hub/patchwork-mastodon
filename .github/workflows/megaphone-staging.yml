@@ -193,78 +193,78 @@ jobs:
 
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-  # deploy-staging:
-  #   name: Deploy to Staging
-  #   runs-on: ubuntu-latest
-  #   needs: [build-web]
-  #   environment: staging
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-web]
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #       with:
-  #         mask-password: 'true'
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'true'
 
-  #     - name: Update web service task definition
-  #       id: task-def-web
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.WEB_DEFINITION }}
-  #         container-name: ${{ secrets.MEGAPHONE_WEB_STAGING_CONTAINER }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STAGING_IMAGE_TAG }}
+      - name: Update web service task definition
+        id: task-def-web
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.WEB_DEFINITION }}
+          container-name: ${{ secrets.MEGAPHONE_WEB_STAGING_CONTAINER }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STAGING_IMAGE_TAG }}
 
-  #     - name: Deploy web service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-web.outputs.task-definition }}
-  #         service: ${{ secrets.MEGAPHONE_WEB_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Deploy web service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-web.outputs.task-definition }}
+          service: ${{ secrets.MEGAPHONE_WEB_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
+          wait-for-service-stability: false
 
-  #     - name: Update Sidekiq task definition
-  #       id: task-def-sidekiq
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.SIDEKIQ_DEFINITION }}
-  #         container-name: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_CONTAINER_NAME }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STAGING_IMAGE_TAG }}
+      - name: Update Sidekiq task definition
+        id: task-def-sidekiq
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.SIDEKIQ_DEFINITION }}
+          container-name: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STAGING_IMAGE_TAG }}
 
-  #     - name: Deploy Sidekiq service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
-  #         service: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Deploy Sidekiq service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
+          service: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
+          wait-for-service-stability: false
 
-  #     - name: Update Streaming task definition
-  #       id: task-def-streaming
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.STREAMING_DEFINITION }}
-  #         container-name: ${{ secrets.MEGAPHONE_STREAMING_STAGING_CONTAINER_NAME }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STREAMING_STAGING_IMAGE_TAG }}
-  #     - name: Deploy Streaming service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-  #         service: ${{ secrets.MEGAPHONE_STREAMING_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Update Streaming task definition
+        id: task-def-streaming
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.STREAMING_DEFINITION }}
+          container-name: ${{ secrets.MEGAPHONE_STREAMING_STAGING_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STREAMING_STAGING_IMAGE_TAG }}
+      - name: Deploy Streaming service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
+          service: ${{ secrets.MEGAPHONE_STREAMING_STAGING_SERVICE_NAME }}
+          cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
+          wait-for-service-stability: false
 
-  #     - name: Deployment complete
-  #       run: |
-  #         echo "Deployment to staging environment completed successfully!"
-  #         echo "Web service: ${{ secrets.MEGAPHONE_WEB_STAGING_SERVICE_NAME }}"
-  #         echo "Sidekiq service: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_SERVICE_NAME }}"
-  #         echo "Cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}"
+      - name: Deployment complete
+        run: |
+          echo "Deployment to staging environment completed successfully!"
+          echo "Web service: ${{ secrets.MEGAPHONE_WEB_STAGING_SERVICE_NAME }}"
+          echo "Sidekiq service: ${{ secrets.MEGAPHONE_SIDEKIQ_STAGING_SERVICE_NAME }}"
+          echo "Cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}"
