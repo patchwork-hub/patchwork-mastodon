@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_02_143553) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_13_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -262,6 +262,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_143553) do
     t.datetime "updated_at", precision: nil, null: false
     t.datetime "published_at", precision: nil
     t.bigint "status_ids", array: true
+    t.datetime "notification_sent_at"
   end
 
   create_table "annual_report_statuses_per_account_counts", force: :cascade do |t|
@@ -1429,6 +1430,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_143553) do
     t.text "media_descriptions", array: true
     t.string "poll_options", array: true
     t.boolean "sensitive"
+    t.bigint "quote_id"
     t.index ["account_id"], name: "index_status_edits_on_account_id"
     t.index ["status_id"], name: "index_status_edits_on_status_id"
   end
@@ -1492,6 +1494,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_02_143553) do
     t.boolean "is_banned", default: false
     t.bigint "quote_id"
     t.integer "quote_approval_policy", default: 0, null: false
+    t.boolean "local_only", default: false
+    t.datetime "fetched_replies_at"
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
     t.index ["account_id"], name: "index_statuses_on_account_id"
     t.index ["conversation_id"], name: "index_statuses_on_conversation_id"
