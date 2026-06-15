@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - findout-4.5.5-staging
+      - findout-4.5.11-staging
 env:
   WEB_DEFINITION: .task/findout_web_staging.json
   SIDEKIQ_DEFINITION: .task/findout_sidekiq_staging.json
