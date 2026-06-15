@@ -1,0 +1,57 @@
+{
+    "family": "csidnet-streaming",
+    "containerDefinitions": [
+        {
+            "name": "csidnet-streaming",
+            "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/csidnet:streaming",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 4000,
+                    "hostPort": 4000,
+                    "protocol": "tcp",
+                    "name": "csidnet-streaming-4000-tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "node ./streaming/index.js"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::patchwork-private-env/csidnet.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/csidnet-streaming",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX"
+    }
+}
