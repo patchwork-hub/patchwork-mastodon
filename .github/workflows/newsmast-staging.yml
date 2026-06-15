@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - newsmast-4.5.5-staging
+      - newsmast-4.5.11-staging
 env:
   WEB_DEFINITION: .task/newsmast_web_staging.json
   SIDEKIQ_DEFINITION: .task/newsmast_sidekiq_staging.json
