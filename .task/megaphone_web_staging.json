@@ -1,0 +1,101 @@
+{
+    "family": "megaphone-web",
+    "containerDefinitions": [
+        {
+            "name": "megaphone-web",
+            "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/megaphone:staging",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp",
+                    "name": "megaphone-web-3000-tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://patchwork-private-env/megaphone-5a322-firebase-adminsdk-fbsvc-dbc14f80bd.json /opt/mastodon/config && bundle exec rails db:create && bundle exec rails db:migrate && bundle exec rails s -p 3000"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::patchwork-private-env/megaphone.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "ulimits": [
+                {
+                    "name": "nofile",
+                    "softLimit": 1024,
+                    "hardLimit": 4096
+                },
+                {
+                    "name": "core",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "memlock",
+                    "softLimit": 64,
+                    "hardLimit": 64
+                },
+                {
+                    "name": "msgqueue",
+                    "softLimit": 819200,
+                    "hardLimit": 819200
+                },
+                {
+                    "name": "nice",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "nproc",
+                    "softLimit": 15471,
+                    "hardLimit": 15471
+                },
+                {
+                    "name": "rtprio",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "sigpending",
+                    "softLimit": 15471,
+                    "hardLimit": 15471
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/megaphone-web",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}

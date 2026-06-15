@@ -8,7 +8,7 @@ on:
 env:
   WEB_DEFINITION: .task/megaphone_web_staging.json
   SIDEKIQ_DEFINITION: .task/megaphone_sidekiq_staging.json
-  STREAMING_DEFINITION: .task/megaphone_streaming_staging.json
+  # STREAMING_DEFINITION: .task/megaphone_streaming_staging.json
   REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
   REPOSITORY: ${{ secrets.MEGAPHONE_REPOSITORY }}
 
@@ -247,20 +247,20 @@ jobs:
           cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
           wait-for-service-stability: false
 
-      - name: Update Streaming task definition
-        id: task-def-streaming
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.STREAMING_DEFINITION }}
-          container-name: ${{ secrets.MEGAPHONE_STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STREAMING_STAGING_IMAGE_TAG }}
-      - name: Deploy Streaming service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-          service: ${{ secrets.MEGAPHONE_STREAMING_STAGING_SERVICE_NAME }}
-          cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
-          wait-for-service-stability: false
+      # - name: Update Streaming task definition
+      #   id: task-def-streaming
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ${{ env.STREAMING_DEFINITION }}
+      #     container-name: ${{ secrets.MEGAPHONE_STREAMING_STAGING_CONTAINER_NAME }}
+      #     image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.MEGAPHONE_REPOSITORY }}:${{ vars.MEGAPHONE_STREAMING_STAGING_IMAGE_TAG }}
+      # - name: Deploy Streaming service
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
+      #     service: ${{ secrets.MEGAPHONE_STREAMING_STAGING_SERVICE_NAME }}
+      #     cluster: ${{ secrets.MEGAPHONE_CLUSTER_STAGING }}
+      #     wait-for-service-stability: false
 
       - name: Deployment complete
         run: |
