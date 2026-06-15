@@ -1,0 +1,57 @@
+{
+    "family": "findout-media-streaming",
+    "containerDefinitions": [
+        {
+            "name": "findout-media-streaming",
+            "image": "846532307786.dkr.ecr.ca-west-1.amazonaws.com/findout-mastodon:streaming",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 4000,
+                    "hostPort": 4000,
+                    "protocol": "tcp",
+                    "name": "findout-media-streaming-4000-tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "node ./streaming/index.js"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::fom-private-env-data/findout-prod.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/findout-media-streaming",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ca-west-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-task-role-prod",
+    "executionRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-exec-role-prod",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX"
+    }
+}
