@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_13_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -947,7 +947,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
     t.string "role"
     t.boolean "is_boost_bot", default: false, null: false
     t.integer "account_status", default: 0, null: false
-    t.index ["account_id", "patchwork_community_id"], name: "index_patchwork_communities_admins_on_account_and_community", unique: true
     t.index ["account_id", "patchwork_community_id"], name: "unique_community_admin_index", unique: true
     t.index ["account_id"], name: "index_patchwork_communities_admins_on_account_id"
     t.index ["patchwork_community_id"], name: "index_patchwork_communities_admins_on_patchwork_community_id"
@@ -1460,6 +1459,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_024820) do
     t.datetime "fetched_replies_at"
     t.integer "quote_approval_policy", default: 0, null: false
     t.boolean "is_banned", default: false
+    t.boolean "local_only", default: false
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
     t.index ["account_id"], name: "index_statuses_on_account_id"
     t.index ["conversation_id"], name: "index_statuses_on_conversation_id"

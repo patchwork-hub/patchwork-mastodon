@@ -13,7 +13,7 @@ gem 'haml-rails', '~>3.0'
 gem 'pg', '~> 1.5'
 gem 'pghero'
 
-gem 'aws-sdk-core', '< 3.216.0', require: false # TODO: https://github.com/mastodon/mastodon/pull/34173#issuecomment-2733378873
+gem 'aws-sdk-core', require: false
 gem 'aws-sdk-s3', '~> 1.123', require: false
 gem 'blurhash', '~> 0.1'
 gem 'fog-core', '<= 2.6.0'
@@ -28,7 +28,7 @@ gem 'bootsnap', '~> 1.18.0', require: false
 gem 'browser'
 gem 'charlock_holmes', '~> 0.7.7'
 gem 'chewy', '~> 7.3'
-gem 'devise', '~> 4.9'
+gem 'devise'
 gem 'devise-two-factor'
 
 group :pam_authentication, optional: true do
@@ -235,11 +235,8 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails', '~> 3.0.19'
 
-gem 'accounts', git: 'https://github.com/patchwork-hub/accounts', branch: 'mastodon-4.5.6'
-gem 'content_filters', git: 'https://github.com/patchwork-hub/content_filters', branch: 'mastodon-4.5.6'
-gem 'conversations', git: 'https://github.com/patchwork-hub/conversations', branch: 'mastodon-4.5.6'
-gem 'custom_feeds', git: 'https://github.com/patchwork-hub/custom_feeds', branch: 'mastodon-4.5.6'
-gem 'posts', git: 'https://github.com/patchwork-hub/posts', branch: 'mastodon-4.5.6'
+gem 'newsmast_mastodon',
+    git: 'https://github.com/patchwork-hub/newsmast_mastodon',
+    branch: 'mastodon-4.5.11'
 
-# *** Add this alongside Post Gems ***
 gem 'faraday-typhoeus', '~> 1.1'
