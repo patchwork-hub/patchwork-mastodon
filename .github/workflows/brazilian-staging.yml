@@ -5,14 +5,17 @@ on:
   push:
     branches:
       - brazilian-4.5.6-staging
+
 env:
+  AWS_REGION: ${{ vars.BRAZILIAN_STAGING_AWS_REGION }}
+  AWS_ROLE_ARN: ${{ vars.BRAZILIAN_STAGING_AWS_ROLE_ARN }}
+  SSM_PATH: ${{ vars.BRAZILIAN_STAGING_SSM_PATH }}
   WEB_DEFINITION: .task/brazilian_web_staging.json
   SIDEKIQ_DEFINITION: .task/brazilian_sidekiq_staging.json
   STREAMING_DEFINITION: .task/brazilian_streaming_staging.json
-  REGISTRY: ${{ secrets.AWS_REGION }}.amazonaws.com
-  REPOSITORY: ${{ secrets.BRAZILIAN_STAGING_REPOSITORY }}
 
 permissions:
+  id-token: write
   contents: read
 
 concurrency:
@@ -78,20 +81,56 @@ jobs:
           yarn --version
           yarn install
 
+  config:
+    name: Load configuration from SSM
+    runs-on: ubuntu-latest
+    outputs:
+      web_repository: ${{ steps.load.outputs.web_repository }}
+      streaming_repository: ${{ steps.load.outputs.streaming_repository }}
+      web_container: ${{ steps.load.outputs.web_container }}
+      sidekiq_container: ${{ steps.load.outputs.sidekiq_container }}
+      streaming_container: ${{ steps.load.outputs.streaming_container }}
+      web_service: ${{ steps.load.outputs.web_service }}
+      sidekiq_service: ${{ steps.load.outputs.sidekiq_service }}
+      streaming_service: ${{ steps.load.outputs.streaming_service }}
+      cluster: ${{ steps.load.outputs.cluster }}
+      web_image_tag: ${{ steps.load.outputs.web_image_tag }}
+      streaming_image_tag: ${{ steps.load.outputs.streaming_image_tag }}
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Load parameters from SSM Parameter Store
+        id: load
+        run: |
+          set -euo pipefail
+          aws ssm get-parameters-by-path \
+            --path "${SSM_PATH}" \
+            --with-decryption \
+            --query 'Parameters[].[Name,Value]' \
+            --output text \
+          | while IFS=$'\t' read -r name value; do
+              key="${name##*/}"
+              echo "${key}=${value}" >> "$GITHUB_OUTPUT"
+              echo "Loaded: ${key}"
+            done
+
   build-web:
     name: Build Web Application
     runs-on: ubuntu-latest
-    needs: setup
+    needs: [setup, config]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.BRAZILIAN_STAGING_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.BRAZILIAN_STAGING_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.BRAZILIAN_STAGING_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -115,8 +154,8 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.BRAZILIAN_STAGING_WEB_REPOSITORY }}
-          IMAGE_TAG: ${{ vars.BRAZILIAN_STAGING_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ needs.config.outputs.web_repository }}
+          IMAGE_TAG: ${{ needs.config.outputs.web_image_tag }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building web application image..."
@@ -138,17 +177,16 @@ jobs:
   build-streaming:
     name: Build Streaming Service
     runs-on: ubuntu-latest
-    needs: setup
+    needs: [setup, config]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.BRAZILIAN_STAGING_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.BRAZILIAN_STAGING_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.BRAZILIAN_STAGING_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -172,8 +210,8 @@ jobs:
         id: build-streaming-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.BRAZILIAN_STAGING_STREAMING_REPOSITORY }}
-          IMAGE_TAG: ${{ vars.BRAZILIAN_STAGING_STREAMING_IMAGE_TAG }}
+          ECR_REPOSITORY: ${{ needs.config.outputs.streaming_repository }}
+          IMAGE_TAG: ${{ needs.config.outputs.streaming_image_tag }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building streaming service image..."
@@ -193,78 +231,79 @@ jobs:
 
           echo "Successfully built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-  # deploy-staging:
-  #   name: Deploy to Staging
-  #   runs-on: ubuntu-latest
-  #   needs: [build-web]
-  #   environment: staging
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [config, build-web, build-streaming]
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #       with:
-  #         mask-password: 'true'
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'true'
 
-  #     - name: Update web service task definition
-  #       id: task-def-web
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.WEB_DEFINITION }}
-  #         container-name: ${{ secrets.BRAZILIAN_WEB_STAGING_CONTAINER }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.BRAZILIAN_STAGING_REPOSITORY }}:${{ vars.BRAZILIAN_STAGING_IMAGE_TAG }}
+      - name: Update web service task definition
+        id: task-def-web
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.WEB_DEFINITION }}
+          container-name: ${{ needs.config.outputs.web_container }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ needs.config.outputs.web_repository }}:${{ needs.config.outputs.web_image_tag }}
 
-  #     - name: Deploy web service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-web.outputs.task-definition }}
-  #         service: ${{ secrets.BRAZILIAN_WEB_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.BRAZILIAN_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Deploy web service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-web.outputs.task-definition }}
+          service: ${{ needs.config.outputs.web_service }}
+          cluster: ${{ needs.config.outputs.cluster }}
+          wait-for-service-stability: false
 
-  #     - name: Update Sidekiq task definition
-  #       id: task-def-sidekiq
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.SIDEKIQ_DEFINITION }}
-  #         container-name: ${{ secrets.BRAZILIAN_SIDEKIQ_STAGING_CONTAINER_NAME }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.BRAZILIAN_STAGING_REPOSITORY }}:${{ vars.BRAZILIAN_STAGING_IMAGE_TAG }}
+      - name: Update Sidekiq task definition
+        id: task-def-sidekiq
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.SIDEKIQ_DEFINITION }}
+          container-name: ${{ needs.config.outputs.sidekiq_container }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ needs.config.outputs.web_repository }}:${{ needs.config.outputs.web_image_tag }}
 
-  #     - name: Deploy Sidekiq service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
-  #         service: ${{ secrets.BRAZILIAN_SIDEKIQ_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.BRAZILIAN_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Deploy Sidekiq service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-sidekiq.outputs.task-definition }}
+          service: ${{ needs.config.outputs.sidekiq_service }}
+          cluster: ${{ needs.config.outputs.cluster }}
+          wait-for-service-stability: false
 
-  #     - name: Update Streaming task definition
-  #       id: task-def-streaming
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ env.STREAMING_DEFINITION }}
-  #         container-name: ${{ secrets.BRAZILIAN_STREAMING_STAGING_CONTAINER_NAME }}
-  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.BRAZILIAN_STAGING_REPOSITORY }}:${{ vars.BRAZILIAN_STAGING_STREAMING_IMAGE_TAG }}
-  #     - name: Deploy Streaming service
-  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-  #       with:
-  #         task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
-  #         service: ${{ secrets.BRAZILIAN_STREAMING_STAGING_SERVICE_NAME }}
-  #         cluster: ${{ secrets.BRAZILIAN_CLUSTER_STAGING }}
-  #         wait-for-service-stability: false
+      - name: Update Streaming task definition
+        id: task-def-streaming
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.STREAMING_DEFINITION }}
+          container-name: ${{ needs.config.outputs.streaming_container }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ needs.config.outputs.streaming_repository }}:${{ needs.config.outputs.streaming_image_tag }}
 
-  #     - name: Deployment complete
-  #       run: |
-  #         echo "Deployment to staging environment completed successfully!"
-  #         echo "Web service: ${{ secrets.BRAZILIAN_WEB_STAGING_SERVICE_NAME }}"
-  #         echo "Sidekiq service: ${{ secrets.BRAZILIAN_SIDEKIQ_STAGING_SERVICE_NAME }}"
-  #         echo "Cluster: ${{ secrets.BRAZILIAN_CLUSTER_STAGING }}"
+      - name: Deploy Streaming service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-streaming.outputs.task-definition }}
+          service: ${{ needs.config.outputs.streaming_service }}
+          cluster: ${{ needs.config.outputs.cluster }}
+          wait-for-service-stability: false
+
+      - name: Deployment complete
+        run: |
+          echo "Deployment to staging environment completed successfully!"
+          echo "Web service: ${{ needs.config.outputs.web_service }}"
+          echo "Sidekiq service: ${{ needs.config.outputs.sidekiq_service }}"
+          echo "Streaming service: ${{ needs.config.outputs.streaming_service }}"
+          echo "Cluster: ${{ needs.config.outputs.cluster }}"
