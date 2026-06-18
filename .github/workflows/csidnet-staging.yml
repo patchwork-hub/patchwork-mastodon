@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - csidnet-4.5.6-staging
+      - csidnet-4.5.11-production
 env:
   WEB_DEFINITION: .task/csidnet_web_staging.json
   SIDEKIQ_DEFINITION: .task/csidnet_sidekiq_staging.json
