@@ -38,11 +38,11 @@
             "workingDirectory": "/opt/mastodon"
         }
     ],
-    "cpu": "1024",
+    "cpu": "512",
     "enableFaultInjection": false,
     "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
     "family": "leicester-sidekiq",
-    "memory": "2048",
+    "memory": "1024",
     "networkMode": "awsvpc",
     "placementConstraints": [],
     "registeredAt": "2025-12-16T04:55:56.281Z",
