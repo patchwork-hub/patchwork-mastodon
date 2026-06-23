@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 600a6fd59d3386a197da1f82b429440d7d864ca0
+  revision: cf1e9b906961a145db0a9f532a0032c90dc87837
   branch: mastodon-4.5.11
   specs:
     newsmast_mastodon (4.5.11)
