@@ -237,7 +237,4 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails', '~> 3.0.19'
 
-gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon', branch: 'mastodon-4511-signup'
-
-# *** Add this alongside Post Gems ***
-gem 'faraday-typhoeus', '~> 1.1'
+gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon', branch: 'mastodon-4.5.11'
