@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 600a6fd59d3386a197da1f82b429440d7d864ca0
-  branch: mastodon-4.5.11
+  revision: 868991802b46ce3bea38709baace2fca152f9138
+  branch: mastodon-4.5.11-timeline
   specs:
     newsmast_mastodon (4.5.11)
       googleauth (~> 1.13, >= 1.13.1)
