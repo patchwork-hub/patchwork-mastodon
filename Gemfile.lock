@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 6b197440506f77a3b604149f506164ae8467744c
+  revision: 868991802b46ce3bea38709baace2fca152f9138
   branch: mastodon-4.5.11-timeline
   specs:
     newsmast_mastodon (4.5.11)
@@ -300,7 +300,7 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.17.0)
+    googleauth (1.17.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
