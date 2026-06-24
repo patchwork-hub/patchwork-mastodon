@@ -9,12 +9,10 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 6b732705088159e8bd941791b6ba1316aaa196b8
-  branch: mastodon-4.5.11
+  revision: 375bb2d1764cef8a2bac2e7029f501d395860385
+  branch: mastodon-4.5.11-post-reaction
   specs:
-    newsmast_mastodon (0.1.0)
-      annotaterb (~> 4.13)
-      byebug (~> 11.1)
+    newsmast_mastodon (4.5.11)
       googleauth (~> 1.13, >= 1.13.1)
       httparty (~> 0.23.1)
       link_thumbnailer (~> 3.4)
