@@ -9,15 +9,12 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 378d7149647a819c34998a1db8a837c1039b612c
+  revision: 25b252512934ecd537a7ff6a4f707b0fe9dc2c26
   branch: mastodon-4.5.11
   specs:
-    newsmast_mastodon (0.1.0)
-      annotaterb (~> 4.13)
-      byebug (~> 11.1)
+    newsmast_mastodon (4.5.11)
       googleauth (~> 1.13, >= 1.13.1)
       httparty (~> 0.23.1)
-      link_thumbnailer (~> 3.4)
       rails (>= 7.1, < 9.0)
 
 GEM
@@ -109,7 +106,6 @@ GEM
     annotaterb (4.22.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    ansi (1.6.0)
     ast (2.4.3)
     attr_required (1.0.2)
     aws-eventstream (1.4.0)
@@ -404,11 +400,6 @@ GEM
       ruby-progressbar (~> 1.8, >= 1.8.1)
       terminal-table (>= 1.5.1)
     idn-ruby (0.1.5)
-    image_info (1.2.2)
-      addressable (~> 2.0)
-      image_size (~> 2.0)
-      typhoeus (~> 1.0)
-    image_size (2.1.2)
     inline_svg (1.10.0)
       activesupport (>= 3.0)
       nokogiri (>= 1.6)
@@ -418,7 +409,6 @@ GEM
       prism (>= 1.3.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    iso8601 (0.13.0)
     jd-paperclip-azure (3.0.0)
       addressable (~> 2.5)
       azure-blob (~> 0.5.2)
@@ -481,14 +471,6 @@ GEM
       railties (>= 6.1)
       rexml
     link_header (0.0.8)
-    link_thumbnailer (3.4.0)
-      activesupport (>= 3.0)
-      image_info (~> 1.0, >= 1.2.0)
-      json (>= 1.7.7)
-      net-http-persistent (>= 2.9)
-      nokogiri (>= 1.6)
-      rake (>= 0.9)
-      video_info (>= 2.6)
     lint_roller (1.1.0)
     linzer (0.7.9)
       cgi (>= 0.4.2, < 0.6.0)
@@ -536,8 +518,6 @@ GEM
     mutex_m (0.3.0)
     net-http (0.6.0)
       uri
-    net-http-persistent (4.0.8)
-      connection_pool (>= 2.2.4, < 4)
     net-imap (0.6.4.1)
       date
       net-protocol
@@ -550,7 +530,6 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
-    net_http_timeout_errors (1.0.0)
     nio4r (2.7.5)
     nokogiri (1.19.3-aarch64-linux-gnu)
       racc (~> 1.4)
@@ -568,9 +547,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.3-x86_64-linux-musl)
       racc (~> 1.4)
-    oga (3.5)
-      ast
-      ruby-ll (~> 2.2)
     oj (3.17.3)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
@@ -892,9 +868,6 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-rspec (~> 3.5)
-    ruby-ll (2.2.0)
-      ansi
-      ast
     ruby-prof (2.0.4)
       base64
       ostruct
@@ -1012,10 +985,6 @@ GEM
     validate_url (1.0.15)
       activemodel (>= 3.0.0)
       public_suffix
-    video_info (4.2.0)
-      iso8601 (~> 0.13.0)
-      net_http_timeout_errors (~> 1.0.0)
-      oga (~> 3.4)
     vite_rails (3.0.20)
       railties (>= 5.1, < 9)
       vite_ruby (~> 3.0, >= 3.2.2)
@@ -1242,7 +1211,6 @@ CHECKSUMS
   aes_key_wrap (1.1.0) sha256=b935f4756b37375895db45669e79dfcdc0f7901e12d4e08974d5540c8e0776a5
   android_key_attestation (0.3.0) sha256=467eb01a99d2bb48ef9cf24cc13712669d7056cba5a52d009554ff037560570b
   annotaterb (4.22.0) sha256=66fc40e5f48d5b82ae82013da1e5b43aaaad41ee9bd3d0cf803048efc0a70286
-  ansi (1.6.0) sha256=ac9ea0c0ea8d32fb4e271348e609963ac78882f34b73836c2a02b3622e666658
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   attr_required (1.0.2) sha256=f0ebfc56b35e874f4d0ae799066dbc1f81efefe2364ca3803dc9ea6a4de6cb99
   aws-eventstream (1.4.0) sha256=116bf85c436200d1060811e6f5d2d40c88f65448f2125bc77ffce5121e6e183b
@@ -1371,12 +1339,9 @@ CHECKSUMS
   i18n (1.15.1) sha256=505ec5de1f4e6c8a2cb028ef9700ca495f117911643455721dee5abdca797255
   i18n-tasks (1.1.2) sha256=4dcfba49e52a623f30661cb316cb80d84fbba5cb8c6d88ef5e02545fffa3637a
   idn-ruby (0.1.5) sha256=3076fa1aac170e92310d02822badf6b11e74e17915a045c8f9ad053bba24c037
-  image_info (1.2.2) sha256=442d3d2304b2305a4cee0b14aa418798825cef8408f8307abf6bc966e354bab1
-  image_size (2.1.2) sha256=70761f47aba1578d0a7e0cb9e234bf94ef0993559b3b239bca617b24dd6df6b5
   inline_svg (1.10.0) sha256=5b652934236fd9f8adc61f3fd6e208b7ca3282698b19f28659971da84bf9a10f
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
-  iso8601 (0.13.0) sha256=298c2b15b7be5fa95a1372813d36a2257656cd8e906dfbc1f5cb409851425aa2
   jd-paperclip-azure (3.0.0) sha256=6976a27e89e7932f2d082c609863ba33e6a162ddde4dc137be299b8d699e91bd
   jmespath (1.6.2) sha256=238d774a58723d6c090494c8879b5e9918c19485f7e840f2c1c7532cf84ebcb1
   json (2.19.9) sha256=9b9025b7cdddafa38d316eca0b2358488e42d417045c1b90d216a9fefe46b79a
@@ -1397,7 +1362,6 @@ CHECKSUMS
   letter_opener (1.10.0) sha256=2ff33f2e3b5c3c26d1959be54b395c086ca6d44826e8bf41a14ff96fdf1bdbb2
   letter_opener_web (3.0.0) sha256=3f391efe0e8b9b24becfab5537dfb17a5cf5eb532038f947daab58cb4b749860
   link_header (0.0.8) sha256=15c65ce43b29f739b30d05e5f25c22c23797e89cf6f905dbb595fb4c70cb55f9
-  link_thumbnailer (3.4.0) sha256=38bc86626486f83a1985c61d50054ca4fb1a9147e12f3d5cc4b85a50a250a032
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
   linzer (0.7.9) sha256=8a4ce4e57677b273d6e16843857dd3ffccbd11fa813d90a0445b5c40c96da408
   llhttp-ffi (0.5.1) sha256=9a25a7fc19311f691a78c9c0ac0fbf4675adbd0cca74310228fdf841018fa7bc
@@ -1418,14 +1382,12 @@ CHECKSUMS
   multi_xml (0.9.1) sha256=7ce766b59c17241ed62976caeae1fae9b2431b263398c35396239a68c4a64e57
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
   net-http (0.6.0) sha256=9621b20c137898af9d890556848c93603716cab516dc2c89b01a38b894e259fb
-  net-http-persistent (4.0.8) sha256=ef3de8319d691537b329053fae3a33195f8b070bbbfae8bf1a58c796081960e6
   net-imap (0.6.4.1) sha256=29f0360d75a7efd3539f16ac1957dea5c0a51ddeceb348db4553c3120914ea0d
   net-ldap (0.20.0) sha256=b2080b350753a9ac4930869ded8e61a1d2151c01e03b0bf07b4675cbd9ce5372
   net-pop (0.1.2) sha256=848b4e982013c15b2f0382792268763b748cce91c9e91e36b0f27ed26420dff3
   net-protocol (0.2.2) sha256=aa73e0cba6a125369de9837b8d8ef82a61849360eba0521900e2c3713aa162a8
   net-smtp (0.5.1) sha256=ed96a0af63c524fceb4b29b0d352195c30d82dd916a42f03c62a3a70e5b70736
-  net_http_timeout_errors (1.0.0) sha256=1c73d760bdf19566da91d7a8c3cab79c031cfa10afad826d5f147f87520b9e18
-  newsmast_mastodon (0.1.0)
+  newsmast_mastodon (4.5.11)
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   nokogiri (1.19.3-aarch64-linux-gnu) sha256=46b89e5d7b9e844c2ee360794240c6ea2a4e6fa0c5892a4ed487db621224b639
   nokogiri (1.19.3-aarch64-linux-musl) sha256=8392dfdcd21be7a94dbbe9ccc138dea01b97b24cb2dc02a114ca98bfb1d9a0b7
@@ -1435,7 +1397,6 @@ CHECKSUMS
   nokogiri (1.19.3-x86_64-darwin) sha256=77f3fba57d46c53ab31e62fc6c28f705109d1bf6264356c76f132b2be5728d4d
   nokogiri (1.19.3-x86_64-linux-gnu) sha256=2f5078620fe12e83669b5b17311b32532a8153d02eee7ad06948b926d6080976
   nokogiri (1.19.3-x86_64-linux-musl) sha256=248c906d2166eca5efb56d52fdee5f9a1f51d69a72e2b64fdac647b4ce39ea3f
-  oga (3.5) sha256=2b65fe1dd192c01079f93748a04a7a8011369e4c99ea1c7e73f4a037e3229353
   oj (3.17.3) sha256=ebe3967b0bb7ac4f206561d0d9ac8875b9973f778600d7b61b5c355662a707ed
   omniauth (2.1.4) sha256=42a05b0496f0d22e1dd85d42aaf602f064e36bb47a6826a27ab55e5ba608763c
   omniauth-cas (3.0.2) sha256=1838b15d63b9459a5b61d0e93ab1c73b160bae866735c2a8e3b2c8572319600d
@@ -1552,7 +1513,6 @@ CHECKSUMS
   rubocop-rails (2.35.4) sha256=3aeaa325439c89950e8327565682ea794065d08e2ecbbfe95032bfa295a35df5
   rubocop-rspec (3.10.2) sha256=0b3e2ecc592cd10ecbf0095bb58d1e357905276e069643523cc19eb7495f65e2
   rubocop-rspec_rails (2.32.0) sha256=4a0d641c72f6ebb957534f539d9d0a62c47abd8ce0d0aeee1ef4701e892a9100
-  ruby-ll (2.2.0) sha256=f8811ae1dfc77d6d95033a615aacb6ab8e93fb9f421fefe75107b077dc9ab588
   ruby-prof (2.0.4) sha256=42190ff6870e055a9d58b39df63e83442113ef7169c0e27b599942c3f15d1435
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   ruby-saml (1.18.1) sha256=1b0e7a44aef150b4197955f5e015d593672e242cfdc5d06aa7554ec2350b9107
@@ -1609,7 +1569,6 @@ CHECKSUMS
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
   validate_url (1.0.15) sha256=72fe164c0713d63a9970bd6700bea948babbfbdcec392f2342b6704042f57451
-  video_info (4.2.0) sha256=f5f574072cccf0f67d97e692574e34b3bb63d0fd3cfa2fdf17d1cfd4b2f9759d
   vite_rails (3.0.20) sha256=582bf9aa3bc3b4d9b0a48c17862b4fa9bd17384ac597a57b7a38d2f95d96e682
   vite_ruby (3.10.2) sha256=db465451eb180abbdc81f596ba63671d2b2552e2bb7bf3c1f7b79f9d58ca9a86
   warden (1.2.9) sha256=46684f885d35a69dbb883deabf85a222c8e427a957804719e143005df7a1efd0
