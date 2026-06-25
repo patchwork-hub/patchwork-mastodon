@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 868991802b46ce3bea38709baace2fca152f9138
+  revision: 9491d081d5416643341dc883403761c8e9c34e1a
   branch: mastodon-4.5.11-timeline
   specs:
     newsmast_mastodon (4.5.11)
@@ -293,13 +293,13 @@ GEM
       rake (>= 13)
     googleapis-common-protos-types (1.22.0)
       google-protobuf (~> 4.26)
-    googleauth (1.16.2)
+    googleauth (1.17.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
       jwt (>= 1.4, < 4.0)
-      multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
+      pstore (~> 0.1)
       signet (>= 0.16, < 2.a)
     haml (6.3.0)
       temple (>= 0.8.2)
@@ -472,7 +472,7 @@ GEM
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.8.1)
+    multi_xml (0.9.1)
       bigdecimal (>= 3.1, < 5)
     mutex_m (0.3.0)
     net-http (0.6.0)
@@ -640,6 +640,7 @@ GEM
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
+    pstore (0.2.1)
     psych (5.2.6)
       date
       stringio
@@ -849,11 +850,10 @@ GEM
       concurrent-ruby (~> 1.0, >= 1.0.5)
       sidekiq (>= 7.0.0, < 9.0.0)
       thor (>= 1.0, < 3.0)
-    signet (0.21.0)
+    signet (0.22.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 4.0)
-      multi_json (~> 1.10)
     simple-navigation (4.4.0)
       activesupport (>= 2.3.2)
     simple_form (5.4.0)
