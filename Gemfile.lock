@@ -1,4 +1,14 @@
 GIT
+  remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
+  revision: ce507df912445492f2ff5d607b08e81b0c9236e5
+  branch: 4.5.11-CsidNet
+  specs:
+    newsmast_mastodon (4.5.11)
+      googleauth (~> 1.13, >= 1.13.1)
+      httparty (~> 0.23.1)
+      rails (>= 7.1, < 9.0)
+
+GIT
   remote: https://github.com/mastodon/webpush.git
   revision: 9631ac63045cfabddacc69fc06e919b4c13eb913
   ref: 9631ac63045cfabddacc69fc06e919b4c13eb913
@@ -6,16 +16,6 @@ GIT
     webpush (1.1.0)
       hkdf (~> 0.2)
       jwt (~> 2.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/newsmast_mastodon
-  revision: 25b252512934ecd537a7ff6a4f707b0fe9dc2c26
-  branch: mastodon-4.5.11
-  specs:
-    newsmast_mastodon (4.5.11)
-      googleauth (~> 1.13, >= 1.13.1)
-      httparty (~> 0.23.1)
-      rails (>= 7.1, < 9.0)
 
 GEM
   remote: https://rubygems.org/
