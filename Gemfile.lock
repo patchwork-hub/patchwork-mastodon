@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
-  revision: 57bef41be0c43f752418108eab10cc4687ee323d
+  revision: 4b3427b92af864bf87b85f66f9591ab374098420
   branch: 4.5.11-timeline
   specs:
     newsmast_mastodon (4.5.11)
