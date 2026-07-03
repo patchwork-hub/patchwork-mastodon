@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
-  revision: ce507df912445492f2ff5d607b08e81b0c9236e5
+  revision: 6c0de4218ef580f1279501168d02d1960b582b44
   branch: 4.5.11-CsidNet
   specs:
     newsmast_mastodon (4.5.11)
