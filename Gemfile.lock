@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
-  revision: f722d313dde0cf4505b629ec9a1287d1e0e96b65
-  branch: mastodon-4.5.11
+  revision: 87f4b7f609e97df3a2ee7791e7dee6f1e2c1528e
+  branch: mastodon-timeline-fix
   specs:
     newsmast_mastodon (4.5.11)
       googleauth (~> 1.13, >= 1.13.1)
