@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
-  revision: f722d313dde0cf4505b629ec9a1287d1e0e96b65
-  branch: mastodon-4.5.11
+  revision: 5180e1c02b40e8e0694d16942b067aeb0a36c7b3
+  branch: 4.5.11-timeline
   specs:
     newsmast_mastodon (4.5.11)
       googleauth (~> 1.13, >= 1.13.1)
@@ -285,7 +285,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    google-cloud-env (2.3.1)
+    google-cloud-env (2.4.0)
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
