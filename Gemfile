@@ -235,4 +235,4 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails', '~> 3.0.19'
 
-gem 'newsmast_mastodon', git: 'https://github.com/TheNewsmastFoundation/newsmast-mastodon', branch: 'mastodon-timeline-fix'
+gem 'newsmast_mastodon', git: 'https://github.com/TheNewsmastFoundation/newsmast-mastodon', branch: 'mastodon-4.5.11'
