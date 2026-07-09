@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/TheNewsmastFoundation/newsmast-mastodon
-  revision: 30d58d78bfc84d3776663df9e49c7cd2707f81cb
+  revision: dc87a856d85f1ab48878ac3b7b308c3549bec2d5
   branch: 4.5.11-db-config
   specs:
     newsmast_mastodon (4.5.11)
@@ -288,7 +288,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    google-cloud-env (2.3.1)
+    google-cloud-env (2.4.0)
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)

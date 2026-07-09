@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_13_100001) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_22_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1098,6 +1098,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_13_100001) do
     t.index ["account_id"], name: "index_patchwork_settings_on_account_id"
   end
 
+  create_table "patchwork_status_reactions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "status_id", null: false
+    t.string "name", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "status_id"], name: "index_patchwork_status_reactions_on_account_id_and_status_id", unique: true
+    t.index ["status_id"], name: "index_patchwork_status_reactions_on_status_id"
+  end
+
   create_table "patchwork_wait_lists", force: :cascade do |t|
     t.text "email"
     t.text "description"
@@ -1780,6 +1790,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_13_100001) do
   add_foreign_key "patchwork_joined_communities", "patchwork_communities", on_delete: :cascade, validate: false
   add_foreign_key "patchwork_notification_tokens", "accounts", on_delete: :cascade
   add_foreign_key "patchwork_settings", "accounts", on_delete: :cascade
+  add_foreign_key "patchwork_status_reactions", "accounts", on_delete: :cascade
+  add_foreign_key "patchwork_status_reactions", "statuses", on_delete: :cascade
   add_foreign_key "patchwork_wait_lists", "accounts", on_delete: :cascade, validate: false
   add_foreign_key "poll_votes", "accounts", on_delete: :cascade
   add_foreign_key "poll_votes", "polls", on_delete: :cascade
