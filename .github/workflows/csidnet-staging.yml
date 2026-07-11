@@ -101,6 +101,23 @@ jobs:
         with:
           mask-password: 'true'
 
+      - name: Resolve deployment images
+        id: resolved-images
+        env:
+          FALLBACK_WEB_IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.CSIDNET_REPOSITORY }}:${{ vars.CSIDNET_STAGING_IMAGE_TAG }}
+          FALLBACK_STREAMING_IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.CSIDNET_REPOSITORY }}:${{ vars.CSIDNET_STREAMING_STAGING_IMAGE_TAG }}
+          WEB_IMAGE_OUTPUT: ${{ needs.build-web.outputs.image }}
+          STREAMING_IMAGE_OUTPUT: ${{ needs.build-streaming.outputs.image }}
+        run: |
+          WEB_IMAGE="${WEB_IMAGE_OUTPUT:-$FALLBACK_WEB_IMAGE}"
+          STREAMING_IMAGE="${STREAMING_IMAGE_OUTPUT:-$FALLBACK_STREAMING_IMAGE}"
+
+          echo "web-image=$WEB_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "streaming-image=$STREAMING_IMAGE" >> "$GITHUB_OUTPUT"
+
+          echo "Resolved web image: $WEB_IMAGE"
+          echo "Resolved streaming image: $STREAMING_IMAGE"
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -227,7 +244,7 @@ jobs:
         with:
           task-definition: ${{ env.WEB_DEFINITION }}
           container-name: ${{ secrets.CSIDNET_WEB_STAGING_CONTAINER }}
-          image: ${{ needs.build-web.outputs.image }}
+          image: ${{ steps.resolved-images.outputs.web-image }}
 
       - name: Deploy web service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -243,7 +260,7 @@ jobs:
         with:
           task-definition: ${{ env.SIDEKIQ_DEFINITION }}
           container-name: ${{ secrets.CSIDNET_SIDEKIQ_STAGING_CONTAINER_NAME }}
-          image: ${{ needs.build-web.outputs.image }}
+          image: ${{ steps.resolved-images.outputs.web-image }}
 
       - name: Deploy Sidekiq service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -259,7 +276,7 @@ jobs:
         with:
           task-definition: ${{ env.STREAMING_DEFINITION }}
           container-name: ${{ secrets.CSIDNET_STREAMING_STAGING_CONTAINER_NAME }}
-          image: ${{ needs.build-streaming.outputs.image }}
+          image: ${{ steps.resolved-images.outputs.streaming-image }}
       - name: Deploy Streaming service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
