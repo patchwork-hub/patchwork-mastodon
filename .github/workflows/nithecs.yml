@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - nithecs-4.5.6-staging
+      - nithecs-4.5.11-staging
 env:
   WEB_DEFINITION: .task/nithecs_web_staging.json
   SIDEKIQ_DEFINITION: .task/nithecs_sidekiq_staging.json
