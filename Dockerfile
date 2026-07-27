@@ -309,8 +309,10 @@ COPY --from=bundler /usr/local/bundle/ /usr/local/bundle/
 
 RUN \
   ldconfig; \
-  # Use Ruby on Rails to create Mastodon assets
-  SKIP_DB_INIT=1 SECRET_KEY_BASE_DUMMY=1 \
+  # Use Ruby on Rails to create Mastodon assets without requiring a live database
+  RAILS_ENV=production \
+  SECRET_KEY_BASE_DUMMY=1 \
+  DISABLE_DATABASE_ENVIRONMENT_CHECK=1 \
   bundle exec rails assets:precompile; \
   # Cleanup temporary files
   rm -fr /opt/mastodon/tmp;
