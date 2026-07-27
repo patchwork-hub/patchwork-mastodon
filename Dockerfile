@@ -114,6 +114,7 @@ RUN \
   tini \
   unzip \
   tzdata \
+  unzip \
   wget \
     unzip \
 
@@ -309,10 +310,8 @@ COPY --from=bundler /usr/local/bundle/ /usr/local/bundle/
 
 RUN \
   ldconfig; \
-  # Use Ruby on Rails to create Mastodon assets without requiring a live database
-  RAILS_ENV=production \
+  # Use Ruby on Rails to create Mastodon assets
   SECRET_KEY_BASE_DUMMY=1 \
-  DISABLE_DATABASE_ENVIRONMENT_CHECK=1 \
   bundle exec rails assets:precompile; \
   # Cleanup temporary files
   rm -fr /opt/mastodon/tmp;
@@ -402,7 +401,6 @@ RUN \
   # Set Mastodon user as owner of tmp folder
   chown -R mastodon:mastodon /opt/mastodon/tmp; \
   chown -R mastodon:mastodon /opt/mastodon/config;
-
 
 # Set the running user for resulting container
 USER mastodon
