@@ -310,7 +310,7 @@ COPY --from=bundler /usr/local/bundle/ /usr/local/bundle/
 RUN \
   ldconfig; \
   # Use Ruby on Rails to create Mastodon assets
-  SECRET_KEY_BASE_DUMMY=1 \
+  SKIP_DB_INIT=1 SECRET_KEY_BASE_DUMMY=1 \
   bundle exec rails assets:precompile; \
   # Cleanup temporary files
   rm -fr /opt/mastodon/tmp;
