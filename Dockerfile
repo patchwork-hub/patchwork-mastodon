@@ -114,7 +114,6 @@ RUN \
   tini \
   unzip \
   tzdata \
-  unzip \
   wget \
     unzip \
 
@@ -401,6 +400,7 @@ RUN \
   # Set Mastodon user as owner of tmp folder
   chown -R mastodon:mastodon /opt/mastodon/tmp; \
   chown -R mastodon:mastodon /opt/mastodon/config;
+
 
 # Set the running user for resulting container
 USER mastodon
