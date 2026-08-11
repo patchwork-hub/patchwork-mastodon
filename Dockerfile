@@ -154,13 +154,14 @@ RUN \
   patchelf \
   ;
 
-# Build stage for media libraries (libvips, ffmpeg)
-FROM ${BASE_REGISTRY}/ruby:${RUBY_VERSION}-slim-${DEBIAN_VERSION} AS media-build
+#install aws cli 
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip
+RUN ./aws/install && aws --version
+
+# Create temporary build layer from base image
+FROM ruby AS build
 
 ARG TARGETPLATFORM
-
-# Set default shell used for running commands
-SHELL ["/bin/bash", "-o", "pipefail", "-o", "errexit", "-c"]
 
 # hadolint ignore=DL3008
 RUN \
@@ -205,12 +206,12 @@ RUN \
   libx265-dev \
   ;
 
-# Create temporary libvips specific build layer
-FROM media-build AS libvips
+# Create temporary libvips specific build layer from build layer
+FROM build AS libvips
 
 # libvips version to compile, change with [--build-arg VIPS_VERSION="8.15.2"]
 # renovate: datasource=github-releases depName=libvips packageName=libvips/libvips
-ARG VIPS_VERSION=8.18.3
+ARG VIPS_VERSION=8.17.3
 # libvips download URL, change with [--build-arg VIPS_URL="https://github.com/libvips/libvips/releases/download"]
 ARG VIPS_URL=https://github.com/libvips/libvips/releases/download
 
@@ -221,16 +222,15 @@ RUN tar xf vips-${VIPS_VERSION}.tar.xz;
 
 WORKDIR /usr/local/libvips/src/vips-${VIPS_VERSION}
 
-# Configure libvips
-RUN meson setup build --prefix /usr/local/libvips --libdir=lib -Ddeprecated=false -Dintrospection=disabled -Dmodules=disabled -Dexamples=false
+# Configure and compile libvips
+RUN \
+  meson setup build --prefix /usr/local/libvips --libdir=lib -Ddeprecated=false -Dintrospection=disabled -Dmodules=disabled -Dexamples=false; \
+  cd build; \
+  ninja; \
+  ninja install;
 
-WORKDIR /usr/local/libvips/src/vips-${VIPS_VERSION}/build
-
-# Compile and install libvips
-RUN ninja && ninja install
-
-# Create temporary ffmpeg specific build layer
-FROM media-build AS ffmpeg
+# Create temporary ffmpeg specific build layer from build layer
+FROM build AS ffmpeg
 
 # ffmpeg version to compile, change with [--build-arg FFMPEG_VERSION="7.0.x"]
 # renovate: datasource=github-tags depName=FFmpeg/FFmpeg extractVersion=^n(?<version>\d+\.\d+(\.\d+)?)$
@@ -274,44 +274,13 @@ RUN \
   make -j"$(nproc)"; \
   make install;
 
-# Create temporary build layer from base image for Ruby dependencies
-FROM ruby AS ruby-build
-
-ARG TARGETPLATFORM
-
-# hadolint ignore=DL3008
-RUN \
-  # Mount Apt cache and lib directories from Docker buildx caches
-  --mount=type=cache,id=apt-cache-${TARGETPLATFORM},target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,id=apt-lib-${TARGETPLATFORM},target=/var/lib/apt,sharing=locked \
-  # Install build tools and bundler dependencies from APT
-  apt-get install -y --no-install-recommends \
-  build-essential \
-  git \
-  libgdbm-dev \
-  libgmp-dev \
-  libicu-dev \
-  libidn-dev \
-  libpq-dev \
-  libssl-dev \
-  libyaml-dev \
-  shared-mime-info \
-  zlib1g-dev \
-  ;
-
 # Create temporary bundler specific build layer from build layer
-FROM ruby-build AS bundler
+FROM build AS bundler
 
 ARG TARGETPLATFORM
 
 # Copy Gemfile config into working directory
 COPY Gemfile* /opt/mastodon/
-
-# Copy libvips for gems that need it during install
-COPY --from=libvips /usr/local/libvips/lib /usr/local/lib
-COPY --from=libvips /usr/local/libvips/include /usr/local/include
-
-RUN ldconfig
 
 RUN \
   # Mount Ruby Gem caches
@@ -328,7 +297,7 @@ RUN \
   bundle install -j"$(nproc)";
 
 # Create temporary assets build layer from build layer
-FROM ruby-build AS precompiler
+FROM build AS precompiler
 
 ARG TARGETPLATFORM
 
@@ -340,13 +309,10 @@ COPY --from=node /usr/local/bin /usr/local/bin
 COPY --from=node /usr/local/lib /usr/local/lib
 
 RUN \
-  # Mount local Corepack and Yarn caches from Docker buildx caches
-  --mount=type=cache,id=corepack-cache-${TARGETPLATFORM},target=/usr/local/share/.cache/corepack,sharing=locked \
-  --mount=type=cache,id=yarn-cache-${TARGETPLATFORM},target=/usr/local/share/.cache/yarn,sharing=locked \
-  # Remove pre-installed Yarn binaries (only present on Node <26)
-  rm -f /usr/local/bin/yarn*; \
-  # Install Corepack
-  npm i -g corepack;
+  # Configure Corepack
+  rm /usr/local/bin/yarn*; \
+  corepack enable; \
+  corepack prepare --activate;
 
 # hadolint ignore=DL3008
 RUN \
@@ -374,6 +340,53 @@ RUN \
 FROM ruby AS mastodon
 
 ARG TARGETPLATFORM
+
+# hadolint ignore=DL3008
+RUN \
+  # Mount Apt cache and lib directories from Docker buildx caches
+  --mount=type=cache,id=apt-cache-${TARGETPLATFORM},target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,id=apt-lib-${TARGETPLATFORM},target=/var/lib/apt,sharing=locked \
+  # Mount Corepack and Yarn caches from Docker buildx caches
+  --mount=type=cache,id=corepack-cache-${TARGETPLATFORM},target=/usr/local/share/.cache/corepack,sharing=locked \
+  --mount=type=cache,id=yarn-cache-${TARGETPLATFORM},target=/usr/local/share/.cache/yarn,sharing=locked \
+  # Apt update install non-dev versions of necessary components
+  apt-get install -y --no-install-recommends \
+  libexpat1 \
+  libglib2.0-0t64 \
+  libicu76 \
+  libidn12 \
+  libpq5 \
+  libreadline8t64 \
+  libssl3t64 \
+  libyaml-0-2 \
+  # libvips components
+  libcgif0 \
+  libexif12 \
+  libheif1 \
+  libhwy1t64 \
+  libimagequant0 \
+  libjpeg62-turbo \
+  liblcms2-2 \
+  libspng0 \
+  libtiff6 \
+  libwebp7 \
+  libwebpdemux2 \
+  libwebpmux3 \
+  # ffmpeg components
+  libdav1d7 \
+  libmp3lame0 \
+  libopencore-amrnb0 \
+  libopencore-amrwb0 \
+  libopus0 \
+  libsnappy1v5 \
+  libtheora0 \
+  libvorbis0a \
+  libvorbisenc2 \
+  libvorbisfile3 \
+  libvpx9 \
+  libx264-164 \
+  libx265-215 \
+  ;
 
 # Copy Mastodon sources into final layer
 COPY . /opt/mastodon/
@@ -406,7 +419,8 @@ RUN \
   mkdir -p /opt/mastodon/public/system; \
   chown mastodon:mastodon /opt/mastodon/public/system; \
   # Set Mastodon user as owner of tmp folder
-  chown -R mastodon:mastodon /opt/mastodon/tmp;
+  chown -R mastodon:mastodon /opt/mastodon/tmp; \
+  chown -R mastodon:mastodon /opt/mastodon/config;
 
 # Set the running user for resulting container
 USER mastodon
