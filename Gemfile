@@ -122,11 +122,6 @@ group :opentelemetry do
   gem 'opentelemetry-sdk', '~> 1.4', require: false
 end
 
-# Patchwork/Newsmast engine (temporary git branch for upgrade integration)
-gem 'newsmast_mastodon',
-    git: 'https://github.com/patchwork-hub/newsmast_mastodon.git',
-    branch: 'mastodon-4.6.5'
-
 group :test do
   # Enable usage of all available CPUs/cores during spec runs
   gem 'flatware-rspec'
@@ -236,3 +231,6 @@ gem 'hcaptcha', '~> 7.1'
 gem 'mail', '~> 2.8'
 
 gem 'vite_rails'
+
+# Patchwork/Newsmast engine (temporary git branch for upgrade integration)
+gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5'

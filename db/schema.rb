@@ -1006,7 +1006,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.bigint "logo_image_file_size"
     t.datetime "logo_image_updated_at"
     t.string "name", null: false
-    t.boolean "no_boost_channel", default: false
     t.integer "participants_count", default: 0
     t.bigint "patchwork_collection_id"
     t.bigint "patchwork_community_type_id"

@@ -1,0 +1,93 @@
+{
+  "compatibilities": ["EC2", "FARGATE", "MANAGED_INSTANCES"],
+  "containerDefinitions": [
+    {
+      "command": ["bash", "-c", "node ./streaming/index.js"],
+      "cpu": 0,
+      "environment": [],
+      "environmentFiles": [
+        {
+          "type": "s3",
+          "value": "arn:aws:s3:::patchwork-private-env/mome.env"
+        }
+      ],
+      "essential": true,
+      "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/mo-me:mome-stream",
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mome-streaming",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "mountPoints": [],
+      "name": "mome-streaming",
+      "portMappings": [
+        {
+          "containerPort": 4000,
+          "hostPort": 4000,
+          "name": "mome-streaming-4000-tcp",
+          "protocol": "tcp"
+        }
+      ],
+      "systemControls": [],
+      "volumesFrom": [],
+      "workingDirectory": "/opt/mastodon"
+    }
+  ],
+  "cpu": "256",
+  "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+  "family": "mome-streaming",
+  "memory": "512",
+  "networkMode": "awsvpc",
+  "placementConstraints": [],
+  "registeredAt": "2025-10-26T08:01:12.190Z",
+  "registeredBy": "arn:aws:iam::672691776916:user/ahn",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+    },
+    {
+      "name": "ecs.capability.env-files.s3"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "revision": 1,
+  "runtimePlatform": {
+    "operatingSystemFamily": "LINUX"
+  },
+  "status": "ACTIVE",
+  "taskDefinitionArn": "arn:aws:ecs:eu-west-2:672691776916:task-definition/mome-streaming:1",
+  "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+  "volumes": [],
+  "tags": []
+}
