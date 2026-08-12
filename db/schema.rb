@@ -1006,7 +1006,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.bigint "logo_image_file_size"
     t.datetime "logo_image_updated_at"
     t.string "name", null: false
-    t.boolean "no_boost_channel", default: false
     t.integer "participants_count", default: 0
     t.bigint "patchwork_collection_id"
     t.bigint "patchwork_community_type_id"
@@ -1035,6 +1034,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.string "role"
     t.datetime "updated_at", null: false
     t.string "username"
+    t.index ["account_id", "patchwork_community_id"], name: "index_patchwork_communities_admins_on_account_and_community", unique: true
     t.index ["account_id", "patchwork_community_id"], name: "unique_community_admin_index", unique: true
     t.index ["account_id"], name: "index_patchwork_communities_admins_on_account_id"
     t.index ["patchwork_community_id"], name: "index_patchwork_communities_admins_on_patchwork_community_id"
