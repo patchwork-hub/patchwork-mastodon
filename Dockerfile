@@ -316,6 +316,8 @@ RUN ldconfig
 RUN \
   # Mount Ruby Gem caches
   --mount=type=cache,id=gem-cache-${TARGETPLATFORM},target=/usr/local/bundle/cache/,sharing=locked \
+  # Mount optional GitHub token for Git-based gem sources
+  --mount=type=secret,id=github_token,required=false \
   # Configure bundle to prevent changes to Gemfile and Gemfile.lock
   bundle config set --global frozen "true"; \
   # Configure bundle to not cache downloaded Gems
@@ -324,6 +326,10 @@ RUN \
   bundle config set --local without "development test"; \
   # Configure bundle to not warn about root user
   bundle config set silence_root_warning "true"; \
+  # Authenticate GitHub access for private Git-based gem sources when token is available
+  if [ -f /run/secrets/github_token ]; then \
+    export BUNDLE_GITHUB__COM="x-access-token:$(cat /run/secrets/github_token)"; \
+  fi; \
   # Download and install required Gems
   bundle install -j"$(nproc)";
 
