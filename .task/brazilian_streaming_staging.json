@@ -1,0 +1,82 @@
+{
+    "family": "brazilian-staging-streaming",
+    "containerDefinitions": [
+        {
+            "name": "streaming",
+            "image": "440893644165.dkr.ecr.sa-east-1.amazonaws.com/brazilian/streaming:staging",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 4000,
+                    "hostPort": 4000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "node",
+                "streaming"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::brazilian-staging-env/streaming/.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/brazilian-staging",
+                    "awslogs-region": "sa-east-1",
+                    "awslogs-stream-prefix": "streaming"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "wget -q --spider http://localhost:4000/api/v1/streaming/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::440893644165:role/brazilian-staging-ecs-task",
+    "executionRoleArn": "arn:aws:iam::440893644165:role/brazilian-staging-ecs-execution",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "tags": [
+        {
+            "key": "Project",
+            "value": "brazilian"
+        },
+        {
+            "key": "Environment",
+            "value": "staging"
+        },
+        {
+            "key": "Service",
+            "value": "streaming"
+        },
+        {
+            "key": "ManagedBy",
+            "value": "terraform"
+        },
+        {
+            "key": "Name",
+            "value": "brazilian-staging-streaming-task"
+        }
+    ]
+}

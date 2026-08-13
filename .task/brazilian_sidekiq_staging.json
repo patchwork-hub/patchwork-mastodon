@@ -1,0 +1,68 @@
+{
+    "family": "brazilian-staging-sidekiq",
+    "containerDefinitions": [
+        {
+            "name": "sidekiq",
+            "image": "440893644165.dkr.ecr.sa-east-1.amazonaws.com/brazilian/web:staging",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://brazilian-staging-env/ibram-museus-firebase-adminsdk-fbsvc-3a1e5e2974.json /opt/mastodon/config && bundle exec sidekiq"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::brazilian-staging-env/sidekiq/.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/brazilian-staging",
+                    "awslogs-region": "sa-east-1",
+                    "awslogs-stream-prefix": "sidekiq"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::440893644165:role/brazilian-staging-ecs-task",
+    "executionRoleArn": "arn:aws:iam::440893644165:role/brazilian-staging-ecs-execution",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "tags": [
+        {
+            "key": "Project",
+            "value": "brazilian"
+        },
+        {
+            "key": "Environment",
+            "value": "staging"
+        },
+        {
+            "key": "Service",
+            "value": "sidekiq"
+        },
+        {
+            "key": "ManagedBy",
+            "value": "terraform"
+        },
+        {
+            "key": "Name",
+            "value": "brazilian-staging-sidekiq-task"
+        }
+    ]
+}
