@@ -1,0 +1,101 @@
+{
+    "family": "findout-media-web",
+    "containerDefinitions": [
+        {
+            "name": "findout-media-web",
+            "image": "846532307786.dkr.ecr.ca-west-1.amazonaws.com/findout-mastodon:production",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp",
+                    "name": "findout-media-web-3000-tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://fom-private-env-data/findoutmedia-7e2a3-firebase-adminsdk-fbsvc-abdfeee5c8.json /opt/mastodon/config && bundle exec rails db:create && bundle exec rails db:migrate && bundle exec rails s -p 3000"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::fom-private-env-data/findout-prod.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "ulimits": [
+                {
+                    "name": "nofile",
+                    "softLimit": 1024,
+                    "hardLimit": 4096
+                },
+                {
+                    "name": "core",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "memlock",
+                    "softLimit": 64,
+                    "hardLimit": 64
+                },
+                {
+                    "name": "msgqueue",
+                    "softLimit": 819200,
+                    "hardLimit": 819200
+                },
+                {
+                    "name": "nice",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "nproc",
+                    "softLimit": 15471,
+                    "hardLimit": 15471
+                },
+                {
+                    "name": "rtprio",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                },
+                {
+                    "name": "sigpending",
+                    "softLimit": 15471,
+                    "hardLimit": 15471
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/findout-media-web",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ca-west-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-task-role-prod",
+    "executionRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-exec-role-prod",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}

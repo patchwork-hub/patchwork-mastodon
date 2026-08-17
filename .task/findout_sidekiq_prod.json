@@ -1,0 +1,52 @@
+{
+    "family": "findout-media-sidekiq",
+    "containerDefinitions": [
+        {
+            "name": "findout-media-sidekiq",
+            "image": "846532307786.dkr.ecr.ca-west-1.amazonaws.com/findout-mastodon:production",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://fom-private-env-data/findoutmedia-7e2a3-firebase-adminsdk-fbsvc-abdfeee5c8.json /opt/mastodon/config &&  bundle exec sidekiq"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::fom-private-env-data/findout-prod.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/findout-media-sidekiq",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ca-west-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-task-role-prod",
+    "executionRoleArn": "arn:aws:iam::846532307786:role/findout-media-ecs-exec-role-prod",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "enableFaultInjection": false
+}
