@@ -42,7 +42,7 @@
     "requiresCompatibilities": [
         "FARGATE"
     ],
-    "cpu": "256",
+    "cpu": "512",
     "memory": "1024",
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
