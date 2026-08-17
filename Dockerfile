@@ -316,6 +316,13 @@ RUN ldconfig
 RUN \
   # Mount Ruby Gem caches
   --mount=type=cache,id=gem-cache-${TARGETPLATFORM},target=/usr/local/bundle/cache/,sharing=locked \
+  # Mount GitHub token for private Git-based Gem dependencies
+  --mount=type=secret,id=github_token \
+  github_token_file=/run/secrets/github_token; \
+  if [ -s "${github_token_file}" ]; then \
+    github_token="$(cat "${github_token_file}")"; \
+    git config --global url."https://x-access-token:${github_token}@github.com/".insteadOf "https://github.com/"; \
+  fi; \
   # Configure bundle to prevent changes to Gemfile and Gemfile.lock
   bundle config set --global frozen "true"; \
   # Configure bundle to not cache downloaded Gems
@@ -325,7 +332,10 @@ RUN \
   # Configure bundle to not warn about root user
   bundle config set silence_root_warning "true"; \
   # Download and install required Gems
-  bundle install -j"$(nproc)";
+  bundle install -j"$(nproc)"; \
+  if [ -s "${github_token_file}" ]; then \
+    git config --global --remove-section "url.https://x-access-token:${github_token}@github.com/" || true; \
+  fi;
 
 # Create temporary assets build layer from build layer
 FROM ruby-build AS precompiler
