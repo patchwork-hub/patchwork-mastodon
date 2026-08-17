@@ -13,7 +13,7 @@ ARG BASE_REGISTRY="docker.io"
 
 # Ruby image to use for base image, change with [--build-arg RUBY_VERSION="4.0.x"]
 # renovate: datasource=docker depName=docker.io/ruby
-ARG RUBY_VERSION="4.0.5"
+ARG RUBY_VERSION="4.0.6"
 # # Node.js version to use in base image, change with [--build-arg NODE_MAJOR_VERSION="22"]
 # renovate: datasource=node-version depName=node
 ARG NODE_MAJOR_VERSION="24"
@@ -110,6 +110,7 @@ RUN \
   tini \
   tzdata \
   wget \
+  unzip \
   # Mastodon components
   libexpat1 \
   libglib2.0-0t64 \
@@ -153,6 +154,11 @@ RUN \
   apt-get purge -y \
   patchelf \
   ;
+
+#install aws cli 
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip
+RUN ./aws/install && aws --version
+
 
 # Build stage for media libraries (libvips, ffmpeg)
 FROM ${BASE_REGISTRY}/ruby:${RUBY_VERSION}-slim-${DEBIAN_VERSION} AS media-build
@@ -210,7 +216,7 @@ FROM media-build AS libvips
 
 # libvips version to compile, change with [--build-arg VIPS_VERSION="8.15.2"]
 # renovate: datasource=github-releases depName=libvips packageName=libvips/libvips
-ARG VIPS_VERSION=8.18.3
+ARG VIPS_VERSION=8.18.5
 # libvips download URL, change with [--build-arg VIPS_URL="https://github.com/libvips/libvips/releases/download"]
 ARG VIPS_URL=https://github.com/libvips/libvips/releases/download
 
@@ -406,7 +412,9 @@ RUN \
   mkdir -p /opt/mastodon/public/system; \
   chown mastodon:mastodon /opt/mastodon/public/system; \
   # Set Mastodon user as owner of tmp folder
-  chown -R mastodon:mastodon /opt/mastodon/tmp;
+  chown -R mastodon:mastodon /opt/mastodon/tmp; \
+  chown -R mastodon:mastodon /opt/mastodon/config;
+
 
 # Set the running user for resulting container
 USER mastodon
