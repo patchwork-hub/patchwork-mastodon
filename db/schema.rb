@@ -1416,12 +1416,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   create_table "server_settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
+    t.string "key"
     t.string "name"
     t.string "optional_value"
     t.bigint "parent_id"
     t.integer "position"
     t.datetime "updated_at", null: false
     t.boolean "value"
+    t.index ["key"], name: "index_server_settings_on_key", unique: true, where: "(key IS NOT NULL)"
   end
 
   create_table "session_activations", force: :cascade do |t|
@@ -1550,6 +1552,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.bigint "ordered_media_attachment_ids", array: true
     t.bigint "poll_id"
     t.integer "quote_approval_policy", default: 0, null: false
+    t.bigint "quote_id"
     t.bigint "reblog_of_id"
     t.boolean "reply", default: false, null: false
     t.boolean "sensitive", default: false, null: false
@@ -1565,7 +1568,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.index ["conversation_id"], name: "index_statuses_on_conversation_id"
     t.index ["deleted_at"], name: "index_statuses_on_deleted_at", where: "(deleted_at IS NOT NULL)"
     t.index ["id", "account_id"], name: "index_statuses_local_20190824", order: { id: :desc }, where: "((local OR (uri IS NULL)) AND (deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
-    t.index ["id", "language", "account_id"], name: "index_statuses_public_20250129", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
+    t.index ["id", "account_id"], name: "index_statuses_public_20200119", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["in_reply_to_account_id"], name: "index_statuses_on_in_reply_to_account_id", where: "(in_reply_to_account_id IS NOT NULL)"
     t.index ["in_reply_to_id"], name: "index_statuses_on_in_reply_to_id", where: "(in_reply_to_id IS NOT NULL)"
     t.index ["reblog_of_id", "account_id"], name: "index_statuses_on_reblog_of_id_and_account_id"
@@ -1628,12 +1631,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   create_table "terms_of_services", force: :cascade do |t|
     t.text "changelog", default: "", null: false
     t.datetime "created_at", null: false
-    t.date "effective_date"
+    t.date "effective_date", null: false
     t.datetime "notification_sent_at"
     t.datetime "published_at"
     t.text "text", default: "", null: false
     t.datetime "updated_at", null: false
-    t.index ["effective_date"], name: "index_terms_of_services_on_effective_date", unique: true, where: "(effective_date IS NOT NULL)"
   end
 
   create_table "tombstones", force: :cascade do |t|
@@ -1733,7 +1735,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   end
 
   create_table "web_push_subscriptions", force: :cascade do |t|
-    t.bigint "access_token_id", null: false
+    t.bigint "access_token_id"
     t.datetime "created_at", precision: nil, null: false
     t.json "data"
     t.string "endpoint", null: false
@@ -1741,7 +1743,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.string "key_p256dh", null: false
     t.boolean "standard", default: false, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.index ["access_token_id"], name: "index_web_push_subscriptions_on_access_token_id", where: "(access_token_id IS NOT NULL)"
     t.index ["user_id"], name: "index_web_push_subscriptions_on_user_id"
   end
@@ -1884,7 +1886,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   add_foreign_key "oauth_applications", "users", column: "owner_id", name: "fk_b0988c7c0a", on_delete: :cascade
   add_foreign_key "patchwork_app_version_histories", "patchwork_app_versions", column: "app_version_id"
   add_foreign_key "patchwork_communities", "patchwork_collections"
-  add_foreign_key "patchwork_communities_admins", "accounts"
+  add_foreign_key "patchwork_communities_admins", "accounts", on_delete: :cascade
   add_foreign_key "patchwork_communities_admins", "patchwork_communities"
   add_foreign_key "patchwork_communities_filter_keywords", "patchwork_communities", on_delete: :cascade
   add_foreign_key "patchwork_communities_hashtags", "patchwork_communities", on_delete: :cascade
@@ -1914,10 +1916,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   add_foreign_key "preview_card_trends", "preview_cards", on_delete: :cascade
   add_foreign_key "preview_cards", "accounts", column: "author_account_id", on_delete: :nullify
   add_foreign_key "preview_cards", "accounts", column: "unverified_author_account_id", on_delete: :nullify
-  add_foreign_key "quotes", "accounts", column: "quoted_account_id", on_delete: :nullify
-  add_foreign_key "quotes", "accounts", on_delete: :cascade
-  add_foreign_key "quotes", "statuses", column: "quoted_status_id", on_delete: :nullify
-  add_foreign_key "quotes", "statuses", on_delete: :cascade
   add_foreign_key "report_notes", "accounts", on_delete: :cascade
   add_foreign_key "report_notes", "reports", on_delete: :cascade
   add_foreign_key "reports", "accounts", column: "action_taken_by_account_id", name: "fk_bca45b75fd", on_delete: :nullify
