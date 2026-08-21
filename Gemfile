@@ -232,5 +232,5 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails'
 
-# Patchwork/Newsmast engine
-gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5'
+# Patchwork/Newsmast engine (temporary git branch for upgrade integration)
+gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5.1'
