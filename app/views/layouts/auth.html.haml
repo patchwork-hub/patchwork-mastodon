@@ -5,10 +5,10 @@
   .container-alt
     %header.logo-container
       - if within_authorization_flow?
-        = logo_as_symbol(:wordmark)
+        = image_tag frontend_asset_path('images/memoria-digital-logo.svg'), class: 'logo', alt: 'Memória Digital'
       - else
         = link_to root_path do
-          = logo_as_symbol(:wordmark)
+          = image_tag frontend_asset_path('images/memoria-digital-logo.svg'), class: 'logo', alt: 'Memória Digital'
 
     %main.form-container
       = render 'flashes'
