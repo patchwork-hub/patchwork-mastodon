@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 422 252" role="img">
+  <title>Memória Digital</title>
+  <defs>
+    <clipPath id="memoria-digital-mark">
+      <path d="M0 5h77v47C98 18 128 0 166 0c37 0 66 17 81 48C265 18 295 0 334 0c55 0 88 39 88 96v156h-85V113c0-29-12-42-36-42-26 0-43 20-43 52v129h-85V117c0-30-12-46-38-46-29 0-50 22-50 60v121H0V5Z"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#memoria-digital-mark)">
+    <path fill="#078342" d="M0 0h247L123 124Z"/>
+    <path fill="#8aaa3b" d="M0 0 94 94 0 188Z"/>
+    <path fill="#ffc32a" d="m0 252 247-247 92 92-155 155Z"/>
+    <path fill="#078342" d="m247 48 73-73 128 128-73 73Z"/>
+    <path fill="#205a96" d="m339 97 109-109v217L375 252l-73-73Z"/>
+    <path fill="#2377b8" d="m173 252 46-46 46 46Z"/>
+    <path fill="#8aaa3b" d="m302 179 73 73h-146Z"/>
+    <path fill="#078342" d="m375 252 73-73v73Z"/>
+  </g>
+</svg>
