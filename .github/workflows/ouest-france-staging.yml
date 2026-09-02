@@ -120,13 +120,11 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building web application image..."
-          docker buildx build \
-            --platform linux/amd64 \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
-            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push .
+          : "${ECR_REGISTRY:?ECR_REGISTRY is required}"
+          : "${ECR_REPOSITORY:?ECR_REPOSITORY is required}"
+          : "${IMAGE_TAG:?IMAGE_TAG is required}"
+
+          docker buildx build --platform linux/amd64 --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" --tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" --push .
 
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
@@ -176,14 +174,11 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           echo "Building streaming service image..."
-          docker buildx build \
-            --platform linux/amd64 \
-            --file ./streaming/Dockerfile \
-            --cache-from type=local,src=/tmp/.buildx-cache-streaming \
-            --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max \
-            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push .
+          : "${ECR_REGISTRY:?ECR_REGISTRY is required}"
+          : "${ECR_REPOSITORY:?ECR_REPOSITORY is required}"
+          : "${IMAGE_TAG:?IMAGE_TAG is required}"
+
+          docker buildx build --platform linux/amd64 --file ./streaming/Dockerfile --cache-from type=local,src=/tmp/.buildx-cache-streaming --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" --tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" --push .
 
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache-streaming
