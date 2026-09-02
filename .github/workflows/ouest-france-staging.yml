@@ -124,6 +124,19 @@ jobs:
           : "${ECR_REPOSITORY:?ECR_REPOSITORY is required}"
           : "${IMAGE_TAG:?IMAGE_TAG is required}"
 
+          ECR_REGISTRY="$(printf '%s' "$ECR_REGISTRY" | tr -d '\r\n' | xargs)"
+          ECR_REPOSITORY="$(printf '%s' "$ECR_REPOSITORY" | tr -d '\r\n' | xargs | tr '[:upper:]' '[:lower:]')"
+          IMAGE_TAG="$(printf '%s' "$IMAGE_TAG" | tr -d '\r\n' | xargs)"
+
+          : "${ECR_REGISTRY:?ECR_REGISTRY is empty after normalization}"
+          : "${ECR_REPOSITORY:?ECR_REPOSITORY is empty after normalization}"
+          : "${IMAGE_TAG:?IMAGE_TAG is empty after normalization}"
+
+          if [[ "$ECR_REGISTRY$ECR_REPOSITORY$IMAGE_TAG" =~ [[:space:]] ]]; then
+            echo "Image reference values contain whitespace. Check OUEST_REPOSITORY and OUEST_STAGING_IMAGE_TAG settings."
+            exit 1
+          fi
+
           docker buildx build --platform linux/amd64 --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" --tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" --push .
 
           # Move cache to prevent growth
@@ -177,6 +190,19 @@ jobs:
           : "${ECR_REGISTRY:?ECR_REGISTRY is required}"
           : "${ECR_REPOSITORY:?ECR_REPOSITORY is required}"
           : "${IMAGE_TAG:?IMAGE_TAG is required}"
+
+          ECR_REGISTRY="$(printf '%s' "$ECR_REGISTRY" | tr -d '\r\n' | xargs)"
+          ECR_REPOSITORY="$(printf '%s' "$ECR_REPOSITORY" | tr -d '\r\n' | xargs | tr '[:upper:]' '[:lower:]')"
+          IMAGE_TAG="$(printf '%s' "$IMAGE_TAG" | tr -d '\r\n' | xargs)"
+
+          : "${ECR_REGISTRY:?ECR_REGISTRY is empty after normalization}"
+          : "${ECR_REPOSITORY:?ECR_REPOSITORY is empty after normalization}"
+          : "${IMAGE_TAG:?IMAGE_TAG is empty after normalization}"
+
+          if [[ "$ECR_REGISTRY$ECR_REPOSITORY$IMAGE_TAG" =~ [[:space:]] ]]; then
+            echo "Image reference values contain whitespace. Check OUEST_REPOSITORY and OUEST_STREAMING_STAGING_IMAGE_TAG settings."
+            exit 1
+          fi
 
           docker buildx build --platform linux/amd64 --file ./streaming/Dockerfile --cache-from type=local,src=/tmp/.buildx-cache-streaming --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" --tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" --push .
 
