@@ -126,8 +126,7 @@ jobs:
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
             --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push \
-            .
+            --push .
 
           # Move cache to prevent growth
           rm -rf /tmp/.buildx-cache
