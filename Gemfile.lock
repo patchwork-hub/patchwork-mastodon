@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon.git
-  revision: 37bb48bc19da0c9ee996c0144c9bc92ca7e0a249
-  branch: mastodon-4.6.5.1
+  revision: 783ce7ca119297079e98d673c326c54895d66c6d
+  branch: mastodon-4.6.5.1-optimized
   specs:
     newsmast_mastodon (4.6.5.1)
       faraday (~> 2.14.0)
