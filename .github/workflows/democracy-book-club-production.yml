@@ -18,14 +18,21 @@ on:
 # THE VALUES BELLOW ARE NOT CONFIDENTIAL: account ids, region, cluster,
 # repository, service and container names. Do not add credentials here.
 #
-# SYNC REQUIREMENT: the image tags MUST stay `web` and `streaming`, because the
-# terraform stack (patchwork-hub-iac) pins
-# democracybookclub-production:web and democracybookclub-production:streaming.
-# Any other tag will be reverted by the next terraform plan.
+# IMAGE TAGS ARE PER COMMIT: `web-<github.sha>` and `streaming-<github.sha>`.
+# Every deploy therefore produces an immutable tag, so a task definition revision
+# identifies exactly one image and can be rolled back to. The mutable `web` and
+# `streaming` aliases are NOT used: ECS resolves an image tag to a digest when a
+# task STARTS, so a shared alias would mean two revisions with the same string
+# resolve to different digests, and a restarted task would silently pick up a
+# newer image. Rollback would be impossible.
+#
+# The terraform stack (patchwork-hub-iac) still lists `:web`/`:streaming` in its
+# `image` variable, but that value only applies when a task definition family is
+# first created. `modules/ecs/task_definition` carries
+# `lifecycle { ignore_changes = [container_definitions] }` precisely so the
+# pipeline owns the image and terraform does not revert it. The ECR repository
+# keeps a 30-image lifecycle policy, which is 30 deploys of history.
 env:
-  WEB_DEFINITION: .task/democracy_web_production.json
-  SIDEKIQ_DEFINITION: .task/democracy_sidekiq_production.json
-  STREAMING_DEFINITION: .task/democracy_streaming_production.json
   AWS_REGION: eu-west-2
   REGISTRY: eu-west-2.amazonaws.com
   DEMOCRACY_PRODUCTION_REPOSITORY: democracybookclub-production
@@ -36,8 +43,8 @@ env:
   DEMOCRACY_WEB_PRODUCTION_CONTAINER: web
   DEMOCRACY_SIDEKIQ_PRODUCTION_CONTAINER_NAME: sidekiq
   DEMOCRACY_STREAMING_PRODUCTION_CONTAINER_NAME: streaming
-  DEMOCRACY_PRODUCTION_IMAGE_TAG: web
-  DEMOCRACY_STREAMING_PRODUCTION_IMAGE_TAG: streaming
+  DEMOCRACY_PRODUCTION_IMAGE_TAG: web-${{ github.sha }}
+  DEMOCRACY_STREAMING_PRODUCTION_IMAGE_TAG: streaming-${{ github.sha }}
 
 permissions:
   contents: read
@@ -243,11 +250,29 @@ jobs:
         with:
           mask-password: 'true'
 
-      - name: Update web service task definition
+      # The task definition is resolved THROUGH the service, so the service must
+      # already exist. Terraform remains the only writer of CPU, memory, ports,
+      # IAM roles, log groups and environment files; this pipeline only replaces
+      # the image. Nothing about the task definitions is stored in this
+      # repository, so it cannot drift from the terraform stack.
+      - name: Download current web task definition
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$DEMOCRACY_CLUSTER_PRODUCTION" \
+            --services "$DEMOCRACY_WEB_PRODUCTION_SERVICE_NAME" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          echo "Web service is currently on: $TASK_DEF_ARN"
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition' \
+            --output json > task-definition-web.json
+
+      - name: Render web task definition with this commit image
         id: task-def-web
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.WEB_DEFINITION }}
+          task-definition: task-definition-web.json
           container-name: ${{ env.DEMOCRACY_WEB_PRODUCTION_CONTAINER }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.DEMOCRACY_PRODUCTION_REPOSITORY }}:${{ env.DEMOCRACY_PRODUCTION_IMAGE_TAG }}
 
@@ -259,11 +284,24 @@ jobs:
           cluster: ${{ env.DEMOCRACY_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
-      - name: Update Sidekiq task definition
+      - name: Download current Sidekiq task definition
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$DEMOCRACY_CLUSTER_PRODUCTION" \
+            --services "$DEMOCRACY_SIDEKIQ_PRODUCTION_SERVICE_NAME" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          echo "Sidekiq service is currently on: $TASK_DEF_ARN"
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition' \
+            --output json > task-definition-sidekiq.json
+
+      - name: Render Sidekiq task definition with this commit image
         id: task-def-sidekiq
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.SIDEKIQ_DEFINITION }}
+          task-definition: task-definition-sidekiq.json
           container-name: ${{ env.DEMOCRACY_SIDEKIQ_PRODUCTION_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.DEMOCRACY_PRODUCTION_REPOSITORY }}:${{ env.DEMOCRACY_PRODUCTION_IMAGE_TAG }}
 
@@ -275,11 +313,24 @@ jobs:
           cluster: ${{ env.DEMOCRACY_CLUSTER_PRODUCTION }}
           wait-for-service-stability: false
 
-      - name: Update Streaming task definition
+      - name: Download current Streaming task definition
+        run: |
+          TASK_DEF_ARN=$(aws ecs describe-services \
+            --cluster "$DEMOCRACY_CLUSTER_PRODUCTION" \
+            --services "$DEMOCRACY_STREAMING_PRODUCTION_SERVICE_NAME" \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          echo "Streaming service is currently on: $TASK_DEF_ARN"
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition' \
+            --output json > task-definition-streaming.json
+
+      - name: Render Streaming task definition with this commit image
         id: task-def-streaming
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.STREAMING_DEFINITION }}
+          task-definition: task-definition-streaming.json
           container-name: ${{ env.DEMOCRACY_STREAMING_PRODUCTION_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.DEMOCRACY_PRODUCTION_REPOSITORY }}:${{ env.DEMOCRACY_STREAMING_PRODUCTION_IMAGE_TAG }}
 
@@ -294,6 +345,9 @@ jobs:
       - name: Deployment complete
         run: |
           echo "Deployment to production environment completed successfully!"
+          echo "Commit: ${{ github.sha }}"
+          echo "Web image: ${{ env.DEMOCRACY_PRODUCTION_REPOSITORY }}:${{ env.DEMOCRACY_PRODUCTION_IMAGE_TAG }}"
+          echo "Streaming image: ${{ env.DEMOCRACY_PRODUCTION_REPOSITORY }}:${{ env.DEMOCRACY_STREAMING_PRODUCTION_IMAGE_TAG }}"
           echo "Web service: ${{ env.DEMOCRACY_WEB_PRODUCTION_SERVICE_NAME }}"
           echo "Sidekiq service: ${{ env.DEMOCRACY_SIDEKIQ_PRODUCTION_SERVICE_NAME }}"
           echo "Streaming service: ${{ env.DEMOCRACY_STREAMING_PRODUCTION_SERVICE_NAME }}"
