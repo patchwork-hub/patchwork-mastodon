@@ -2,9 +2,6 @@ run-name: Deploy to democracy production by @${{ github.actor }}
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - democracy-book-club-4.6.5-production
 # GITHUB SECRETS AND VARIABLES LIMIT (100 EACH PER REPOSITORY)
 # This repository has reached both the 100-secret and the 100-variable cap, so
 # no non-credential setting may be added to Settings > Secrets and variables.
