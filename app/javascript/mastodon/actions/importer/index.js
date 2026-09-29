@@ -84,12 +84,12 @@ export function importFetchedStatuses(statuses, options = {}) {
         pushUnique(polls, createPollFromServerJSON(status.poll, getState().polls[status.poll.id]));
       }
 
-      if (status.tagged_collections?.length) {
+      if (status.tagged_collections.length) {
         status.tagged_collections.forEach(collection => pushUnique(collections, collection));
       }
 
       if (status.card) {
-        status.card.authors?.forEach(author => author.account && pushUnique(accounts, author.account));
+        status.card.authors.forEach(author => author.account && pushUnique(accounts, author.account));
       }
 
       if (status.emojis && status.account.username === status.account.acct) {

@@ -8,7 +8,7 @@ const domParser = new DOMParser();
 
 export function searchTextFromRawStatus (status) {
   const spoilerText   = status.spoiler_text || '';
-  const searchContent = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).concat((status.media_attachments ?? []).map(att => att.description)).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
+  const searchContent = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).concat(status.media_attachments.map(att => att.description)).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
   return domParser.parseFromString(searchContent, 'text/html').documentElement.textContent;
 }
 
@@ -55,7 +55,7 @@ export function normalizeStatus(status, normalOldStatus, { bogusQuotePolicy = fa
   if (status.card) {
     normalStatus.card = {
       ...status.card,
-      authors: (status.card.authors ?? []).map(author => ({
+      authors: status.card.authors.map(author => ({
         ...author,
         accountId: author.account?.id,
         account: undefined,
@@ -89,7 +89,7 @@ export function normalizeStatus(status, normalOldStatus, { bogusQuotePolicy = fa
     }
 
     const spoilerText   = normalStatus.spoiler_text || '';
-    const searchContent = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).concat((status.media_attachments ?? []).map(att => att.description)).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
+    const searchContent = ([spoilerText, status.content].concat((status.poll && status.poll.options) ? status.poll.options.map(option => option.title) : [])).concat(status.media_attachments.map(att => att.description)).join('\n\n').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
 
     normalStatus.search_index = domParser.parseFromString(searchContent, 'text/html').documentElement.textContent;
     normalStatus.contentHtml  = normalStatus.content;
@@ -107,7 +107,7 @@ export function normalizeStatus(status, normalOldStatus, { bogusQuotePolicy = fa
 
     normalStatus.url ||= normalStatus.uri;
 
-    normalStatus.media_attachments?.forEach(item => {
+    normalStatus.media_attachments.forEach(item => {
       if (item.remote_url && !(item.remote_url.startsWith('http://') || item.remote_url.startsWith('https://')))
         item.remote_url = null;
     });
@@ -118,7 +118,7 @@ export function normalizeStatus(status, normalOldStatus, { bogusQuotePolicy = fa
 
     const list = normalOldStatus.get('media_attachments');
     if (normalStatus.media_attachments && list) {
-      normalStatus.media_attachments?.forEach(item => {
+      normalStatus.media_attachments.forEach(item => {
         const oldItem = list.find(i => i.get('id') === item.id);
         if (oldItem && oldItem.get('description') === item.description) {
           item.translation = oldItem.get('translation');
