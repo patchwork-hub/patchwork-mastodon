@@ -9,10 +9,10 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon.git
-  revision: 2eb381de22b562e69a25786b34ef8af98627e39e
-  branch: mastodon-4.6.5
+  revision: 783ce7ca119297079e98d673c326c54895d66c6d
+  branch: mastodon-4.6.5.2
   specs:
-    newsmast_mastodon (4.6.5.0)
+    newsmast_mastodon (4.6.5.1)
       faraday (~> 2.14.0)
       googleauth (~> 1.13, >= 1.13.1)
       httparty (~> 0.23.1)
