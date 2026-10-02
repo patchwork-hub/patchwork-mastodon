@@ -415,6 +415,9 @@ RUN \
   # Pre-create and chown system volume to Mastodon user
   mkdir -p /opt/mastodon/public/system; \
   chown mastodon:mastodon /opt/mastodon/public/system; \
+  # Pre-create config directory for runtime-downloaded secrets (e.g. Firebase key)
+  mkdir -p /opt/mastodon/config; \
+  chown mastodon:mastodon /opt/mastodon/config; \
   # Set Mastodon user as owner of tmp folder
   chown -R mastodon:mastodon /opt/mastodon/tmp;
 
