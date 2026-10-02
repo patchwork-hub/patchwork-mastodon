@@ -110,6 +110,7 @@ RUN \
   tini \
   tzdata \
   wget \
+  unzip \
   # Mastodon components
   libexpat1 \
   libglib2.0-0t64 \
@@ -153,6 +154,15 @@ RUN \
   apt-get purge -y \
   patchelf \
   ;
+
+# Install AWS CLI v2
+# Mirrors the install block used in newsmast-4.6.5, bristol-cable-4.6.5-production,
+# and other customer branches, so containers can run `aws` commands at startup.
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws && \
+    aws --version
 
 # Build stage for media libraries (libvips, ffmpeg)
 FROM ${BASE_REGISTRY}/ruby:${RUBY_VERSION}-slim-${DEBIAN_VERSION} AS media-build
