@@ -105,6 +105,7 @@ RUN \
   curl \
   file \
   libjemalloc2 \
+  unzip \
   patchelf \
   procps \
   tini \
