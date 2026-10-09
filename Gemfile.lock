@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon.git
-  revision: 783ce7ca119297079e98d673c326c54895d66c6d
-  branch: mastodon-4.6.5.2
+  revision: e720865df51f25419562c3b4206d39dbdfa88799
+  branch: mastodon-4.6.5.3
   specs:
     newsmast_mastodon (4.6.5.1)
       faraday (~> 2.14.0)
@@ -291,7 +291,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.4.0)
       activesupport (>= 6.1)
-    google-cloud-env (2.4.0)
+    google-cloud-env (2.4.1)
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)

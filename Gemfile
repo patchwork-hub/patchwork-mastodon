@@ -232,4 +232,6 @@ gem 'mail', '~> 2.8'
 
 gem 'vite_rails'
 
-gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5.2'
+gem 'newsmast_mastodon',
+    git: 'https://github.com/patchwork-hub/newsmast_mastodon.git',
+    branch: 'mastodon-4.6.5.3'
