@@ -166,6 +166,13 @@ jobs:
           git config pull.rebase false
           git pull origin pouetfrance-social-production-4.6.5
 
+      - name: Copy compose files to persistent deployment directory
+        run: |
+          mkdir -p /home/ubuntu/deployment/mastodon
+          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/
+          cp -f docker-compose.elasticsearch.ovh.yml /home/ubuntu/deployment/mastodon/ || true
+          cp -rf config /home/ubuntu/deployment/mastodon/ || true
+
       - name: Login to OVH Harbor
         uses: docker/login-action@v3
         with:
@@ -173,7 +180,8 @@ jobs:
           username: ${{ env.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Deploy with docker compose
+      - name: Deploy with docker compose from persistent directory
+        working-directory: /home/ubuntu/deployment/mastodon
         run: |
           docker compose -f ${{ env.COMPOSE_FILE }} pull
           docker compose -f ${{ env.COMPOSE_FILE }} up -d
