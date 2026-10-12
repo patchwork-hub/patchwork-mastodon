@@ -49,6 +49,9 @@ node_modules/
 *~
 *.swp
 
+# Ignore Burmese deployment notes
+/မှတ်တမ်း_OVH.md
+
 # Ignore npm debug log
 npm-debug.log
 

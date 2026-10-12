@@ -36,7 +36,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - ./config/firebase-adminsdk.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
     ulimits:
       nofile:
         soft: 1024
@@ -105,10 +105,27 @@ services:
       bash -c "bundle exec sidekiq"
     networks:
       - internal_network
+      - external_network
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - ./config/firebase-adminsdk.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
+      memlock:
+        soft: 64
+        hard: 64
+      msgqueue:
+        soft: 819200
+        hard: 819200
+      nproc:
+        soft: 15471
+        hard: 15471
+      sigpending:
+        soft: 15471
+        hard: 15471
 
 volumes:
   mastodon_uploads:
