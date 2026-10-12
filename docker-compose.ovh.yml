@@ -5,7 +5,7 @@
 services:
   web:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-bc912eda7ae1fe2eab488881b08ba90fbb352f66
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-ee10d3ba588cfe87a34d5b96ebd4511c15ee83fb
     restart: unless-stopped
     # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
     deploy:
@@ -56,7 +56,7 @@ services:
 
   streaming:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/streaming:streaming-bc912eda7ae1fe2eab488881b08ba90fbb352f66
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/streaming:streaming-ee10d3ba588cfe87a34d5b96ebd4511c15ee83fb
     restart: unless-stopped
     # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
     deploy:
@@ -87,7 +87,7 @@ services:
 
   sidekiq:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-bc912eda7ae1fe2eab488881b08ba90fbb352f66
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-ee10d3ba588cfe87a34d5b96ebd4511c15ee83fb
     restart: unless-stopped
     # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
     deploy:
