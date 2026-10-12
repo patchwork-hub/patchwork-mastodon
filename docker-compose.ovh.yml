@@ -116,5 +116,4 @@ volumes:
 networks:
   external_network:
   internal_network:
-    name: pouetsocial_internal
     internal: true

@@ -29,10 +29,7 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     networks:
-      search_network:
-      internal_network:
-        aliases:
-          - elasticsearch
+      - search_network
     healthcheck:
       test: ["CMD-SHELL", "curl -s -u elastic:$$ELASTIC_PASSWORD http://localhost:9200/_cluster/health | grep -Eq '\"status\":\"(green|yellow)\"'"]
       interval: 15s
@@ -47,7 +44,3 @@ networks:
   search_network:
     name: pouetsocial_search
     internal: true
-
-  internal_network:
-    external: true
-    name: pouetsocial_internal
