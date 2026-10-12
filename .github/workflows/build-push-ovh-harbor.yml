@@ -175,5 +175,9 @@ jobs:
 
       - name: Deploy with docker compose
         run: |
+          # Start the main application compose first so it creates the shared network
           docker compose -f ${{ env.COMPOSE_FILE }} pull
           docker compose -f ${{ env.COMPOSE_FILE }} up -d
+
+          # Start Elasticsearch compose which joins the shared internal network
+          docker compose -f docker-compose.elasticsearch.ovh.yml up -d

@@ -1,0 +1,53 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+        reservations:
+          memory: 2G
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.elasticsearch
+    environment:
+      - discovery.type=single-node
+      - cluster.name=pouetsocial
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - ingest.geoip.downloader.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      search_network:
+      internal_network:
+        aliases:
+          - elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:$$ELASTIC_PASSWORD http://localhost:9200/_cluster/health | grep -Eq '\"status\":\"(green|yellow)\"'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+volumes:
+  es_data:
+
+networks:
+  search_network:
+    name: pouetsocial_search
+    internal: true
+
+  internal_network:
+    external: true
+    name: pouetsocial_internal
