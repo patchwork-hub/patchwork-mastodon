@@ -150,3 +150,30 @@ jobs:
           fi
           git commit -m "chore(ovh): update image tags to ${{ github.sha }}"
           git push
+
+  deploy:
+    name: Deploy on OVH instance
+    runs-on: pouetsocial
+    needs: update-compose
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: pouetfrance-social-production-4.6.5
+
+      - name: Pull latest compose file
+        run: |
+          git config pull.rebase false
+          git pull origin pouetfrance-social-production-4.6.5
+
+      - name: Login to OVH Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REGISTRY }}
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Deploy with docker compose
+        run: |
+          docker compose -f ${{ env.COMPOSE_FILE }} pull
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d
