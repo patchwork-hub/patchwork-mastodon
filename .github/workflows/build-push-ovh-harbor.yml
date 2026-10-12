@@ -2,6 +2,9 @@ run-name: Build and push OVH Harbor images by @${{ github.actor }}
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - pouetfrance-social-production-4.6.5
 
 # THE VALUES BELOW ARE NOT CONFIDENTIAL: registry host, project and image names.
 # The only secret is HARBOR_PASSWORD (and GITHUB_TOKEN for committing the
