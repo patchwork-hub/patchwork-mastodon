@@ -17,7 +17,7 @@ services:
           cpus: "1.0"
           memory: 2G
     env_file:
-      - .env.production
+      - /home/ubuntu/deployment/credential/.env.production
     command: >
       bash -c "bundle exec rails db:create &&
                bundle exec rails db:migrate &&
@@ -68,7 +68,7 @@ services:
           cpus: "0.25"
           memory: 512M
     env_file:
-      - .env.production
+      - /home/ubuntu/deployment/credential/.env.production
     environment:
       - DB_SSLMODE=no-verify
     command: ["node", "./streaming/index.js"]
@@ -100,7 +100,7 @@ services:
           cpus: "0.5"
           memory: 1G
     env_file:
-      - .env.production
+      - /home/ubuntu/deployment/credential/.env.production
     command: >
       bash -c "bundle exec sidekiq"
     networks:
