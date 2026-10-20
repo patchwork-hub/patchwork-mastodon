@@ -370,6 +370,11 @@ COPY --from=bundler /usr/local/bundle/ /usr/local/bundle/
 
 RUN \
   ldconfig; \
+  SECRET_KEY_BASE_DUMMY=1 \
+  bundle exec rails newsmast_mastodon:install; \
+  engine_root="$(bundle show newsmast_mastodon)"; \
+  cmp "${engine_root}/app/javascript/newsmast_mastodon/mastodon/features/compose/containers/compose_form_container.js" app/javascript/mastodon/features/compose/containers/compose_form_container.js; \
+  cmp "${engine_root}/app/javascript/newsmast_mastodon/mastodon/features/compose/components/compose_form.jsx" app/javascript/mastodon/features/compose/components/compose_form.jsx; \
   # Use Ruby on Rails to create Mastodon assets
   SECRET_KEY_BASE_DUMMY=1 \
   bundle exec rails assets:precompile; \
@@ -383,6 +388,11 @@ ARG TARGETPLATFORM
 
 # Copy Mastodon sources into final layer
 COPY . /opt/mastodon/
+
+COPY --from=precompiler /opt/mastodon/.newsmast_mastodon_installed /opt/mastodon/.newsmast_mastodon_installed
+COPY --from=precompiler /opt/mastodon/app/chewy /opt/mastodon/app/chewy
+COPY --from=precompiler /opt/mastodon/app/javascript /opt/mastodon/app/javascript
+COPY --from=precompiler /opt/mastodon/app/views /opt/mastodon/app/views
 
 # Copy compiled assets to layer
 COPY --from=precompiler /opt/mastodon/public/packs /opt/mastodon/public/packs
