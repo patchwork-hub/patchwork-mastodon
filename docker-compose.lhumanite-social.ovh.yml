@@ -30,7 +30,6 @@ services:
       - "127.0.0.1:3000:3000"
     networks:
       - external_network
-      - internal_network
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
       interval: 15s
@@ -80,7 +79,6 @@ services:
       - "127.0.0.1:4000:4000"
     networks:
       - external_network
-      - internal_network
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/api/v1/streaming/health"]
       interval: 15s
@@ -109,7 +107,6 @@ services:
       bash -c "bundle exec sidekiq"
     networks:
       - internal_network
-      - external_network
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
