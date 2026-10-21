@@ -13,6 +13,7 @@ import {
 } from 'mastodon/actions/compose';
 import { pasteLinkCompose } from 'mastodon/actions/compose_typed';
 import { openModal } from 'mastodon/actions/modal';
+import { fetchServer } from 'mastodon/actions/server';
 import { PRIVATE_QUOTE_MODAL_ID } from 'mastodon/features/ui/components/confirmation_modals/private_quote_notify';
 import { me } from 'mastodon/initial_state';
 
@@ -44,7 +45,7 @@ const mapStateToProps = state => ({
     && !state.getIn(['settings', 'dismissed_banners', PRIVATE_QUOTE_MODAL_ID]),
   isInReply: state.getIn(['compose', 'in_reply_to']) !== null,
   lang: state.getIn(['compose', 'language']),
-  maxChars: state.getIn(['server', 'server', 'configuration', 'statuses', 'max_characters'], 500),
+  maxChars: state.getIn(['server', 'server', 'item', 'configuration', 'statuses', 'max_characters'], 500),
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
@@ -55,6 +56,10 @@ const mapDispatchToProps = (dispatch, props) => ({
 
   fetchLocalOnlySetting: () => {
     dispatch(fetchLocalOnlySetting());
+  },
+
+  refreshInstanceConfiguration: () => {
+    dispatch(fetchServer());
   },
 
   onSubmit ({ missingAltText, quoteToPrivate }) {
