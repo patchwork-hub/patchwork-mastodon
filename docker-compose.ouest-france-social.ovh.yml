@@ -1,4 +1,4 @@
-# OVH Public Cloud deployment compose file for L'Humanité Social
+# OVH Public Cloud deployment compose file for Ouest-France Social
 # Images are built and pushed by .github/workflows/build-push-ouest-france-social-ovh-harbor.yml
 # which updates the image lines below on every push.
 #
@@ -10,7 +10,7 @@
 services:
   web:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_lhumanitesocialmastodon/web:web-latest
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_ouestfrancesocialmastodon/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
     deploy:
@@ -39,7 +39,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/ouest-france-social/config:/opt/mastodon/config:ro
+      - /home/ubuntu/deployment/credential/ouest-france-social/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
     ulimits:
       nofile:
         soft: 1024
@@ -59,7 +59,7 @@ services:
 
   streaming:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_lhumanitesocialmastodon/streaming:streaming-latest
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_ouestfrancesocialmastodon/streaming:streaming-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
     deploy:
@@ -89,7 +89,7 @@ services:
 
   sidekiq:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_lhumanitesocialmastodon/web:web-latest
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/CHANGE_ME_ouestfrancesocialmastodon/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
     deploy:
@@ -110,7 +110,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/ouest-france-social/config:/opt/mastodon/config:ro
+      - /home/ubuntu/deployment/credential/ouest-france-social/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
     ulimits:
       nofile:
         soft: 1024
