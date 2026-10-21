@@ -24,8 +24,7 @@ services:
     env_file:
       - /home/ubuntu/deployment/credential/lhumanite-social/.env.production
     command: >
-      bash -c "bundle exec rails db:create &&
-               bundle exec rails db:migrate &&
+      bash -c "bundle exec rails db:migrate &&
                bundle exec rails s -p 3000"
     ports:
       - "127.0.0.1:3000:3000"
