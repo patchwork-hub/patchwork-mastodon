@@ -50,6 +50,7 @@ class ComposeForm extends ImmutablePureComponent {
     text: PropTypes.string.isRequired,
     suggestions: ImmutablePropTypes.list,
     fetchLocalOnlySetting: PropTypes.func.isRequired,
+    refreshInstanceConfiguration: PropTypes.func.isRequired,
     spoiler: PropTypes.bool,
     privacy: PropTypes.string,
     spoilerText: PropTypes.string,
@@ -183,11 +184,22 @@ class ComposeForm extends ImmutablePureComponent {
   componentDidMount () {
     this._updateFocusAndSelection({ });
     this.props.fetchLocalOnlySetting();
+    this.refreshInstanceConfiguration();
+    this.instanceConfigurationInterval = setInterval(this.refreshInstanceConfiguration, 60_000);
+    document.addEventListener('visibilitychange', this.refreshInstanceConfiguration);
   }
 
   componentWillUnmount () {
     if (this.timeout) clearTimeout(this.timeout);
+    clearInterval(this.instanceConfigurationInterval);
+    document.removeEventListener('visibilitychange', this.refreshInstanceConfiguration);
   }
+
+  refreshInstanceConfiguration = () => {
+    if (document.visibilityState === 'hidden') return;
+
+    this.props.refreshInstanceConfiguration();
+  };
 
   componentDidUpdate (prevProps) {
     this._updateFocusAndSelection(prevProps);
