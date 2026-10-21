@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon.git
-  revision: e720865df51f25419562c3b4206d39dbdfa88799
+  revision: c4f34cf61dd12f4701f98e8351d0a1d440f676ff
   branch: mastodon-4.6.5.3
   specs:
     newsmast_mastodon (4.6.5.1)
@@ -293,13 +293,13 @@ GEM
     google-cloud-env (2.4.1)
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
-    google-logging-utils (0.2.0)
+    google-logging-utils (0.2.1)
     google-protobuf (4.35.0)
       bigdecimal
       rake (~> 13.3)
     googleapis-common-protos-types (1.23.0)
       google-protobuf (~> 4.26)
-    googleauth (1.17.4)
+    googleauth (1.17.6)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -866,7 +866,7 @@ GEM
       concurrent-ruby (~> 1.0, >= 1.0.5)
       sidekiq (>= 7.0.0, < 9.0.0)
       thor (>= 1.0, < 3.0)
-    signet (0.22.0)
+    signet (0.22.1)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 4.0)
