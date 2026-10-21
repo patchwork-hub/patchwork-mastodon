@@ -138,5 +138,3 @@ volumes:
 networks:
   external_network:
   internal_network:
-    external: true
-    name: CHANGE_ME_lhumanite_internal
