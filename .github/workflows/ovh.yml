@@ -41,7 +41,7 @@ jobs:
         with:
           registry: ${{ env.HARBOR_REGISTRY }}
           username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ secrets.POUETSOCIAL_HARBOR_PASSWORD }}
+          password: ${{ secrets.MEMOSOCIAL_HARBOR_PASSWORD }}
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
