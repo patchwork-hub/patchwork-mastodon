@@ -17,7 +17,7 @@ env:
   HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
   HARBOR_PROJECT: mo-me-social
   HARBOR_USERNAME: robot$mo-me-social+mo-me-social
-  COMPOSE_FILE: docker-compose.ovh.yml
+  COMPOSE_FILE: docker-compose.mastodon-ovh.yml
   WEB_IMAGE_TAG: web-${{ github.sha }}
   STREAMING_IMAGE_TAG: streaming-${{ github.sha }}
 
@@ -84,7 +84,7 @@ jobs:
         with:
           registry: ${{ env.HARBOR_REGISTRY }}
           username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ secrets.POUETSOCIAL_HARBOR_PASSWORD }}
+          password: ${{ secrets.MEMOSOCIAL_HARBOR_PASSWORD }}
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -126,7 +126,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update image tags in docker-compose.ovh.yml
+      - name: Update image tags in compose file
         run: |
           WEB_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/web:${{ env.WEB_IMAGE_TAG }}"
           STREAMING_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/streaming:${{ env.STREAMING_IMAGE_TAG }}"
@@ -151,7 +151,7 @@ jobs:
         with:
           registry: ${{ env.HARBOR_REGISTRY }}
           username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ secrets.POUETSOCIAL_HARBOR_PASSWORD }}
+          password: ${{ secrets.MEMOSOCIAL_HARBOR_PASSWORD }}
 
       - name: Deploy with docker compose from persistent directory
         working-directory: /home/ubuntu/deployment/mastodon
