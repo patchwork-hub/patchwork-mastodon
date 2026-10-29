@@ -233,4 +233,7 @@ gem 'mail', '~> 2.8'
 gem 'vite_rails'
 
 # Patchwork/Newsmast engine
-gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5.3'
+gem 'newsmast_mastodon', git: 'https://github.com/patchwork-hub/newsmast_mastodon.git', branch: 'mastodon-4.6.5.2-splits'
+
+# Patchwork/Mastodon extension engine
+gem 'patchwork_extensions', git: 'https://github.com/patchwork-hub/patchwork_extension.git', branch: 'main'
