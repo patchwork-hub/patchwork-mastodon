@@ -130,13 +130,12 @@ jobs:
           echo "Updated compose file:"
           grep -E "image:" ${{ env.COMPOSE_FILE }}
 
-      - name: Copy compose files to persistent deployment directory
+      # Credentials (.env.production, firebase/firebase.json) live in
+      # /home/ubuntu/deployment/credential/ and are placed manually; CI never writes them.
+      - name: Copy compose file to persistent deployment directory
         run: |
-          mkdir -p /home/ubuntu/deployment/ouest-france-social
-          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/ouest-france-social/
-          cp -f docker-compose.elasticsearch.ovh.yml /home/ubuntu/deployment/ouest-france-social/ || true
-          mkdir -p /home/ubuntu/deployment/credential/ouest-france-social/firebase
-          cp -f config/firebase-adminsdk.json /home/ubuntu/deployment/credential/ouest-france-social/firebase/firebase.json || true
+          mkdir -p /home/ubuntu/deployment/mastodon
+          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/
 
       - name: Login to OVH Harbor
         uses: docker/login-action@v3
@@ -146,7 +145,7 @@ jobs:
           password: ${{ secrets.OUEST_FRANCE_SOCIAL_HARBOR_PASSWORD }}
 
       - name: Deploy with docker compose from persistent directory
-        working-directory: /home/ubuntu/deployment/ouest-france-social
+        working-directory: /home/ubuntu/deployment/mastodon
         run: |
           docker compose -f ${{ env.COMPOSE_FILE }} pull
           docker compose -f ${{ env.COMPOSE_FILE }} up -d
