@@ -1,6 +1,18 @@
-# OVH Public Cloud deployment compose file
+# OVH Public Cloud deployment compose file for PouetFrance Social
 # Images are built and pushed by .github/workflows/build-push-ovh-harbor.yml
 # which updates the image lines below on every push.
+#
+# Host layout (credentials are placed manually, never by CI):
+#   /home/ubuntu/deployment/mastodon/docker-compose.ovh.yml  (copied by CI)
+#   /home/ubuntu/deployment/credential/.env.production
+#   /home/ubuntu/deployment/credential/firebase/firebase.json
+#
+# Run by hand with no variables:
+#   cd /home/ubuntu/deployment/mastodon
+#   docker compose -f docker-compose.ovh.yml down && \
+#   docker compose -f docker-compose.ovh.yml up -d
+
+name: mastodon
 
 services:
   web:
@@ -133,5 +145,3 @@ volumes:
 networks:
   external_network:
   internal_network:
-    external: true
-    name: pouetsocial_internal
