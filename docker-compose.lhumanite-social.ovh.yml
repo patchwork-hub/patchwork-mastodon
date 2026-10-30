@@ -2,10 +2,17 @@
 # Images are built and pushed by .github/workflows/build-push-lhumanite-social-ovh-harbor.yml
 # which updates the image lines below on every push.
 #
-# TODO: Replace CHANGE_ME_* placeholders before first deploy:
-#   - image registry project name
-#   - env_file path on the OVH host
-#   - firebase credential host path (if used)
+# Host layout (credentials are placed manually, never by CI):
+#   /home/ubuntu/deployment/mastodon/docker-compose.lhumanite-social.ovh.yml  (copied by CI)
+#   /home/ubuntu/deployment/credential/.env.production
+#   /home/ubuntu/deployment/credential/firebase/firebase.json
+#
+# Run by hand with no variables:
+#   cd /home/ubuntu/deployment/mastodon
+#   docker compose -f docker-compose.lhumanite-social.ovh.yml down && \
+#     docker compose -f docker-compose.lhumanite-social.ovh.yml up -d
+
+name: mastodon
 
 services:
   web:
@@ -22,7 +29,7 @@ services:
           cpus: "0.5"
           memory: 1G
     env_file:
-      - /home/ubuntu/deployment/credential/lhumanite-social/.env.production
+      - /home/ubuntu/deployment/credential/.env.production
     command: >
       bash -c "bundle exec rails db:migrate &&
                bundle exec rails s -p 3000"
@@ -39,7 +46,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/lhumanite-social/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
     ulimits:
       nofile:
         soft: 1024
@@ -71,7 +78,7 @@ services:
           cpus: "0.25"
           memory: 512M
     env_file:
-      - /home/ubuntu/deployment/credential/lhumanite-social/.env.production
+      - /home/ubuntu/deployment/credential/.env.production
     environment:
       - DB_SSLMODE=no-verify
     command: ["node", "./streaming/index.js"]
@@ -102,7 +109,7 @@ services:
           cpus: "0.5"
           memory: 1G
     env_file:
-      - /home/ubuntu/deployment/credential/lhumanite-social/.env.production
+      - /home/ubuntu/deployment/credential/.env.production
     command: >
       bash -c "bundle exec sidekiq"
     networks:
@@ -110,7 +117,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/lhumanite-social/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
     ulimits:
       nofile:
         soft: 1024
