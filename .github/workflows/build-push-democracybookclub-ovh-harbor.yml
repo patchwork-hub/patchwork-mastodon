@@ -1,12 +1,11 @@
 run-name: Build and push Democracy Book Club OVH Harbor images by @${{ github.actor }}
 
-# MANUAL ONLY while production still runs on AWS. This branch is also deployed to AWS ECS by
-# democracy-book-club-production.yml on every push; an automatic OVH deploy here would start a second
-# sidekiq against the live database and Redis. At cutover, add:
-#   push:
-#     branches:
-#       - democracy-book-club-4.6.5-production
+# This branch is also deployed to AWS ECS by democracy-book-club-production.yml on every push,
+# so cancel that run manually until the AWS side is retired.
 on:
+  push:
+    branches:
+      - democracy-book-club-4.6.5-production
   workflow_dispatch:
 
 # DEMOCRACYBOOKCLUB_HARBOR_PASSWORD is an ORGANIZATION secret (the repo is at GitHub's 100-secret cap);
