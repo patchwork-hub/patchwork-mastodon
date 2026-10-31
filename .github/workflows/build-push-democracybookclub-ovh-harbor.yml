@@ -14,7 +14,8 @@ env:
   HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
   HARBOR_PROJECT: democracybookclub
   HARBOR_USERNAME: robot$democracybookclub+democracybookclub
-  COMPOSE_FILE: docker-compose.democracybookclub.ovh.yml
+  # Not named COMPOSE_FILE on purpose: docker compose reads that variable itself and would ignore docker-compose.yml
+  COMPOSE_SOURCE_FILE: docker-compose.democracybookclub.ovh.yml
   WEB_IMAGE_TAG: web-${{ github.sha }}
   STREAMING_IMAGE_TAG: streaming-${{ github.sha }}
 
@@ -129,18 +130,18 @@ jobs:
           STREAMING_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/streaming:${{ env.STREAMING_IMAGE_TAG }}"
 
           # Replace any existing web/streaming image line, not just the initial placeholder
-          sed -i "\|image: .*/web:|c\    image: $WEB_IMAGE" ${{ env.COMPOSE_FILE }}
-          sed -i "\|image: .*/streaming:|c\    image: $STREAMING_IMAGE" ${{ env.COMPOSE_FILE }}
+          sed -i "\|image: .*/web:|c\    image: $WEB_IMAGE" ${{ env.COMPOSE_SOURCE_FILE }}
+          sed -i "\|image: .*/streaming:|c\    image: $STREAMING_IMAGE" ${{ env.COMPOSE_SOURCE_FILE }}
 
           echo "Updated compose file:"
-          grep -E "image:" ${{ env.COMPOSE_FILE }}
+          grep -E "image:" ${{ env.COMPOSE_SOURCE_FILE }}
 
       # Credentials (.env.production, firebase/firebase.json) live in
       # /home/ubuntu/deployment/credential/ and are placed manually; CI never writes them.
       - name: Copy compose file to persistent deployment directory
         run: |
           mkdir -p /home/ubuntu/deployment/mastodon
-          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/docker-compose.yml
+          cp -f ${{ env.COMPOSE_SOURCE_FILE }} /home/ubuntu/deployment/mastodon/docker-compose.yml
 
       - name: Login to OVH Harbor
         uses: docker/login-action@v3
