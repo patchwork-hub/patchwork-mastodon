@@ -140,7 +140,7 @@ jobs:
       - name: Copy compose file to persistent deployment directory
         run: |
           mkdir -p /home/ubuntu/deployment/mastodon
-          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/
+          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/docker-compose.yml
 
       - name: Login to OVH Harbor
         uses: docker/login-action@v3
@@ -152,5 +152,5 @@ jobs:
       - name: Deploy with docker compose from persistent directory
         working-directory: /home/ubuntu/deployment/mastodon
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} pull
-          docker compose -f ${{ env.COMPOSE_FILE }} up -d
+          docker compose pull
+          docker compose up -d

@@ -3,14 +3,14 @@
 # which updates the image lines below on every push.
 #
 # Host layout (credentials are placed manually, never by CI):
-#   /home/ubuntu/deployment/mastodon/docker-compose.democracybookclub.ovh.yml  (copied by CI)
+#   /home/ubuntu/deployment/mastodon/docker-compose.yml  (copied by CI from this file)
 #   /home/ubuntu/deployment/credential/.env.production
 #   /home/ubuntu/deployment/credential/firebase/firebase.json
 #
 # Run by hand with no variables:
 #   cd /home/ubuntu/deployment/mastodon
-#   docker compose -f docker-compose.democracybookclub.ovh.yml down && \
-#     docker compose -f docker-compose.democracybookclub.ovh.yml up -d
+#   docker compose down && \
+#     docker compose up -d
 
 name: mastodon
 
