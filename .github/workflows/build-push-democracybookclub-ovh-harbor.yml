@@ -1,0 +1,157 @@
+run-name: Build and push Democracy Book Club OVH Harbor images by @${{ github.actor }}
+
+# MANUAL ONLY while production still runs on AWS. This branch is also deployed to AWS ECS by
+# democracy-book-club-production.yml on every push; an automatic OVH deploy here would start a second
+# sidekiq against the live database and Redis. At cutover, add:
+#   push:
+#     branches:
+#       - democracy-book-club-4.6.5-production
+on:
+  workflow_dispatch:
+
+# DEMOCRACYBOOKCLUB_HARBOR_PASSWORD is an ORGANIZATION secret (the repo is at GitHub's 100-secret cap);
+# its repository access must include this repo.
+env:
+  HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
+  HARBOR_PROJECT: democracybookclub
+  HARBOR_USERNAME: robot$democracybookclub+democracybookclub
+  COMPOSE_FILE: docker-compose.democracybookclub.ovh.yml
+  WEB_IMAGE_TAG: web-${{ github.sha }}
+  STREAMING_IMAGE_TAG: streaming-${{ github.sha }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-web:
+    name: Build and push web image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to OVH Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REGISTRY }}
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ secrets.DEMOCRACYBOOKCLUB_HARBOR_PASSWORD }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache-web
+          key: ${{ runner.os }}-buildx-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-web-
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push web image
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/web
+          docker buildx build \
+            --platform linux/amd64 \
+            --cache-from type=local,src=/tmp/.buildx-cache-web \
+            --cache-to type=local,dest=/tmp/.buildx-cache-web-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
+            --tag $IMAGE:${{ env.WEB_IMAGE_TAG }} \
+            --tag $IMAGE:latest \
+            --push \
+            .
+          rm -rf /tmp/.buildx-cache-web
+          mv /tmp/.buildx-cache-web-new /tmp/.buildx-cache-web
+
+  build-streaming:
+    name: Build and push streaming image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to OVH Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REGISTRY }}
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ secrets.DEMOCRACYBOOKCLUB_HARBOR_PASSWORD }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers for streaming
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache-streaming
+          key: ${{ runner.os }}-buildx-streaming-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-streaming-
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push streaming image
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/streaming
+          docker buildx build \
+            --platform linux/amd64 \
+            --file ./streaming/Dockerfile \
+            --cache-from type=local,src=/tmp/.buildx-cache-streaming \
+            --cache-to type=local,dest=/tmp/.buildx-cache-streaming-new,mode=max \
+            --build-arg SOURCE_COMMIT="${SOURCE_COMMIT}" \
+            --tag $IMAGE:${{ env.STREAMING_IMAGE_TAG }} \
+            --tag $IMAGE:latest \
+            --push \
+            .
+          rm -rf /tmp/.buildx-cache-streaming
+          mv /tmp/.buildx-cache-streaming-new /tmp/.buildx-cache-streaming
+
+  deploy-compose:
+    name: Update compose file image tags and deploy to OVH
+    runs-on: democracybookclub-m-runner
+    needs: [build-web, build-streaming]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update image tags in docker-compose.democracybookclub.ovh.yml
+        run: |
+          WEB_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/web:${{ env.WEB_IMAGE_TAG }}"
+          STREAMING_IMAGE="${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/streaming:${{ env.STREAMING_IMAGE_TAG }}"
+
+          # Replace any existing web/streaming image line, not just the initial placeholder
+          sed -i "\|image: .*/web:|c\    image: $WEB_IMAGE" ${{ env.COMPOSE_FILE }}
+          sed -i "\|image: .*/streaming:|c\    image: $STREAMING_IMAGE" ${{ env.COMPOSE_FILE }}
+
+          echo "Updated compose file:"
+          grep -E "image:" ${{ env.COMPOSE_FILE }}
+
+      # Credentials (.env.production, firebase/firebase.json) live in
+      # /home/ubuntu/deployment/credential/ and are placed manually; CI never writes them.
+      - name: Copy compose file to persistent deployment directory
+        run: |
+          mkdir -p /home/ubuntu/deployment/mastodon
+          cp -f ${{ env.COMPOSE_FILE }} /home/ubuntu/deployment/mastodon/
+
+      - name: Login to OVH Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REGISTRY }}
+          username: ${{ env.HARBOR_USERNAME }}
+          password: ${{ secrets.DEMOCRACYBOOKCLUB_HARBOR_PASSWORD }}
+
+      - name: Deploy with docker compose from persistent directory
+        working-directory: /home/ubuntu/deployment/mastodon
+        run: |
+          docker compose -f ${{ env.COMPOSE_FILE }} pull
+          docker compose -f ${{ env.COMPOSE_FILE }} up -d

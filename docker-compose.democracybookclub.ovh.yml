@@ -1,0 +1,147 @@
+# OVH Public Cloud deployment compose file for Democracy Book Club
+# Images are built and pushed by .github/workflows/build-push-democracybookclub-ovh-harbor.yml
+# which updates the image lines below on every push.
+#
+# Host layout (credentials are placed manually, never by CI):
+#   /home/ubuntu/deployment/mastodon/docker-compose.democracybookclub.ovh.yml  (copied by CI)
+#   /home/ubuntu/deployment/credential/.env.production
+#   /home/ubuntu/deployment/credential/firebase/firebase.json
+#
+# Run by hand with no variables:
+#   cd /home/ubuntu/deployment/mastodon
+#   docker compose -f docker-compose.democracybookclub.ovh.yml down && \
+#     docker compose -f docker-compose.democracybookclub.ovh.yml up -d
+
+name: mastodon
+
+services:
+  web:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: 44eda7q3.gra7.container-registry.ovh.net/democracybookclub/web:web-latest
+    restart: unless-stopped
+    # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    command: >
+      bash -c "bundle exec rails db:migrate &&
+               bundle exec rails s -p 3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - external_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    working_dir: /opt/mastodon
+    volumes:
+      - mastodon_uploads:/opt/mastodon/public/system
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      # Same file under the name the AWS task downloaded it as, so either lookup works after the move
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/demobookclub-production-7b90f-firebase-adminsdk.json:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
+      memlock:
+        soft: 64
+        hard: 64
+      msgqueue:
+        soft: 819200
+        hard: 819200
+      nproc:
+        soft: 15471
+        hard: 15471
+      sigpending:
+        soft: 15471
+        hard: 15471
+
+  streaming:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: 44eda7q3.gra7.container-registry.ovh.net/democracybookclub/streaming:streaming-latest
+    restart: unless-stopped
+    # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    environment:
+      - DB_SSLMODE=no-verify
+    command: ["node", "./streaming/index.js"]
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks:
+      - external_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/api/v1/streaming/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    working_dir: /opt/mastodon
+
+  sidekiq:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: 44eda7q3.gra7.container-registry.ovh.net/democracybookclub/web:web-latest
+    restart: unless-stopped
+    # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    command: >
+      bash -c "bundle exec sidekiq"
+    networks:
+      - internal_network
+    working_dir: /opt/mastodon
+    volumes:
+      - mastodon_uploads:/opt/mastodon/public/system
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      # Same file under the name the AWS task downloaded it as, so either lookup works after the move
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/demobookclub-production-7b90f-firebase-adminsdk.json:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
+      memlock:
+        soft: 64
+        hard: 64
+      msgqueue:
+        soft: 819200
+        hard: 819200
+      nproc:
+        soft: 15471
+        hard: 15471
+      sigpending:
+        soft: 15471
+        hard: 15471
+
+volumes:
+  mastodon_uploads:
+
+networks:
+  external_network:
+  internal_network:
