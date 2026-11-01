@@ -8,7 +8,7 @@ on:
 env:
   HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
   HARBOR_PROJECT: csidnet
-  HARBOR_USERNAME: robot$csidnet+csidnet
+  HARBOR_USERNAME: robot$csidnet
   COMPOSE_FILE: docker-compose.csidnet.ovh.yml
   WEB_IMAGE_TAG: web-${{ github.sha }}
   STREAMING_IMAGE_TAG: streaming-${{ github.sha }}
