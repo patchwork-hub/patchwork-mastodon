@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 # lib/tasks/rebuild_feeds.rake
 namespace :mastodon do
   desc 'Clear and rebuild all home and list feeds (production)'
   task rebuild_feeds: :environment do
     puts 'Clearing Redis feed keys...'
-    redis = Redis.new(url: ENV['REDIS_URL'] || 'redis://localhost:6379/0')
+    redis = Redis.new(url: ENV['REDIS_URL'] || "redis://#{ENV.fetch('REDIS_HOST', 'localhost')}:#{ENV.fetch('REDIS_PORT', 6379)}/0")
     # Remove all feed keys (home and list)
     redis.scan_each(match: 'feed:*').each_slice(1000) do |keys|
       redis.del(*keys)
@@ -20,9 +22,7 @@ namespace :mastodon do
       end
     end
     # Process any remaining accounts
-    unless batch.empty?
-      system({ 'RAILS_ENV' => 'production' }, "bundle exec rails mastodon:feeds build --account_ids=#{batch.join(',')}")
-    end
+    system({ 'RAILS_ENV' => 'production' }, "bundle exec rails mastodon:feeds build --account_ids=#{batch.join(',')}") unless batch.empty?
     puts 'Feed rebuild complete.'
   end
 end
