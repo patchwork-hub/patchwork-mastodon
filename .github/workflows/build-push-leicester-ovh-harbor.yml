@@ -120,6 +120,7 @@ jobs:
       SSH_USER: ubuntu
       DEPLOY_HOST: ${{ vars.LEICESTER_SERVER_IP }}
       DEPLOY_DIR: /home/ubuntu/deployment/mastodon
+      SSH_OPTS: -o BatchMode=yes -o StrictHostKeyChecking=accept-new
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -144,7 +145,6 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' '${{ secrets.OVH_SSH_PRIVATE_KEY }}' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H -t ed25519,rsa ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       # Credentials (.env.production, firebase/firebase.json) live in
       # /home/ubuntu/deployment/credential/ and are placed manually; CI never writes them.
@@ -157,11 +157,11 @@ jobs:
 
       - name: Copy compose and Docker credentials to OVH server
         run: |
-          ssh -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_DIR }} ~/.docker"
-          scp -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.COMPOSE_SOURCE_FILE }} ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_DIR }}/docker-compose.yml
-          scp -i ~/.ssh/id_rsa -o BatchMode=yes ~/.docker/config.json ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:~/.docker/config.json
+          ssh -i ~/.ssh/id_rsa ${{ env.SSH_OPTS }} ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_DIR }} ~/.docker"
+          scp -i ~/.ssh/id_rsa ${{ env.SSH_OPTS }} ${{ env.COMPOSE_SOURCE_FILE }} ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_DIR }}/docker-compose.yml
+          scp -i ~/.ssh/id_rsa ${{ env.SSH_OPTS }} ~/.docker/config.json ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:~/.docker/config.json
 
       - name: Deploy with docker compose on OVH server
         run: |
-          ssh -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} \
+          ssh -i ~/.ssh/id_rsa ${{ env.SSH_OPTS }} ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} \
             "set -e; cd ${{ env.DEPLOY_DIR }}; docker compose pull; docker compose up -d"
