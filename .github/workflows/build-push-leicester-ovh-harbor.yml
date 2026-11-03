@@ -114,8 +114,12 @@ jobs:
 
   deploy-compose:
     name: Update compose file image tags and deploy to OVH
-    runs-on: leicester-m-runner
+    runs-on: ubuntu-latest
     needs: [build-web, build-streaming]
+    env:
+      SSH_USER: ubuntu
+      DEPLOY_HOST: ${{ vars.LEICESTER_SERVER_IP }}
+      DEPLOY_DIR: /home/ubuntu/deployment/mastodon
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -134,13 +138,16 @@ jobs:
           echo "Updated compose file:"
           grep -E "image:" ${{ env.COMPOSE_SOURCE_FILE }}
 
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' '${{ secrets.OVH_SSH_PRIVATE_KEY }}' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H -t ed25519,rsa ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
       # Credentials (.env.production, firebase/firebase.json) live in
       # /home/ubuntu/deployment/credential/ and are placed manually; CI never writes them.
-      - name: Copy compose file to persistent deployment directory
-        run: |
-          mkdir -p /home/ubuntu/deployment/mastodon
-          cp -f ${{ env.COMPOSE_SOURCE_FILE }} /home/ubuntu/deployment/mastodon/docker-compose.yml
-
       - name: Login to OVH Harbor
         uses: docker/login-action@v3
         with:
@@ -148,8 +155,13 @@ jobs:
           username: ${{ env.HARBOR_USERNAME }}
           password: ${{ secrets.LEICESTER_HARBOR_PASSWORD }}
 
-      - name: Deploy with docker compose from persistent directory
-        working-directory: /home/ubuntu/deployment/mastodon
+      - name: Copy compose and Docker credentials to OVH server
         run: |
-          docker compose pull
-          docker compose up -d
+          ssh -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_DIR }} ~/.docker"
+          scp -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.COMPOSE_SOURCE_FILE }} ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_DIR }}/docker-compose.yml
+          scp -i ~/.ssh/id_rsa -o BatchMode=yes ~/.docker/config.json ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }}:~/.docker/config.json
+
+      - name: Deploy with docker compose on OVH server
+        run: |
+          ssh -i ~/.ssh/id_rsa -o BatchMode=yes ${{ env.SSH_USER }}@${{ env.DEPLOY_HOST }} \
+            "set -e; cd ${{ env.DEPLOY_DIR }}; docker compose pull; docker compose up -d"
