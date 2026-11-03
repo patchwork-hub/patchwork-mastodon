@@ -148,7 +148,7 @@ jobs:
         with:
           registry: ${{ env.HARBOR_REGISTRY }}
           username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ secrets.DEMOCRACYBOOKCLUB_HARBOR_PASSWORD }}
+          password: ${{ secrets.BRISTOLCABLE_HARBOR_PASSWORD }}
 
       - name: Deploy with docker compose from persistent directory
         working-directory: /home/ubuntu/deployment/mastodon
