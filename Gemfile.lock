@@ -9,26 +9,15 @@ GIT
 
 GIT
   remote: https://github.com/patchwork-hub/newsmast_mastodon.git
-  revision: 835c3b8e4e388d6f53db13ba17ec7be3517c955f
-  branch: mastodon-4.6.5.2-splits
+  revision: b331dabd466a30e480fa6ae46211e3c6118322c1
+  branch: mastodon-4.6.5.3-opensource
   specs:
     newsmast_mastodon (4.6.5.1)
       faraday (~> 2.14.0)
       googleauth (~> 1.13, >= 1.13.1)
       httparty (~> 0.23.1)
-      jwt (~> 2.10.0)
       parslet (~> 2.0.0)
       rails (~> 8.1.0)
-
-GIT
-  remote: https://github.com/patchwork-hub/patchwork_extension.git
-  revision: ead7847f171a2418abdd6da9681d590b46762dc8
-  branch: main
-  specs:
-    patchwork_extensions (4.6.5.1)
-      httparty
-      jwt
-      rails (>= 7.0, < 9.0)
 
 GEM
   remote: https://rubygems.org/
@@ -1097,7 +1086,6 @@ DEPENDENCIES
   opentelemetry-sdk (~> 1.4)
   ox (~> 2.14)
   parslet
-  patchwork_extensions!
   pg (~> 1.5)
   pghero
   playwright-ruby-client (= 1.60.0)
