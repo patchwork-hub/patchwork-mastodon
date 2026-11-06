@@ -110,6 +110,7 @@ RUN \
   tini \
   tzdata \
   wget \
+  unzip \
   # Mastodon components
   libexpat1 \
   libglib2.0-0t64 \
@@ -153,6 +154,16 @@ RUN \
   apt-get purge -y \
   patchelf \
   ;
+
+# Install AWS CLI v2
+# Mirrors the install block used in camfed-staging-4.6.5 and other customer
+# branches, so containers can run `aws` commands at startup (e.g. to download
+# runtime secrets such as the Firebase adminsdk JSON from S3).
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws && \
+    aws --version
 
 # Build stage for media libraries (libvips, ffmpeg)
 FROM ${BASE_REGISTRY}/ruby:${RUBY_VERSION}-slim-${DEBIAN_VERSION} AS media-build
@@ -405,6 +416,9 @@ RUN \
   # Pre-create and chown system volume to Mastodon user
   mkdir -p /opt/mastodon/public/system; \
   chown mastodon:mastodon /opt/mastodon/public/system; \
+  # Pre-create config directory for runtime-downloaded secrets (e.g. Firebase key)
+  mkdir -p /opt/mastodon/config; \
+  chown mastodon:mastodon /opt/mastodon/config; \
   # Set Mastodon user as owner of tmp folder
   chown -R mastodon:mastodon /opt/mastodon/tmp;
 
