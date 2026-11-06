@@ -13,7 +13,7 @@ on:
 env:
   HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
   HARBOR_PROJECT: buehne
-  HARBOR_USERNAME: robot$buehne+buehne
+  HARBOR_USERNAME: robot$buehne
   # Not named COMPOSE_FILE on purpose: docker compose reads that variable itself and would ignore docker-compose.yml
   COMPOSE_SOURCE_FILE: docker-compose.buehne.ovh.yml
   WEB_IMAGE_TAG: web-${{ github.sha }}
