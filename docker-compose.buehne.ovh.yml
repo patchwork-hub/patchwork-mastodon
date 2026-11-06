@@ -130,3 +130,7 @@ volumes:
 
 networks:
   external_network:
+  internal_network:
+
+
+
