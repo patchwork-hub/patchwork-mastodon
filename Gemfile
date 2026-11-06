@@ -125,7 +125,7 @@ end
 # Patchwork/Newsmast engine (temporary git branch for upgrade integration)
 gem 'newsmast_mastodon',
     git: 'https://github.com/patchwork-hub/newsmast_mastodon.git',
-    branch: 'mastodon-4.6.5'
+    branch: 'mastodon-4.6.5.3'
 
 group :test do
   # Enable usage of all available CPUs/cores during spec runs
