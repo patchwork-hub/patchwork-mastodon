@@ -115,7 +115,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.MASTODON_AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.CAMFED_PRODUCTION_AWS_ROLE_ARN }}
           role-session-name: camfed-production-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -172,7 +172,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.MASTODON_AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.CAMFED_PRODUCTION_AWS_ROLE_ARN }}
           role-session-name: camfed-production-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -231,7 +231,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.MASTODON_AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.CAMFED_PRODUCTION_AWS_ROLE_ARN }}
           role-session-name: camfed-production-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
