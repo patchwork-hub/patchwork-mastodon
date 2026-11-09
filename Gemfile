@@ -233,3 +233,8 @@ gem 'hcaptcha', '~> 7.1'
 gem 'mail', '~> 2.8'
 
 gem 'base58', '~> 0.2.3'
+
+# Newsmast fork extensions
+gem 'newsmast_mastodon',
+    git: 'https://github.com/patchwork-hub/newsmast_mastodon',
+    branch: 'mastodon-4.7.5'
