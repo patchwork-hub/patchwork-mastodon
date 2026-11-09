@@ -14,7 +14,6 @@ import { useEmoji } from './emojis';
 import { importFetchedAccounts, importFetchedStatus } from './importer';
 import { openModal } from './modal';
 import { updateTimeline } from './timelines';
-import { insertStatusIntoAccountTimelines } from './timelines_typed';
 
 /** @type {AbortController | undefined} */
 let fetchComposeSuggestionsAccountsController;
@@ -61,6 +60,9 @@ export const COMPOSE_SPOILERNESS_CHANGE  = 'COMPOSE_SPOILERNESS_CHANGE';
 export const COMPOSE_SPOILER_TEXT_CHANGE = 'COMPOSE_SPOILER_TEXT_CHANGE';
 export const COMPOSE_COMPOSING_CHANGE    = 'COMPOSE_COMPOSING_CHANGE';
 export const COMPOSE_LANGUAGE_CHANGE     = 'COMPOSE_LANGUAGE_CHANGE';
+
+export const COMPOSE_FEDERATED_CHANGE   = 'COMPOSE_FEDERATED_CHANGE';
+export const COMPOSE_FEDERATED_INIT   = 'COMPOSE_FEDERATED_INIT';
 
 export const COMPOSE_EMOJI_INSERT = 'COMPOSE_EMOJI_INSERT';
 
@@ -192,13 +194,13 @@ export function directCompose(account) {
 
 export function submitCompose(successCallback) {
   return function (dispatch, getState) {
-    const statusText   = getState().getIn(['compose', 'text'], '');
-    const media        = getState().getIn(['compose', 'media_attachments']);
-    const statusId     = getState().getIn(['compose', 'id'], null);
-    const hasQuote     = !!getState().getIn(['compose', 'quoted_status_id']);
+    const status   = getState().getIn(['compose', 'text'], '');
+    const media    = getState().getIn(['compose', 'media_attachments']);
+    const statusId = getState().getIn(['compose', 'id'], null);
+    const hasQuote = !!getState().getIn(['compose', 'quoted_status_id']);
     const spoiler_text = getState().getIn(['compose', 'spoiler']) ? getState().getIn(['compose', 'spoiler_text'], '') : '';
 
-    const fulltext = `${spoiler_text ?? ''}${countableText(statusText ?? '')}`;
+    const fulltext = `${spoiler_text ?? ''}${countableText(status ?? '')}`;
     const hasText = fulltext.trim().length > 0;
 
     if (!(hasText || media.size !== 0 || (hasQuote && spoiler_text?.length))) {
@@ -237,7 +239,7 @@ export function submitCompose(successCallback) {
       url: statusId === null ? '/api/v1/statuses' : `/api/v1/statuses/${statusId}`,
       method: statusId === null ? 'post' : 'put',
       data: {
-        status: statusText,
+        status,
         spoiler_text,
         in_reply_to_id: getState().getIn(['compose', 'in_reply_to'], null),
         media_ids: media.map(item => item.get('id')),
@@ -246,6 +248,7 @@ export function submitCompose(successCallback) {
         visibility: visibility,
         poll: getState().getIn(['compose', 'poll'], null),
         language: getState().getIn(['compose', 'language']),
+        local_only: !getState().getIn(['compose', 'federated']),
         quoted_status_id: getState().getIn(['compose', 'quoted_status_id']),
         quote_approval_policy: visibility === 'private' || visibility === 'direct' ? 'nobody' : getState().getIn(['compose', 'quote_policy']),
       },
@@ -257,7 +260,7 @@ export function submitCompose(successCallback) {
         browserHistory.goBack();
       }
 
-      dispatch(insertIntoTagHistory(response.data.tags, statusText));
+      dispatch(insertIntoTagHistory(response.data.tags, status));
       dispatch(submitComposeSuccess({ ...response.data }));
       if (typeof successCallback === 'function') {
         successCallback(response.data);
@@ -286,8 +289,6 @@ export function submitCompose(successCallback) {
         insertIfOnline('public');
         insertIfOnline(`account:${response.data.account.id}`);
       }
-
-      dispatch(insertStatusIntoAccountTimelines({ ...response.data }))
 
       dispatch(showAlert({
         message: statusId === null ? messages.published : messages.saved,
@@ -506,6 +507,25 @@ export function clearComposeSuggestions() {
   searchComposeSuggestionsEmojiController?.abort();
   return {
     type: COMPOSE_SUGGESTIONS_CLEAR,
+  };
+}
+
+export function fetchLocalOnlySetting() {
+  return (dispatch) => {
+    api().get('/api/v1/local_only_posts/getLocalOnlySetting')
+      .then(({ data }) => {
+        dispatch({
+          type: COMPOSE_FEDERATED_INIT,
+          localOnlyEnabled: data.local_only,
+        });
+      })
+      .catch(error => {
+        console.error("Failed to fetch local_only setting", error);
+        dispatch({
+          type: COMPOSE_FEDERATED_INIT,
+          localOnlyEnabled: false,
+        });
+      });
   };
 }
 
@@ -761,6 +781,13 @@ export function changeComposeSpoilerText(text) {
   return {
     type: COMPOSE_SPOILER_TEXT_CHANGE,
     text,
+  };
+}
+
+export function changeComposeFederated(value) {
+  return {
+    type: COMPOSE_FEDERATED_CHANGE,
+    value,
   };
 }
 

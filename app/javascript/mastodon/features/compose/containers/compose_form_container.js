@@ -9,31 +9,16 @@ import {
   changeComposeSpoilerText,
   insertEmojiCompose,
   uploadCompose,
+  fetchLocalOnlySetting
 } from 'mastodon/actions/compose';
-import { pasteLinkCompose, PRIVATE_QUOTE_MODAL_ID } from 'mastodon/actions/compose_typed';
+import { pasteLinkCompose } from 'mastodon/actions/compose_typed';
 import { openModal } from 'mastodon/actions/modal';
+import { PRIVATE_QUOTE_MODAL_ID } from 'mastodon/features/ui/components/confirmation_modals/private_quote_notify';
 import { me } from 'mastodon/initial_state';
 
 import ComposeForm from '../components/compose_form';
 
 const urlLikeRegex = /^https?:\/\/[^\s]+\/[^\s]+$/i;
-
-const processPasteOrDrop = (transfer, e, dispatch) => {
-  if (transfer && transfer.files.length === 1) {
-    dispatch(uploadCompose(transfer.files));
-    e.preventDefault();
-  } else if (transfer && transfer.files.length === 0) {
-    const data = transfer.getData('text/plain');
-    if (!data.match(urlLikeRegex)) return;
-
-    try {
-      const url = new URL(data);
-      dispatch(pasteLinkCompose({ url }));
-    } catch {
-      return;
-    }
-  }
-};
 
 const mapStateToProps = state => ({
   text: state.getIn(['compose', 'text']),
@@ -41,6 +26,8 @@ const mapStateToProps = state => ({
   spoiler: state.getIn(['compose', 'spoiler']),
   spoilerText: state.getIn(['compose', 'spoiler_text']),
   privacy: state.getIn(['compose', 'privacy']),
+  federated: state.getIn(['compose', 'federated']),
+  localOnlyEnabled: state.getIn(['compose', 'localOnlyFeatureEnabled'], false),
   focusDate: state.getIn(['compose', 'focusDate']),
   caretPosition: state.getIn(['compose', 'caretPosition']),
   preselectDate: state.getIn(['compose', 'preselectDate']),
@@ -57,13 +44,17 @@ const mapStateToProps = state => ({
     && !state.getIn(['settings', 'dismissed_banners', PRIVATE_QUOTE_MODAL_ID]),
   isInReply: state.getIn(['compose', 'in_reply_to']) !== null,
   lang: state.getIn(['compose', 'language']),
-  maxChars: state.getIn(['server', 'server', 'item', 'configuration', 'statuses', 'max_characters'], 500),
+  maxChars: state.getIn(['server', 'server', 'configuration', 'statuses', 'max_characters'], 500),
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
 
   onChange (text) {
     dispatch(changeCompose(text));
+  },
+
+  fetchLocalOnlySetting: () => {
+    dispatch(fetchLocalOnlySetting());
   },
 
   onSubmit ({ missingAltText, quoteToPrivate }) {
@@ -103,11 +94,20 @@ const mapDispatchToProps = (dispatch, props) => ({
   },
 
   onPaste (e) {
-    processPasteOrDrop(e.clipboardData, e, dispatch);
-  },
+    if (e.clipboardData && e.clipboardData.files.length === 1) {
+      dispatch(uploadCompose(e.clipboardData.files));
+      e.preventDefault();
+    } else if (e.clipboardData && e.clipboardData.files.length === 0) {
+      const data = e.clipboardData.getData('text/plain');
+      if (!data.match(urlLikeRegex)) return;
 
-  onDrop (e) {
-    processPasteOrDrop(e.dataTransfer, e, dispatch);
+      try {
+        const url = new URL(data);
+        dispatch(pasteLinkCompose({ url }));
+      } catch {
+        return;
+      }
+    }
   },
 
   onPickEmoji (position, data, needsSpace) {

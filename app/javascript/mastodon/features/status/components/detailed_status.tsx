@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 
 import AlternateEmailIcon from '@/material-icons/400-24px/alternate_email.svg?react';
+import LinkOffIcon from '@/material-icons/400-24px/link_off.svg?react';
 import { AnimatedNumber } from 'mastodon/components/animated_number';
 import { Avatar } from 'mastodon/components/avatar';
 import { ContentWarning } from 'mastodon/components/content_warning';
@@ -80,7 +81,7 @@ export const DetailedStatus: React.FC<{
   const properStatus = status?.get('reblog') ?? status;
   const [height, setHeight] = useState(0);
   const [showDespiteFilter, setShowDespiteFilter] = useState(false);
-  const nodeRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef<HTMLDivElement>();
 
   const { signedIn } = useIdentity();
 
@@ -162,6 +163,7 @@ export const DetailedStatus: React.FC<{
   let applicationLink;
   let reblogLink;
   let quotesLink;
+  let localOnlyPosts;
   let attachmentAspectRatio;
 
   if (properStatus.get('media_attachments').getIn([0, 'type']) === 'video') {
@@ -311,6 +313,14 @@ export const DetailedStatus: React.FC<{
         >
           {status.getIn(['application', 'name'])}
         </a>
+      </>
+    );
+  }
+
+  if (status.get('local_only')) {
+    localOnlyPosts = (
+      <>
+        ·<Icon id='link-off-icon' icon={LinkOffIcon} />
       </>
     );
   }
@@ -471,7 +481,7 @@ export const DetailedStatus: React.FC<{
 
         {(!matchedFilters || showDespiteFilter) && (
           <ContentWarning
-            statusId={status.get('id')}
+            status={status}
             expanded={expanded}
             onClick={handleExpandedToggle}
           />
@@ -518,6 +528,7 @@ export const DetailedStatus: React.FC<{
 
             {visibilityLink}
             {applicationLink}
+            {localOnlyPosts}
           </div>
 
           {status.get('edited_at') && (
