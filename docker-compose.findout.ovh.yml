@@ -3,7 +3,7 @@ name: mastodon
 services:
   web:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: 44eda7q3.gra7.container-registry.ovh.net/findout/web:web-latest
+    image: q3fu810o.gra7.container-registry.ovh.net/findout/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
     deploy:
@@ -54,7 +54,7 @@ services:
 
   streaming:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: 44eda7q3.gra7.container-registry.ovh.net/findout/streaming:streaming-latest
+    image: q3fu810o.gra7.container-registry.ovh.net/findout/streaming:streaming-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
     deploy:
@@ -84,7 +84,7 @@ services:
 
   sidekiq:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: 44eda7q3.gra7.container-registry.ovh.net/findout/web:web-latest
+    image: q3fu810o.gra7.container-registry.ovh.net/findout/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
     deploy:

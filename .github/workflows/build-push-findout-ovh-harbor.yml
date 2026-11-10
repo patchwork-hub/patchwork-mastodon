@@ -1,4 +1,4 @@
-run-name: Build and push Findout Club OVH Harbor images by @${{ github.actor }}
+run-name: Build and push Findout OVH Harbor images by @${{ github.actor }}
 
 # This branch is also deployed to AWS ECS by democracy-book-club-production.yml on every push,
 # so cancel that run manually until the AWS side is retired.
@@ -11,7 +11,7 @@ on:
 # DEMOCRACYBOOKCLUB_HARBOR_PASSWORD is an ORGANIZATION secret (the repo is at GitHub's 100-secret cap);
 # its repository access must include this repo.
 env:
-  HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
+  HARBOR_REGISTRY: q3fu810o.gra7.container-registry.ovh.net
   HARBOR_PROJECT: findout
   HARBOR_USERNAME: robot$findout
   # Not named COMPOSE_FILE on purpose: docker compose reads that variable itself and would ignore docker-compose.yml
