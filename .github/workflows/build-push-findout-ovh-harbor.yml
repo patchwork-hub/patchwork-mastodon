@@ -116,7 +116,7 @@ jobs:
 
   deploy-compose:
     name: Update compose file image tags and deploy to OVH
-    runs-on: findout-runner
+    runs-on: findout-m-runner
     needs: [build-web, build-streaming]
     steps:
       - name: Checkout code
