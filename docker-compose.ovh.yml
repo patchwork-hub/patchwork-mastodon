@@ -19,15 +19,16 @@ services:
     # TAGS ARE UPDATED BY CI — do not edit manually
     image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
     restart: unless-stopped
-    # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
+    # Increased from 0.5 CPU / 1G to handle video upload processing (libvips/ffmpeg)
+    # without OOM-killing Puma workers. Fits on 2 vCPU / 8 GB instance.
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: 1G
+          cpus: "1.0"
+          memory: 2G
         reservations:
-          cpus: "0.5"
-          memory: 1G
+          cpus: "1.0"
+          memory: 2G
     env_file:
       - /home/ubuntu/deployment/credential/.env.production
     command: >
@@ -101,16 +102,16 @@ services:
     # TAGS ARE UPDATED BY CI — do not edit manually
     image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
     restart: unless-stopped
-    # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
+    # Increased from 1G to 2G memory to handle media processing jobs without OOM.
     deploy:
       replicas: 1
       resources:
         limits:
           cpus: "0.5"
-          memory: 1G
+          memory: 2G
         reservations:
           cpus: "0.5"
-          memory: 1G
+          memory: 2G
     env_file:
       - /home/ubuntu/deployment/credential/.env.production
     command: >
