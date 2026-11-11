@@ -19,15 +19,15 @@ services:
     # TAGS ARE UPDATED BY CI — do not edit manually
     image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
     restart: unless-stopped
-    # Increased from 0.5 CPU / 1G to handle video upload processing (libvips/ffmpeg)
-    # without OOM-killing Puma workers. Fits on 2 vCPU / 8 GB instance.
+    # web: reduced CPU to 0.75 so sidekiq can have 1.0 for ffmpeg video processing.
+    # Memory 2G prevents OOM during upload processing. Fits on 2 vCPU / 8 GB instance.
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "0.75"
           memory: 2G
         reservations:
-          cpus: "1.0"
+          cpus: "0.75"
           memory: 2G
     env_file:
       - /home/ubuntu/deployment/credential/.env.production
@@ -102,15 +102,16 @@ services:
     # TAGS ARE UPDATED BY CI — do not edit manually
     image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
     restart: unless-stopped
-    # Increased from 1G to 2G memory to handle media processing jobs without OOM.
+    # sidekiq: increased CPU to 1.0 and memory to 2G to handle ffmpeg/libvips
+    # video processing without CPU throttling or OOM.
     deploy:
       replicas: 1
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "1.0"
           memory: 2G
         reservations:
-          cpus: "0.5"
+          cpus: "1.0"
           memory: 2G
     env_file:
       - /home/ubuntu/deployment/credential/.env.production
