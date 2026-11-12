@@ -19,8 +19,9 @@ services:
     # TAGS ARE UPDATED BY CI — do not edit manually
     image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
     restart: unless-stopped
-    # web: reduced CPU to 0.75 so sidekiq can have 1.0 for ffmpeg video processing.
-    # Memory 2G prevents OOM during upload processing. Fits on 2 vCPU / 8 GB instance.
+    # web: 0.75 CPU / 2G memory. Memory prevents OOM during upload preprocessing
+    # (libvips/ffmpeg). CPU lowered from 1.0 so sidekiq can have 1.0 for video processing.
+    # Fits on 2 vCPU / 8 GB instance. External network only.
     deploy:
       resources:
         limits:
@@ -32,14 +33,12 @@ services:
     env_file:
       - /home/ubuntu/deployment/credential/.env.production
     command: >
-      bash -c "bundle exec rails db:create &&
-               bundle exec rails db:migrate &&
+      bash -c "bundle exec rails db:migrate &&
                bundle exec rails s -p 3000"
     ports:
       - "127.0.0.1:3000:3000"
     networks:
       - external_network
-      - internal_network
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
       interval: 15s
@@ -89,7 +88,6 @@ services:
       - "127.0.0.1:4000:4000"
     networks:
       - external_network
-      - internal_network
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/api/v1/streaming/health"]
       interval: 15s
@@ -119,7 +117,6 @@ services:
       bash -c "bundle exec sidekiq"
     networks:
       - internal_network
-      - external_network
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
