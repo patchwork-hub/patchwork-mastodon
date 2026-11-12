@@ -11,7 +11,7 @@ on:
 # DEMOCRACYBOOKCLUB_HARBOR_PASSWORD is an ORGANIZATION secret (the repo is at GitHub's 100-secret cap);
 # its repository access must include this repo.
 env:
-  HARBOR_REGISTRY: q3fu810o.gra7.container-registry.ovh.net
+  HARBOR_REGISTRY: 17559c34.c1.bhs5.container-registry.ovh.net
   HARBOR_PROJECT: findout
   HARBOR_USERNAME: robot$findout
   # Not named COMPOSE_FILE on purpose: docker compose reads that variable itself and would ignore docker-compose.yml

@@ -3,14 +3,14 @@ name: mastodon
 services:
   web:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: q3fu810o.gra7.container-registry.ovh.net/findout/web:web-latest
+    image: 17559c34.c1.bhs5.container-registry.ovh.net/findout/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
     deploy:
       resources:
         limits:
-          cpus: "0.5"
-          memory: 1G
+          cpus: "1.0"
+          memory: 4G
         reservations:
           cpus: "0.5"
           memory: 1G
@@ -33,6 +33,7 @@ services:
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
       - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/findoutmedia-7e2a3-firebase-adminsdk-fbsvc-abdfeee5c8.json:ro
       # Same file under the name the AWS task downloaded it as, so either lookup works after the move
       - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/findout-d0b14-firebase.json:ro
     ulimits:
@@ -54,7 +55,7 @@ services:
 
   streaming:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: q3fu810o.gra7.container-registry.ovh.net/findout/streaming:streaming-latest
+    image: 17559c34.c1.bhs5.container-registry.ovh.net/findout/streaming:streaming-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
     deploy:
@@ -84,11 +85,11 @@ services:
 
   sidekiq:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: q3fu810o.gra7.container-registry.ovh.net/findout/web:web-latest
+    image: 17559c34.c1.bhs5.container-registry.ovh.net/findout/web:web-latest
     restart: unless-stopped
-    # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
+    # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 3 replicas.
     deploy:
-      replicas: 1
+      replicas: 3
       resources:
         limits:
           cpus: "0.5"
@@ -106,6 +107,7 @@ services:
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
       - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/findoutmedia-7e2a3-firebase-adminsdk-fbsvc-abdfeee5c8.json:ro
       # Same file under the name the AWS task downloaded it as, so either lookup works after the move
       - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/findout-d0b14-firebase.json:ro
     ulimits:
