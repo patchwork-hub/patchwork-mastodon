@@ -134,7 +134,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.OVH_SSH_PRIVATE_KEY }}
           source: ${{ env.COMPOSE_SOURCE_FILE }}
-          target: /home/ubuntu/deployment/mastodon/docker-compose.yml
+          target: /home/ubuntu/deployment/mastodon/
           strip_components: 0
           overwrite: true
 
@@ -146,6 +146,7 @@ jobs:
           key: ${{ secrets.OVH_SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/deployment/mastodon
+            mv -f docker-compose.patchwork-io.ovh.yml docker-compose.yml
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d
             docker compose -f docker-compose.yml ps
