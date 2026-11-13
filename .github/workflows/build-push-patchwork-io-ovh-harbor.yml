@@ -144,9 +144,12 @@ jobs:
           host: ${{ vars.PATCHWORK_IO_SERVER_IP }}
           username: ubuntu
           key: ${{ secrets.OVH_SSH_PRIVATE_KEY }}
+          script_stop: true
           script: |
+            set -euo pipefail
             cd /home/ubuntu/deployment/mastodon
             mv -f docker-compose.patchwork-io.ovh.yml docker-compose.yml
+            echo "${{ secrets.PATCHWORK_IO_HARBOR_PASSWORD }}" | docker login ${{ env.HARBOR_REGISTRY }} -u ${{ env.HARBOR_USERNAME }} --password-stdin
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d
             docker compose -f docker-compose.yml ps
