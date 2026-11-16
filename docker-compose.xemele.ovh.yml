@@ -17,7 +17,7 @@ name: mastodon
 services:
   web:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: jo20b4yo.c1.bhs5.containe-regirstry.ovh.net/xemele/web:web-latest
+    image: jo20b4yo.c1.bhs5.container-registry.ovh.net/xemele/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 1024 CPU units / 2048 MB memory
     deploy:
@@ -66,7 +66,7 @@ services:
 
   streaming:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: jo20b4yo.c1.bhs5.containe-regirstry.ovh.net/xemele/streaming:streaming-latest
+    image: jo20b4yo.c1.bhs5.container-registry.ovh.net/xemele/streaming:streaming-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
     deploy:
@@ -96,7 +96,7 @@ services:
 
   sidekiq:
     # TAGS ARE UPDATED BY CI — do not edit manually
-    image: jo20b4yo.c1.bhs5.containe-regirstry.ovh.net/xemele/web:web-latest
+    image: jo20b4yo.c1.bhs5.container-registry.ovh.net/xemele/web:web-latest
     restart: unless-stopped
     # Matches AWS ECS task definition: 512 CPU units / 1024 MB memory, 1 replica.
     deploy:

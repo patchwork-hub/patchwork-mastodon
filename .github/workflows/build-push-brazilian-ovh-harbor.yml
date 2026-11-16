@@ -6,7 +6,7 @@ on:
     branches:
       - brazilian-4.6.5-staging
 env:
-  HARBOR_REGISTRY: jo20b4yo.c1.bhs5.containe-regirstry.ovh.net
+  HARBOR_REGISTRY: jo20b4yo.c1.bhs5.container-registry.ovh.net
   HARBOR_PROJECT: xemele
   HARBOR_USERNAME: robot$xemele
   COMPOSE_FILE: docker-compose.xemele.ovh.yml
