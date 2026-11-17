@@ -8,8 +8,10 @@
 #  deleted_at                   :datetime
 #  edited_at                    :datetime
 #  fetched_replies_at           :datetime
+#  is_banned                    :boolean          default(FALSE)
 #  language                     :string
 #  local                        :boolean
+#  local_only                   :boolean          default(FALSE)
 #  ordered_media_attachment_ids :bigint(8)        is an Array
 #  quote_approval_policy        :integer          default(0), not null
 #  reply                        :boolean          default(FALSE), not null
