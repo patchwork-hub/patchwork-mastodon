@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_30_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1036,7 +1036,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["account_id", "patchwork_community_id"], name: "unique_community_admin_index", unique: true
-    t.index ["account_id"], name: "index_patchwork_communities_admins_on_account_id"
     t.index ["patchwork_community_id"], name: "index_patchwork_communities_admins_on_patchwork_community_id"
   end
 
@@ -1058,7 +1057,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.bigint "patchwork_community_id", null: false
     t.datetime "updated_at", null: false
     t.index ["patchwork_community_id", "hashtag"], name: "index_patchwork_communities_hashtags_on_hashtag_and_community", unique: true
-    t.index ["patchwork_community_id"], name: "index_patchwork_communities_hashtags_on_patchwork_community_id"
   end
 
   create_table "patchwork_communities_statuses", force: :cascade do |t|
@@ -1068,7 +1066,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.datetime "updated_at", null: false
     t.index ["patchwork_community_id"], name: "index_patchwork_communities_statuses_on_patchwork_community_id"
     t.index ["status_id", "patchwork_community_id"], name: "index_patchwork_communities_statuses_on_status_and_community", unique: true
-    t.index ["status_id"], name: "index_patchwork_communities_statuses_on_status_id"
   end
 
   create_table "patchwork_community_additional_informations", force: :cascade do |t|
@@ -1088,7 +1085,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
     t.bigint "patchwork_community_id", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id", "patchwork_community_id"], name: "index_patchwork_commu_amplifiers_on_account_and_patchwork_commu", unique: true
-    t.index ["account_id"], name: "index_patchwork_community_amplifiers_on_account_id"
     t.index ["patchwork_community_id"], name: "index_patchwork_community_amplifiers_on_patchwork_community_id"
   end
 
@@ -1416,12 +1412,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   create_table "server_settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "deleted_at"
+    t.string "key"
     t.string "name"
     t.string "optional_value"
     t.bigint "parent_id"
     t.integer "position"
     t.datetime "updated_at", null: false
     t.boolean "value"
+    t.index ["key"], name: "index_server_settings_on_key", unique: true, where: "(key IS NOT NULL)"
   end
 
   create_table "session_activations", force: :cascade do |t|
