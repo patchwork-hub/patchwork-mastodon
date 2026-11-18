@@ -45,7 +45,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/radio-fg-firebase-dummy.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/radio-fg-d2793-firebase-adminsdk-fbsvc-d15ceb9be2.json:ro
     ulimits:
       nofile:
         soft: 1024
@@ -117,7 +117,7 @@ services:
     working_dir: /opt/mastodon
     volumes:
       - mastodon_uploads:/opt/mastodon/public/system
-      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/radio-fg-firebase-dummy.json:ro
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/radio-fg-d2793-firebase-adminsdk-fbsvc-d15ceb9be2.json:ro
     ulimits:
       nofile:
         soft: 1024
