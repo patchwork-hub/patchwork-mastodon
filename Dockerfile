@@ -13,7 +13,7 @@ ARG BASE_REGISTRY="docker.io"
 
 # Ruby image to use for base image, change with [--build-arg RUBY_VERSION="4.0.x"]
 # renovate: datasource=docker depName=docker.io/ruby
-ARG RUBY_VERSION="4.0.9"
+ARG RUBY_VERSION="4.0.5"
 # # Node.js version to use in base image, change with [--build-arg NODE_MAJOR_VERSION="22"]
 # renovate: datasource=node-version depName=node
 ARG NODE_MAJOR_VERSION="24"
@@ -110,6 +110,7 @@ RUN \
   tini \
   tzdata \
   wget \
+  unzip \
   # Mastodon components
   libexpat1 \
   libglib2.0-0t64 \
@@ -153,6 +154,15 @@ RUN \
   apt-get purge -y \
   patchelf \
   ;
+
+# Install AWS CLI v2
+# Mirrors the install block used in newsmast-4.6.5, bristol-cable-4.6.5-production,
+# and other customer branches, so containers can run `aws` commands at startup.
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws && \
+    aws --version
 
 # Build stage for media libraries (libvips, ffmpeg)
 FROM ${BASE_REGISTRY}/ruby:${RUBY_VERSION}-slim-${DEBIAN_VERSION} AS media-build
@@ -399,12 +409,15 @@ RUN \
 
 RUN \
   # Precompile bootsnap code for faster Rails startup
-  bundle exec bootsnap precompile --gemfile app/ lib/ config/;
+  bundle exec bootsnap precompile --gemfile app/ lib/;
 
 RUN \
   # Pre-create and chown system volume to Mastodon user
   mkdir -p /opt/mastodon/public/system; \
   chown mastodon:mastodon /opt/mastodon/public/system; \
+  # Pre-create config directory for runtime-downloaded secrets (e.g. Firebase key)
+  mkdir -p /opt/mastodon/config; \
+  chown mastodon:mastodon /opt/mastodon/config; \
   # Set Mastodon user as owner of tmp folder
   chown -R mastodon:mastodon /opt/mastodon/tmp;
 
