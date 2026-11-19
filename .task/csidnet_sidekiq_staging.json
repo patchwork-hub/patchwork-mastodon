@@ -1,0 +1,52 @@
+{
+    "family": "csidnet-sidekiq",
+    "containerDefinitions": [
+        {
+            "name": "csidnet-sidekiq",
+            "image": "672691776916.dkr.ecr.eu-west-2.amazonaws.com/csidnet:staging",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "bash",
+                "-c",
+                "aws s3 cp s3://patchwork-private-env/csid-net-firebase-adminsdk-fbsvc-ffbfc1cd66.json /opt/mastodon/config && bundle exec sidekiq"
+            ],
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::patchwork-private-env/csidnet.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "workingDirectory": "/opt/mastodon",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/csidnet-sidekiq",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "taskRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::672691776916:role/patchwork-ecs-task-execution-role",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "enableFaultInjection": false
+}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_075918) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1884,7 +1884,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_000002) do
   add_foreign_key "oauth_applications", "users", column: "owner_id", name: "fk_b0988c7c0a", on_delete: :cascade
   add_foreign_key "patchwork_app_version_histories", "patchwork_app_versions", column: "app_version_id"
   add_foreign_key "patchwork_communities", "patchwork_collections"
-  add_foreign_key "patchwork_communities_admins", "accounts", on_delete: :cascade
+  add_foreign_key "patchwork_communities_admins", "accounts"
   add_foreign_key "patchwork_communities_admins", "patchwork_communities"
   add_foreign_key "patchwork_communities_filter_keywords", "patchwork_communities", on_delete: :cascade
   add_foreign_key "patchwork_communities_hashtags", "patchwork_communities", on_delete: :cascade
