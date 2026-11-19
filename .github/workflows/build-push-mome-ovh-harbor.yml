@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - mome-4.6.5-staging
+      - mo-me-4.6.5-production
 env:
   HARBOR_REGISTRY: 44eda7q3.gra7.container-registry.ovh.net
   HARBOR_PROJECT: mome
