@@ -262,6 +262,7 @@ GEM
     fast_blank (1.0.1)
     fastimage (2.4.1)
     ffi (1.17.4)
+    ffi (1.17.4-x86_64-linux-gnu)
     ffi-compiler (1.4.2)
       ffi (>= 1.15.5)
       rake
@@ -297,6 +298,9 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.2)
     google-protobuf (4.35.0)
+      bigdecimal
+      rake (~> 13.3)
+    google-protobuf (4.35.0-x86_64-linux-gnu)
       bigdecimal
       rake (~> 13.3)
     googleapis-common-protos-types (1.23.0)
@@ -505,6 +509,8 @@ GEM
     nokogiri (1.19.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri (1.19.4-x86_64-linux-gnu)
+      racc (~> 1.4)
     omniauth (2.1.4)
       hashie (>= 3.4.6)
       logger
@@ -628,6 +634,7 @@ GEM
     pastel (0.8.0)
       tty-color (~> 0.5)
     pg (1.6.3)
+    pg (1.6.3-x86_64-linux)
     pghero (4.1.0)
       activerecord (>= 7.2)
     playwright-ruby-client (1.60.0)
@@ -982,6 +989,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-linux
 
 DEPENDENCIES
   active_model_serializers (~> 0.10)
