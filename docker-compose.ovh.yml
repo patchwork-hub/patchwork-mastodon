@@ -1,0 +1,146 @@
+# OVH Public Cloud deployment compose file for PouetFrance Social
+# Images are built and pushed by .github/workflows/build-push-ovh-harbor.yml
+# which updates the image lines below on every push.
+#
+# Host layout (credentials are placed manually, never by CI):
+#   /home/ubuntu/deployment/mastodon/docker-compose.ovh.yml  (copied by CI)
+#   /home/ubuntu/deployment/credential/.env.production
+#   /home/ubuntu/deployment/credential/firebase/firebase.json
+#
+# Run by hand with no variables:
+#   cd /home/ubuntu/deployment/mastodon
+#   docker compose -f docker-compose.ovh.yml down && \
+#   docker compose -f docker-compose.ovh.yml up -d
+
+name: mastodon
+
+services:
+  web:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
+    restart: unless-stopped
+    # web: 1.5 CPU / 4G memory on a 4 vCPU / 16 GB instance.
+    # Memory prevents OOM during upload preprocessing (libvips/ffmpeg).
+    # External network only.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 4G
+        reservations:
+          cpus: "1.5"
+          memory: 4G
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    command: >
+      bash -c "bundle exec rails db:migrate &&
+               bundle exec rails s -p 3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - external_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    working_dir: /opt/mastodon
+    volumes:
+      - mastodon_uploads:/opt/mastodon/public/system
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
+      memlock:
+        soft: 64
+        hard: 64
+      msgqueue:
+        soft: 819200
+        hard: 819200
+      nproc:
+        soft: 15471
+        hard: 15471
+      sigpending:
+        soft: 15471
+        hard: 15471
+
+  streaming:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/streaming:streaming-a71f09785abcf4bd9015fe6699ffdfd4857979fe
+    restart: unless-stopped
+    # Matches AWS ECS task definition: 256 CPU units / 512 MB memory
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    environment:
+      - DB_SSLMODE=no-verify
+    command: ["node", "./streaming/index.js"]
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks:
+      - external_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/api/v1/streaming/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    working_dir: /opt/mastodon
+
+  sidekiq:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: d3r5hv0f.eu-west-par.container-registry.ovh.net/pouetsocialmastodon/web:web-a71f09785abcf4bd9015fe6699ffdfd4857979fe
+    restart: unless-stopped
+    # sidekiq: 2 replicas x 1.0 CPU / 2G memory to handle ffmpeg/libvips video
+    # processing in parallel without CPU throttling or OOM.
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+        reservations:
+          cpus: "1.0"
+          memory: 2G
+    env_file:
+      - /home/ubuntu/deployment/credential/.env.production
+    command: >
+      bash -c "bundle exec sidekiq"
+    networks:
+      - internal_network
+    working_dir: /opt/mastodon
+    volumes:
+      - mastodon_uploads:/opt/mastodon/public/system
+      - /home/ubuntu/deployment/credential/firebase/firebase.json:/opt/mastodon/config/firebase-adminsdk.json:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
+      memlock:
+        soft: 64
+        hard: 64
+      msgqueue:
+        soft: 819200
+        hard: 819200
+      nproc:
+        soft: 15471
+        hard: 15471
+      sigpending:
+        soft: 15471
+        hard: 15471
+
+volumes:
+  mastodon_uploads:
+
+networks:
+  external_network:
+  internal_network:
