@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Decides which project/environment pairs to deploy and prints a GitHub Actions
+# matrix. Called by .github/workflows/deploy.yml; can also be run locally to
+# preview a deploy.
+#
+# Environment:
+#   PLAN_EVENT        push | workflow_dispatch
+#   PLAN_BEFORE       (push) commit before the push
+#   PLAN_PROJECTS     (dispatch) selectors: "newsmast", "newsmast,csidnet", "wave:1", "tag:small", "provider=ovh", "all"
+#   PLAN_ENVIRONMENT  (dispatch) staging | production
+#   PLAN_IMAGE_TAG    (dispatch, optional) tag to deploy instead of the pinned one
+#   GITHUB_OUTPUT / GITHUB_STEP_SUMMARY  set by GitHub Actions
+#
+# Local preview:
+#   PLAN_EVENT=workflow_dispatch PLAN_PROJECTS=newsmast PLAN_ENVIRONMENT=staging deploy/bin/plan-deploy
+
+require_relative '../lib/patchwork_deploy'
+
+def write_github_file(var, text)
+  path = ENV.fetch(var, nil)
+  return if path.nil? || path.empty?
+
+  File.open(path, 'a') { |f| f.puts(text) }
+end
+
+begin
+  catalog = PatchworkDeploy::Catalog.from_dir
+  planner = PatchworkDeploy::Planner.new(catalog)
+
+  result = case ENV.fetch('PLAN_EVENT', 'workflow_dispatch')
+           when 'push'
+             planner.plan_push(PatchworkDeploy::Catalog.from_git(ENV.fetch('PLAN_BEFORE', '')))
+           when 'workflow_dispatch'
+             planner.plan_dispatch(ENV.fetch('PLAN_PROJECTS', ''), ENV.fetch('PLAN_ENVIRONMENT', ''), ENV.fetch('PLAN_IMAGE_TAG', ''))
+           else
+             raise PatchworkDeploy::Error, "unsupported PLAN_EVENT #{ENV['PLAN_EVENT'].inspect}"
+           end
+rescue PatchworkDeploy::Error => e
+  warn "::error::#{e.message}"
+  write_github_file('GITHUB_STEP_SUMMARY', "### Deploy plan failed\n\n#{e.message}")
+  exit 1
+end
+
+result.notices.each { |n| puts "::notice::#{n}" }
+result.errors.each { |e| puts "::error::#{e}" }
+
+summary = +"### Deploy plan\n\n"
+if result.entries.empty?
+  summary << "Nothing to deploy.\n"
+else
+  summary << "| Project | Environment | Image tag | Runner |\n|---|---|---|---|\n"
+  result.entries.each do |e|
+    summary << "| #{e['project']} | #{e['environment']} | `#{e['image_tag']}` | `#{e['runner']}` |\n"
+  end
+end
+summary << "\n" << result.notices.map { |n| "- #{n}\n" }.join unless result.notices.empty?
+summary << "\n**Errors**\n\n" << result.errors.map { |e| "- #{e}\n" }.join unless result.errors.empty?
+write_github_file('GITHUB_STEP_SUMMARY', summary)
+
+exit 1 unless result.errors.empty?
+
+matrix = { 'include' => result.entries }
+write_github_file('GITHUB_OUTPUT', "matrix=#{JSON.generate(matrix)}\ncount=#{result.entries.size}")
+puts JSON.pretty_generate(matrix) if ENV.fetch('GITHUB_OUTPUT', '').empty?

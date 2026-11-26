@@ -1,0 +1,40 @@
+# Defaults for every project in deploy/projects/<name>/project.yml.
+# A project file overrides any key here; an environment block overrides the project.
+#
+# Changing this file never deploys by itself (it would touch every project).
+# Roll the change out with "Run workflow" on the Deploy workflow, wave by wave.
+#
+# {project} and {environment} are replaced with the project folder name and
+# the environment name.
+
+provider: ovh # only "ovh" is deployed by .github/workflows/deploy.yml
+wave: 2 # rollout order: canary -> 1 -> 2 -> last
+tags: []
+
+image:
+  # Shared Harbor project that .github/workflows/release-build.yml pushes to.
+  # One image per release, used by every project. CHANGE_ME: create the
+  # "patchwork" project in Harbor (see docs/deploy/DEVOPS.md).
+  registry: 44eda7q3.gra7.container-registry.ovh.net
+  harbor_project: patchwork
+  # Pull-only robot account, one per project/environment. Not secret; its
+  # password is the HARBOR_PULL_PASSWORD secret of the GitHub environment.
+  pull_username: robot$patchwork+{project}-{environment}-pull
+
+host:
+  # Layout on the VM. Credentials are placed by hand, never by CI:
+  #   <credential_dir>/.env.production
+  #   <credential_dir>/firebase/firebase.json
+  deploy_dir: /home/ubuntu/deployment/mastodon
+  credential_dir: /home/ubuntu/deployment/credential
+
+runtime:
+  # Where the app expects the Firebase service-account file inside the container.
+  firebase_container_path: /opt/mastodon/config/firebase-adminsdk.json
+  # DB_SSLMODE for the streaming server (managed Postgres certificates).
+  streaming_db_sslmode: no-verify
+
+resources:
+  web: { cpus: '1', memory: 2G }
+  sidekiq: { cpus: '1', memory: 2G, replicas: 1 }
+  streaming: { cpus: '0.25', memory: 512M }
