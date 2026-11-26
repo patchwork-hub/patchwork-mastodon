@@ -30,6 +30,7 @@
 #  in_reply_to_account_id       :bigint(8)
 #  in_reply_to_id               :bigint(8)
 #  poll_id                      :bigint(8)
+#  quote_id                     :bigint(8)
 #  reblog_of_id                 :bigint(8)
 #
 
