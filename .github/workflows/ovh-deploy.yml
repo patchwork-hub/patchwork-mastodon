@@ -14,13 +14,23 @@ on:
       project: { type: string, required: true }
       environment: { type: string, required: true }
       image_tag: { type: string, required: true }
-      runner: { type: string, required: true, description: 'Self-hosted runner label on the VM' }
+      runner:
+        {
+          type: string,
+          required: true,
+          description: 'Self-hosted runner label on the VM',
+        }
       registry: { type: string, required: true }
       pull_username: { type: string, required: true }
       deploy_dir: { type: string, required: true }
       public_url: { type: string, required: false, default: '' }
       override_file: { type: string, required: false, default: '' }
-      release_env: { type: string, required: true, description: 'Generated .env for the release' }
+      release_env:
+        {
+          type: string,
+          required: true,
+          description: 'Generated .env for the release',
+        }
 
 permissions:
   contents: read

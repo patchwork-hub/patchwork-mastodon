@@ -47,7 +47,11 @@ services:
     networks: [external_network, internal_network]
     volumes: *app-volumes
     healthcheck:
-      test: ['CMD-SHELL', "curl -s --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1"]
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -61,12 +65,20 @@ services:
       DB_SSLMODE: ${STREAMING_DB_SSLMODE:-no-verify}
     deploy:
       resources:
-        limits: { cpus: '${STREAMING_CPUS:-0.25}', memory: '${STREAMING_MEMORY:-512M}' }
+        limits:
+          {
+            cpus: '${STREAMING_CPUS:-0.25}',
+            memory: '${STREAMING_MEMORY:-512M}',
+          }
     ports:
       - '127.0.0.1:4000:4000'
     networks: [external_network, internal_network]
     healthcheck:
-      test: ['CMD-SHELL', "curl -s --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1"]
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 3

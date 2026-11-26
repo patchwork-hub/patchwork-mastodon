@@ -62,23 +62,24 @@ The branch is based on `newsmast-4.6.5-production`, so the image built from it
 is today's newsmast code. The POC is **one commit that only adds new files**:
 existing workflows (including the AWS deploys) are unchanged.
 
-| File | Purpose |
-|---|---|
-| `.github/workflows/release-build.yml` | Builds `web` and `streaming` once per tag (`v*.*.*-pw.*`) or per manual run (`sha-<commit>`) |
-| `.github/workflows/deploy.yml` | Dispatcher: plans which project/environment pairs to deploy, then calls the reusable workflow as a matrix |
-| `.github/workflows/ovh-deploy.yml` | Reusable: deploys one project/environment on its VM through a self-hosted runner |
-| `deploy/projects/_defaults.yml` | Defaults for every project: shared registry, host paths, resources |
-| `deploy/projects/newsmast/project.yml` | The newsmast project: resources, Firebase path, staging and production pins |
-| `deploy/compose/mastodon.yml` | One compose file for every OVH project, filled in from the generated `.env` |
-| `deploy/bin/plan-deploy` | Works out the deploy matrix (used by CI; can be run locally to preview) |
-| `deploy/bin/rollout` | Moves pins for a selection of projects (`newsmast`, `wave:1`, `tag:small`, ...) |
-| `deploy/bin/ovh-deploy.sh` | Runs on the VM: `deploy`, `rollback [release]`, `status` |
-| `deploy/lib/patchwork_deploy.rb` | Shared logic (plain Ruby stdlib) |
-| `deploy/test/patchwork_deploy_test.rb` | Unit tests: `ruby deploy/test/patchwork_deploy_test.rb` |
+| File                                   | Purpose                                                                                                   |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/release-build.yml`  | Builds `web` and `streaming` once per tag (`v*.*.*-pw.*`) or per manual run (`sha-<commit>`)              |
+| `.github/workflows/deploy.yml`         | Dispatcher: plans which project/environment pairs to deploy, then calls the reusable workflow as a matrix |
+| `.github/workflows/ovh-deploy.yml`     | Reusable: deploys one project/environment on its VM through a self-hosted runner                          |
+| `deploy/projects/_defaults.yml`        | Defaults for every project: shared registry, host paths, resources                                        |
+| `deploy/projects/newsmast/project.yml` | The newsmast project: resources, Firebase path, staging and production pins                               |
+| `deploy/compose/mastodon.yml`          | One compose file for every OVH project, filled in from the generated `.env`                               |
+| `deploy/bin/plan-deploy`               | Works out the deploy matrix (used by CI; can be run locally to preview)                                   |
+| `deploy/bin/rollout`                   | Moves pins for a selection of projects (`newsmast`, `wave:1`, `tag:small`, ...)                           |
+| `deploy/bin/ovh-deploy.sh`             | Runs on the VM: `deploy`, `rollback [release]`, `status`                                                  |
+| `deploy/lib/patchwork_deploy.rb`       | Shared logic (plain Ruby stdlib)                                                                          |
+| `deploy/test/patchwork_deploy_test.rb` | Unit tests: `ruby deploy/test/patchwork_deploy_test.rb`                                                   |
 
 ## POC status and placeholders
 
 Verified locally:
+
 - the unit tests pass (10 tests);
 - `actionlint` passes on the three workflows;
 - `docker compose config` renders the compose file with newsmast's generated `.env`;
@@ -89,13 +90,13 @@ Nothing has run on GitHub or on a VM yet.
 
 Before the first real run, DevOps must fill in these values (all marked `CHANGE_ME`):
 
-| What | Where |
-|---|---|
-| Harbor project `patchwork` plus robots `release-push` and `newsmast-staging-pull` | Harbor, see [DEVOPS.md](DEVOPS.md#1-harbor) |
-| GitHub environments `newsmast-staging` / `newsmast-production` with `HARBOR_PULL_PASSWORD` | GitHub settings |
-| Secret `RELEASE_HARBOR_PASSWORD` | GitHub (organization secret; the repo is at the 100-secret cap) |
-| Staging VM with a runner labelled `newsmast-staging` | OVH plus GitHub runners |
-| Staging hostname (`public_url`) | `deploy/projects/newsmast/project.yml` |
+| What                                                                                       | Where                                                           |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Harbor project `patchwork` plus robots `release-push` and `newsmast-staging-pull`          | Harbor, see [DEVOPS.md](DEVOPS.md#1-harbor)                     |
+| GitHub environments `newsmast-staging` / `newsmast-production` with `HARBOR_PULL_PASSWORD` | GitHub settings                                                 |
+| Secret `RELEASE_HARBOR_PASSWORD`                                                           | GitHub (organization secret; the repo is at the 100-secret cap) |
+| Staging VM with a runner labelled `newsmast-staging`                                       | OVH plus GitHub runners                                         |
+| Staging hostname (`public_url`)                                                            | `deploy/projects/newsmast/project.yml`                          |
 
 newsmast production stays on AWS ECS. Its OVH environment is `enabled: false`
 until the cutover in [DEVOPS.md](DEVOPS.md#cutover-of-newsmast-production-from-aws).

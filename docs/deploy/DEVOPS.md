@@ -5,11 +5,11 @@ cutover. For the overview, see [README.md](README.md).
 
 ## What runs where
 
-| Piece | Runs on | Needs |
-|---|---|---|
-| `release-build.yml` | GitHub-hosted `ubuntu-latest` | `RELEASE_HARBOR_PASSWORD` (push robot of the shared Harbor project) |
-| `deploy.yml` → plan job | GitHub-hosted `ubuntu-latest` | nothing secret |
-| `ovh-deploy.yml` | self-hosted runner **on the project's VM**, label from `runner:` in project.yml | GitHub environment `<project>-<environment>` with `HARBOR_PULL_PASSWORD` |
+| Piece                   | Runs on                                                                         | Needs                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `release-build.yml`     | GitHub-hosted `ubuntu-latest`                                                   | `RELEASE_HARBOR_PASSWORD` (push robot of the shared Harbor project)      |
+| `deploy.yml` → plan job | GitHub-hosted `ubuntu-latest`                                                   | nothing secret                                                           |
+| `ovh-deploy.yml`        | self-hosted runner **on the project's VM**, label from `runner:` in project.yml | GitHub environment `<project>-<environment>` with `HARBOR_PULL_PASSWORD` |
 
 The VM only ever **pulls** images, with a pull-only robot. CI never writes
 credentials to the VM.
@@ -22,15 +22,16 @@ Use the existing registry `44eda7q3.gra7.container-registry.ovh.net`, or change
 1. Create a **private** project named `patchwork`.
 2. Create the robot accounts:
 
-   | Robot (full name) | Permissions | Used by |
-   |---|---|---|
-   | `robot$patchwork+release-push` | push + pull on `patchwork/*` | `release-build.yml` → secret `RELEASE_HARBOR_PASSWORD` |
-   | `robot$patchwork+newsmast-staging-pull` | pull on `patchwork/*` | newsmast staging VM → environment secret `HARBOR_PULL_PASSWORD` |
-   | `robot$patchwork+newsmast-production-pull` | pull on `patchwork/*` | newsmast production VM (at cutover) |
+   | Robot (full name)                          | Permissions                  | Used by                                                         |
+   | ------------------------------------------ | ---------------------------- | --------------------------------------------------------------- |
+   | `robot$patchwork+release-push`             | push + pull on `patchwork/*` | `release-build.yml` → secret `RELEASE_HARBOR_PASSWORD`          |
+   | `robot$patchwork+newsmast-staging-pull`    | pull on `patchwork/*`        | newsmast staging VM → environment secret `HARBOR_PULL_PASSWORD` |
+   | `robot$patchwork+newsmast-production-pull` | pull on `patchwork/*`        | newsmast production VM (at cutover)                             |
 
    Each name follows `image.pull_username` in `_defaults.yml`
    (`robot$patchwork+{project}-{environment}-pull`). If your Harbor uses a
    different robot prefix, change that template once.
+
 3. Add a tag retention policy. Suggested rules:
    - keep every `v*` tag for 180 days, and always keep the newest 20;
    - keep `sha-*` tags for 14 days.
@@ -42,6 +43,7 @@ Use the existing registry `44eda7q3.gra7.container-registry.ovh.net`, or change
 ## 2. GitHub
 
 **Secrets.** The repository is at GitHub's 100-secret limit, so:
+
 - add `RELEASE_HARBOR_PASSWORD` as an **organization** secret, with repository
   access limited to `patchwork-mastodon`;
 - put everything per project in **environment** secrets (environment secrets
@@ -49,9 +51,9 @@ Use the existing registry `44eda7q3.gra7.container-registry.ovh.net`, or change
 
 **Environments.** Under Settings → Environments, create:
 
-| Environment | Secret | Protection |
-|---|---|---|
-| `newsmast-staging` | `HARBOR_PULL_PASSWORD` | Deployment branches: `poc/ovh-release-deploy-flow` (later `main`) |
+| Environment           | Secret                 | Protection                                                           |
+| --------------------- | ---------------------- | -------------------------------------------------------------------- |
+| `newsmast-staging`    | `HARBOR_PULL_PASSWORD` | Deployment branches: `poc/ovh-release-deploy-flow` (later `main`)    |
 | `newsmast-production` | `HARBOR_PULL_PASSWORD` | Required reviewers (2 people, prevent self-review); same branch rule |
 
 The environment name must be exactly `<project folder>-<environment>`.
@@ -89,6 +91,7 @@ gh workflow run deploy.yml --ref poc/ovh-release-deploy-flow -f projects=newsmas
    Inside the containers, `firebase.json` is mounted as
    `/opt/mastodon/config/fcm_newsmast_service.json`
    (`runtime.firebase_container_path` in project.yml).
+
 5. **GitHub Actions runner.**
    - Install it as a service, running as `ubuntu`.
    - Give it the label **`newsmast-staging`**. It must match `runner:` in project.yml.
@@ -136,13 +139,13 @@ DEPLOY_DIR=/home/ubuntu/deployment/mastodon bash deploy/bin/ovh-deploy.sh rollba
 
 **When a deploy fails:**
 
-| Symptom in the run | Meaning | Action |
-|---|---|---|
-| `.env.production is missing` | Credentials are not placed | Section 3, step 4 |
-| Fails at "Pulling images" | Wrong pull robot or password, or the tag was never built | Check the environment secret and the Release build run |
-| Fails at "Pre-deploy migrations" | A migration error; the old release is still serving | Developers fix it; nothing to roll back |
-| "did not become healthy … Rolling back" | The new release crashed; the previous one was restarted | `docker compose logs` in `releases/<failed>` |
-| "post-deploy migrations failed" | The new release is live; the cleanup migration failed | Fix forward; don't roll back blindly |
+| Symptom in the run                      | Meaning                                                  | Action                                                 |
+| --------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| `.env.production is missing`            | Credentials are not placed                               | Section 3, step 4                                      |
+| Fails at "Pulling images"               | Wrong pull robot or password, or the tag was never built | Check the environment secret and the Release build run |
+| Fails at "Pre-deploy migrations"        | A migration error; the old release is still serving      | Developers fix it; nothing to roll back                |
+| "did not become healthy … Rolling back" | The new release crashed; the previous one was restarted  | `docker compose logs` in `releases/<failed>`           |
+| "post-deploy migrations failed"         | The new release is live; the cleanup migration failed    | Fix forward; don't roll back blindly                   |
 
 **Downtime.** There is no `docker compose down` any more. Only containers whose
 image or settings changed are recreated, so web has a short gap while the new
@@ -161,6 +164,7 @@ lhumanite-social, ouest-france-social, pouetfrance-social) keep their
 directories. The new compose file uses the same project name (`mastodon`) and
 the same `mastodon_uploads` volume, so the first new deploy takes over the
 running containers. After that:
+
 - delete that project's old `build-push-*-ovh-harbor.yml` / `ovh.yml` workflow;
 - delete the old `docker-compose.*.ovh.yml` from the host.
 

@@ -4,15 +4,15 @@ How to ship code with the new flow. For the overview, see [README.md](README.md)
 
 ## The rules
 
-| You do | What happens |
-|---|---|
-| Merge code into `release/4.6` (POC: this branch) | Nothing is deployed. Code and deploys are separate. |
-| Push a tag `v4.6.5-pw.N` | `release-build.yml` builds `web` + `streaming` once and pushes them as `v4.6.5-pw.N` |
-| "Run workflow" on **Release build** for a branch | Ad-hoc images `sha-<commit>`. Allowed on staging only. |
-| Merge a PR that changes `image_tag` in `deploy/projects/<name>/project.yml` | Only that project/environment deploys |
-| Change `deploy/projects/_defaults.yml` | Nothing deploys automatically, because it affects every project. Roll it out by hand, wave by wave. |
-| Add a new project folder | Its first deploy is never automatic |
-| "Run workflow" on **Deploy** | Deploys the selected projects to one environment |
+| You do                                                                      | What happens                                                                                        |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Merge code into `release/4.6` (POC: this branch)                            | Nothing is deployed. Code and deploys are separate.                                                 |
+| Push a tag `v4.6.5-pw.N`                                                    | `release-build.yml` builds `web` + `streaming` once and pushes them as `v4.6.5-pw.N`                |
+| "Run workflow" on **Release build** for a branch                            | Ad-hoc images `sha-<commit>`. Allowed on staging only.                                              |
+| Merge a PR that changes `image_tag` in `deploy/projects/<name>/project.yml` | Only that project/environment deploys                                                               |
+| Change `deploy/projects/_defaults.yml`                                      | Nothing deploys automatically, because it affects every project. Roll it out by hand, wave by wave. |
+| Add a new project folder                                                    | Its first deploy is never automatic                                                                 |
+| "Run workflow" on **Deploy**                                                | Deploys the selected projects to one environment                                                    |
 
 Production only accepts release tags (`v4.6.5-pw.N`) and hotfix tags
 (`v4.6.5-pw.N-<project>.M`). `sha-*` builds are refused there, and so is `latest`.
@@ -28,6 +28,7 @@ git push origin v4.6.5-pw.2
 Wait for **Release build** to finish. Its summary shows the image digests.
 
 How to number tags:
+
 - `v<mastodon version>-pw.<n>`; `<n>` goes up by one for each Patchwork release on that Mastodon version.
 - A Mastodon upgrade starts over at `pw.1`, e.g. `v4.7.0-pw.1`.
 
@@ -41,6 +42,7 @@ git push -u origin HEAD
 ```
 
 Open the PR. When it merges, the **Deploy** workflow:
+
 - plans and deploys `newsmast/staging` only;
 - shows the plan in the run summary;
 - deploys under the `newsmast-staging` GitHub environment, which records it in the deployment history.
@@ -53,14 +55,14 @@ environments require an approval in GitHub before the job starts.
 Each project pins its own tag, so a rollout only touches the projects you pick.
 `rollout` and the manual **Deploy** run take the same selectors:
 
-| Selector | Picks |
-|---|---|
-| `newsmast` | one project |
-| `newsmast,csidnet` | a list |
-| `wave:canary`, `wave:1`, `wave:2`, `wave:last` | a rollout wave (`wave:` in project.yml) |
-| `tag:small`, `tag:fr-region` | projects with that tag (`tags:` in project.yml) |
-| `provider=ovh`, `wave=1` | any top-level field |
-| `all` | every project |
+| Selector                                       | Picks                                           |
+| ---------------------------------------------- | ----------------------------------------------- |
+| `newsmast`                                     | one project                                     |
+| `newsmast,csidnet`                             | a list                                          |
+| `wave:canary`, `wave:1`, `wave:2`, `wave:last` | a rollout wave (`wave:` in project.yml)         |
+| `tag:small`, `tag:fr-region`                   | projects with that tag (`tags:` in project.yml) |
+| `provider=ovh`, `wave=1`                       | any top-level field                             |
+| `all`                                          | every project                                   |
 
 A typical production rollout of a new release goes through the waves, one PR each:
 
@@ -108,12 +110,14 @@ previous release working (see below).
 ## Migrations
 
 `ovh-deploy.sh` runs:
+
 1. `rails db:migrate` with `SKIP_POST_DEPLOY_MIGRATIONS=true` **before** the
    switch, while the old release is still serving;
 2. the plain `rails db:migrate` (post-deploy migrations) **after** the new
    release is healthy.
 
 Mastodon already follows this pattern. For Patchwork migrations:
+
 - Adding tables, columns or indexes → a normal migration (`db/migrate`). The old code must keep working with the new schema.
 - Removing or renaming something the old code uses → a post-deploy migration (`db/post_migrate`), shipped one release after the code stops using it.
 - The web container no longer migrates at startup. Never add `db:migrate` back to the compose `command`.
