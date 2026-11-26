@@ -9,13 +9,16 @@
 #   deploy/bin/rollout TAG --env ENV --select SELECTORS [--dry-run]
 #
 # Examples:
-#   deploy/bin/rollout v4.6.5-pw.2 --env staging --select newsmast
-#   deploy/bin/rollout v4.6.5-pw.2 --env production --select wave:canary
-#   deploy/bin/rollout v4.6.5-pw.2 --env production --select csidnet,nithecs
-#   deploy/bin/rollout v4.6.5-pw.2 --env production --select provider=ovh --dry-run
+#   deploy/bin/rollout v4.7.6-pw.2 --env staging --select newsmast
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select wave:canary
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select csidnet,nithecs
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select provider=ovh --dry-run
 
 require 'optparse'
 require_relative '../lib/patchwork_deploy'
+
+# These are CLI messages for operators, not Rails UI strings.
+# rubocop:disable I18n/RailsI18n/DecorateString
 
 options = { dry_run: false }
 parser = OptionParser.new do |o|
@@ -35,7 +38,7 @@ def set_pin(text, env, tag)
   lines = text.lines
   envs_at = lines.index { |l| l.match?(/\Aenvironments:\s*(#.*)?\z/) } or return [nil, 'no environments: block']
   env_at = nil
-  (envs_at + 1...lines.size).each do |i|
+  ((envs_at + 1)...lines.size).each do |i|
     break if lines[i].match?(/\A\S/) # next top-level key
 
     if lines[i].match?(/\A  #{Regexp.escape(env)}:\s*(#.*)?\z/)
@@ -45,7 +48,7 @@ def set_pin(text, env, tag)
   end
   return [nil, "no #{env}: environment"] unless env_at
 
-  (env_at + 1...lines.size).each do |i|
+  ((env_at + 1)...lines.size).each do |i|
     line = lines[i]
     break if line.match?(/\A {0,2}\S/) # next environment or top-level key
 
@@ -103,3 +106,4 @@ begin
 rescue PatchworkDeploy::Error => e
   abort("error: #{e.message}")
 end
+# rubocop:enable I18n/RailsI18n/DecorateString

@@ -5,7 +5,7 @@ run-name: Build ${{ github.ref_name }} images by @${{ github.actor }}
 # shared Harbor project (deploy/projects/_defaults.yml -> image). Every project
 # deploys these same images; nothing is built per project.
 #
-#   git tag v4.6.5-pw.2 && git push origin v4.6.5-pw.2   -> images tagged v4.6.5-pw.2
+#   git tag v4.7.6-pw.2 && git push origin v4.7.6-pw.2   -> images tagged v4.7.6-pw.2
 #   "Run workflow" on any branch                         -> images tagged sha-<commit> (staging only)
 #
 # Secret: RELEASE_HARBOR_PASSWORD (push robot of the shared Harbor project).

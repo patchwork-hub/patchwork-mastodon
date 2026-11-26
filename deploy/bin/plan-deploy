@@ -18,9 +18,12 @@
 
 require_relative '../lib/patchwork_deploy'
 
+# These are CLI messages for operators, not Rails UI strings.
+# rubocop:disable I18n/RailsI18n/DecorateString
+
 def write_github_file(var, text)
   path = ENV.fetch(var, nil)
-  return if path.nil? || path.empty?
+  return if path.to_s.empty?
 
   File.open(path, 'a') { |f| f.puts(text) }
 end
@@ -47,11 +50,11 @@ result.notices.each { |n| puts "::notice::#{n}" }
 result.errors.each { |e| puts "::error::#{e}" }
 
 summary = +"### Deploy plan\n\n"
-if result.entries.empty?
+if result.deploys.empty?
   summary << "Nothing to deploy.\n"
 else
   summary << "| Project | Environment | Image tag | Runner |\n|---|---|---|---|\n"
-  result.entries.each do |e|
+  result.deploys.each do |e|
     summary << "| #{e['project']} | #{e['environment']} | `#{e['image_tag']}` | `#{e['runner']}` |\n"
   end
 end
@@ -61,6 +64,7 @@ write_github_file('GITHUB_STEP_SUMMARY', summary)
 
 exit 1 unless result.errors.empty?
 
-matrix = { 'include' => result.entries }
-write_github_file('GITHUB_OUTPUT', "matrix=#{JSON.generate(matrix)}\ncount=#{result.entries.size}")
+matrix = { 'include' => result.deploys }
+write_github_file('GITHUB_OUTPUT', "matrix=#{JSON.generate(matrix)}\ncount=#{result.deploys.size}")
 puts JSON.pretty_generate(matrix) if ENV.fetch('GITHUB_OUTPUT', '').empty?
+# rubocop:enable I18n/RailsI18n/DecorateString

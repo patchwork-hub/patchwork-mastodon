@@ -17,6 +17,9 @@ require 'yaml'
 require 'json'
 require 'open3'
 
+# These are CLI messages for operators, not Rails UI strings.
+# rubocop:disable I18n/RailsI18n/DecorateString
+
 module PatchworkDeploy
   ROOT = File.expand_path('../..', __dir__)
   PROJECTS_REL = 'deploy/projects'
@@ -24,8 +27,8 @@ module PatchworkDeploy
   PROJECT_FILE = 'project.yml'
   OVERRIDE_FILE = 'compose.override.yml'
 
-  # v4.6.5-pw.3                 normal release, built from a release branch tag
-  # v4.6.5-pw.3-newsmast.1      project hotfix on top of a release
+  # v4.7.6-pw.3                 normal release, built from a release branch tag
+  # v4.7.6-pw.3-newsmast.1      project hotfix on top of a release
   # sha-0123abcd                ad-hoc build from any branch (staging only)
   RELEASE_TAG = /\Av\d+\.\d+\.\d+-pw\.\d+\z/
   HOTFIX_TAG = /\Av\d+\.\d+\.\d+-pw\.\d+-[a-z0-9][a-z0-9-]*\.\d+\z/
@@ -95,7 +98,7 @@ module PatchworkDeploy
 
     def self.from_dir(root = ROOT)
       dir = File.join(root, PROJECTS_REL)
-      texts = Dir.glob(File.join(dir, '*', PROJECT_FILE)).sort.to_h do |path|
+      texts = Dir.glob(File.join(dir, '*', PROJECT_FILE)).to_h do |path|
         [File.basename(File.dirname(path)), File.read(path)]
       end
       overrides = Dir.glob(File.join(dir, '*', OVERRIDE_FILE)).map { |p| File.basename(File.dirname(p)) }
@@ -104,7 +107,7 @@ module PatchworkDeploy
 
     # Returns nil when the revision does not exist (first push of a branch, etc.).
     def self.from_git(rev, root = ROOT)
-      return nil if rev.nil? || rev.empty? || rev.match?(/\A0+\z/)
+      return nil if rev.to_s.empty? || rev.match?(/\A0+\z/)
 
       _, status = Open3.capture2e('git', '-C', root, 'cat-file', '-e', "#{rev}^{commit}")
       return nil unless status.success?
@@ -196,7 +199,7 @@ module PatchworkDeploy
 
   # Builds the deploy matrix.
   class Planner
-    Result = Struct.new(:entries, :notices, :errors, keyword_init: true)
+    Result = Struct.new(:deploys, :notices, :errors, keyword_init: true)
 
     def initialize(catalog)
       @catalog = catalog
@@ -244,9 +247,7 @@ module PatchworkDeploy
           notices << "#{name} has no #{environment} environment; skipped."
         end
       end
-      unless image_tag_override.to_s.empty?
-        notices << "image_tag #{image_tag_override} was given by hand. Update the pins in deploy/projects with deploy/bin/rollout too, or the next pin change will move these projects back."
-      end
+      notices << "image_tag #{image_tag_override} was given by hand. Update the pins in deploy/projects with deploy/bin/rollout too, or the next pin change will move these projects back." unless image_tag_override.to_s.empty?
       finish(pairs, notices)
     end
 
@@ -274,7 +275,7 @@ module PatchworkDeploy
           errors.concat(problems.map { |p| "#{label}: #{p}" })
         end
       end
-      Result.new(entries: entries, notices: notices, errors: errors)
+      Result.new(deploys: entries, notices: notices, errors: errors)
     end
 
     def validate(cfg)
@@ -342,3 +343,4 @@ module PatchworkDeploy
     end
   end
 end
+# rubocop:enable I18n/RailsI18n/DecorateString

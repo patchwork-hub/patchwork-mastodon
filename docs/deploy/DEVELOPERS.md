@@ -6,23 +6,23 @@ How to ship code with the new flow. For the overview, see [README.md](README.md)
 
 | You do                                                                      | What happens                                                                                        |
 | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Merge code into `release/4.6` (POC: this branch)                            | Nothing is deployed. Code and deploys are separate.                                                 |
-| Push a tag `v4.6.5-pw.N`                                                    | `release-build.yml` builds `web` + `streaming` once and pushes them as `v4.6.5-pw.N`                |
+| Merge code into `release/4.7` (POC: this branch)                            | Nothing is deployed. Code and deploys are separate.                                                 |
+| Push a tag `v4.7.6-pw.N`                                                    | `release-build.yml` builds `web` + `streaming` once and pushes them as `v4.7.6-pw.N`                |
 | "Run workflow" on **Release build** for a branch                            | Ad-hoc images `sha-<commit>`. Allowed on staging only.                                              |
 | Merge a PR that changes `image_tag` in `deploy/projects/<name>/project.yml` | Only that project/environment deploys                                                               |
 | Change `deploy/projects/_defaults.yml`                                      | Nothing deploys automatically, because it affects every project. Roll it out by hand, wave by wave. |
 | Add a new project folder                                                    | Its first deploy is never automatic                                                                 |
 | "Run workflow" on **Deploy**                                                | Deploys the selected projects to one environment                                                    |
 
-Production only accepts release tags (`v4.6.5-pw.N`) and hotfix tags
-(`v4.6.5-pw.N-<project>.M`). `sha-*` builds are refused there, and so is `latest`.
+Production only accepts release tags (`v4.7.6-pw.N`) and hotfix tags
+(`v4.7.6-pw.N-<project>.M`). `sha-*` builds are refused there, and so is `latest`.
 
 ## Cutting a release
 
 ```bash
-git switch release/4.6 && git pull
-git tag v4.6.5-pw.2
-git push origin v4.6.5-pw.2
+git switch release/4.7 && git pull
+git tag v4.7.6-pw.2
+git push origin v4.7.6-pw.2
 ```
 
 Wait for **Release build** to finish. Its summary shows the image digests.
@@ -30,14 +30,14 @@ Wait for **Release build** to finish. Its summary shows the image digests.
 How to number tags:
 
 - `v<mastodon version>-pw.<n>`; `<n>` goes up by one for each Patchwork release on that Mastodon version.
-- A Mastodon upgrade starts over at `pw.1`, e.g. `v4.7.0-pw.1`.
+- A Mastodon upgrade starts over at `pw.1`, e.g. `v4.8.0-pw.1`.
 
 ## Deploying to staging, then production
 
 ```bash
-deploy/bin/rollout v4.6.5-pw.2 --env staging --select newsmast
-git switch -c rollout/staging-v4.6.5-pw.2
-git add deploy/projects && git commit -m "Roll out v4.6.5-pw.2 to staging: newsmast"
+deploy/bin/rollout v4.7.6-pw.2 --env staging --select newsmast
+git switch -c rollout/staging-v4.7.6-pw.2
+git add deploy/projects && git commit -m "Roll out v4.7.6-pw.2 to staging: newsmast"
 git push -u origin HEAD
 ```
 
@@ -67,9 +67,9 @@ Each project pins its own tag, so a rollout only touches the projects you pick.
 A typical production rollout of a new release goes through the waves, one PR each:
 
 ```bash
-deploy/bin/rollout v4.6.5-pw.2 --env production --select wave:canary      # PR 1
-deploy/bin/rollout v4.6.5-pw.2 --env production --select wave:1           # PR 2, a day later
-deploy/bin/rollout v4.6.5-pw.2 --env production --select wave:2,wave:last # PR 3
+deploy/bin/rollout v4.7.6-pw.2 --env production --select wave:canary      # PR 1
+deploy/bin/rollout v4.7.6-pw.2 --env production --select wave:1           # PR 2, a day later
+deploy/bin/rollout v4.7.6-pw.2 --env production --select wave:2,wave:last # PR 3
 ```
 
 Add `--dry-run` to see what would change without writing anything. Projects
@@ -81,18 +81,18 @@ the environment, and leave `image_tag` empty.
 
 ## Hotfix for one project
 
-Prefer fixing in `release/4.6` and cutting a normal release. If one project
+Prefer fixing in `release/4.7` and cutting a normal release. If one project
 needs a fix now:
 
 ```bash
-git switch -c hotfix/newsmast-push v4.6.5-pw.2
+git switch -c hotfix/newsmast-push v4.7.6-pw.2
 # fix, commit
-git tag v4.6.5-pw.2-newsmast.1 && git push origin hotfix/newsmast-push v4.6.5-pw.2-newsmast.1
-deploy/bin/rollout v4.6.5-pw.2-newsmast.1 --env production --select newsmast   # PR as usual
+git tag v4.7.6-pw.2-newsmast.1 && git push origin hotfix/newsmast-push v4.7.6-pw.2-newsmast.1
+deploy/bin/rollout v4.7.6-pw.2-newsmast.1 --env production --select newsmast   # PR as usual
 ```
 
-Then merge the fix into `release/4.6`. The next normal release
-(`v4.6.5-pw.3`) moves newsmast back onto the shared line. Do not keep a hotfix
+Then merge the fix into `release/4.7`. The next normal release
+(`v4.7.6-pw.3`) moves newsmast back onto the shared line. Do not keep a hotfix
 branch around: that is how project branches came about.
 
 ## Rollback
@@ -136,10 +136,10 @@ Never create a long-lived project branch.
 
 ## Upgrading Mastodon
 
-1. Create `release/4.7` from the upstream `v4.7.x` tag, merged with the Patchwork changes from `release/4.6`. Upgrade the `newsmast_mastodon` engine at the same time.
-2. Tag `v4.7.0-pw.1`. CI builds the images.
+1. Create `release/4.8` from the upstream `v4.8.x` tag, merged with the Patchwork changes from `release/4.7`. Upgrade the `newsmast_mastodon` engine at the same time.
+2. Tag `v4.8.0-pw.1`. CI builds the images.
 3. Roll out: `--env staging --select all`, then production wave by wave, exactly as above.
-4. Keep `release/4.6` for security fixes until no project pins a `v4.6.*` tag (`grep -r 'image_tag: v4.6' deploy/projects`).
+4. Keep `release/4.7` for security fixes until no project pins a `v4.7.*` tag (`grep -r 'image_tag: v4.7' deploy/projects`).
 
 There are no per-project branches to recreate. Each project changes one line.
 
@@ -155,7 +155,7 @@ There are no per-project branches to recreate. Each project changes one line.
 ```bash
 ruby deploy/test/patchwork_deploy_test.rb
 PLAN_EVENT=workflow_dispatch PLAN_PROJECTS=wave:1 PLAN_ENVIRONMENT=production deploy/bin/plan-deploy
-deploy/bin/rollout v4.6.5-pw.2 --env production --select tag:small --dry-run
+deploy/bin/rollout v4.7.6-pw.2 --env production --select tag:small --dry-run
 ```
 
 The scripts need only the Ruby standard library (Ruby 3.0 or later); no bundle install.

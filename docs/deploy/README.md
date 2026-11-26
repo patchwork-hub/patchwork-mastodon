@@ -4,7 +4,7 @@ This branch is a proof of concept for a new way to build and deploy all
 Patchwork Mastodon projects. newsmast.social is the pilot.
 
 - **Developers:** read [DEVELOPERS.md](DEVELOPERS.md). It covers releasing, rolling out, hotfixes, rollback and Mastodon upgrades.
-- **DevOps:** read [DEVOPS.md](DEVOPS.md). It covers one-time setup (Harbor, GitHub environments, the VM, the runner), operations and cutover.
+- **DevOps:** read [DEVOPS.md](DEVOPS.md). It covers one-time setup (Harbor, GitHub environments, the VM, the runner), operations, and switching newsmast production over.
 
 ## Why change
 
@@ -12,7 +12,7 @@ Today each project is a set of long-lived branches (`<project>-<version>`,
 `-staging`, `-production`). There are about 115 remote branches, and each
 production branch carries its own copy of the OVH workflow. The problems:
 
-- **The code barely differs, but the pipelines do.** Production branches differ from
+- **The code barely differs, but the pipelines do.** On the 4.6.5 line, production branches differ from
   `patchwork-mastodon-4.6.5` in only 3 to 11 files, mostly the same Gemfile,
   Dockerfile and `compose_form` changes. Meanwhile the copied workflows have
   drifted: `COMPOSE_FILE` vs `COMPOSE_SOURCE_FILE`, different permissions, and
@@ -31,12 +31,12 @@ production branch carries its own copy of the OVH workflow. The problems:
 ```mermaid
 flowchart LR
   subgraph code [One codebase]
-    RB[release/4.6 branch] -- "git tag v4.6.5-pw.N" --> T((tag))
+    RB[release/4.7 branch] -- "git tag v4.7.6-pw.N" --> T((tag))
   end
   T --> BUILD[release-build.yml<br/>build web + streaming once]
-  BUILD --> H[(Harbor: patchwork/web, patchwork/streaming<br/>tag v4.6.5-pw.N)]
+  BUILD --> H[(Harbor: patchwork/web, patchwork/streaming<br/>tag v4.7.6-pw.N)]
   subgraph cfg [Projects are config]
-    P1[deploy/projects/newsmast/project.yml<br/>staging: v4.6.5-pw.N<br/>production: v4.6.5-pw.N-1]
+    P1[deploy/projects/newsmast/project.yml<br/>staging: v4.7.6-pw.N<br/>production: v4.7.6-pw.N-1]
     P2[deploy/projects/csidnet/project.yml]
   end
   P1 -- "PR changes image_tag" --> D[deploy.yml<br/>plan: only changed pins]
@@ -45,7 +45,7 @@ flowchart LR
 ```
 
 1. **One codebase per Mastodon line.** Shared changes are made once.
-2. **One image per release.** A tag `v4.6.5-pw.N` builds `web` and `streaming`
+2. **One image per release.** A tag `v4.7.6-pw.N` builds `web` and `streaming`
    once and pushes them to a shared Harbor project.
 3. **A project is a folder in `deploy/projects/`, not a branch.** Each environment pins the
    image tag it runs. Git history shows what runs where, and who changed it.
@@ -58,9 +58,11 @@ flowchart LR
 
 ## What is in this branch
 
-The branch is based on `newsmast-4.6.5-production`, so the image built from it
-is today's newsmast code. The POC is **one commit that only adds new files**:
-existing workflows (including the AWS deploys) are unchanged.
+The branch is based on `newsmast-4.7.6-production` (Mastodon 4.7.6), so the
+image built from it is today's newsmast code. The POC **only adds new files**:
+existing workflows are unchanged, including `build-push-newsmast-ovh-harbor.yml`,
+which still deploys newsmast production on every push to
+`newsmast-4.7.6-production`.
 
 | File                                   | Purpose                                                                                                   |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -98,8 +100,10 @@ Before the first real run, DevOps must fill in these values (all marked `CHANGE_
 | Staging VM with a runner labelled `newsmast-staging`                                       | OVH plus GitHub runners                                         |
 | Staging hostname (`public_url`)                                                            | `deploy/projects/newsmast/project.yml`                          |
 
-newsmast production stays on AWS ECS. Its OVH environment is `enabled: false`
-until the cutover in [DEVOPS.md](DEVOPS.md#cutover-of-newsmast-production-from-aws).
+newsmast production already runs on OVH (since 2026-11-20), deployed by the
+old-style `build-push-newsmast-ovh-harbor.yml`. Its environment here is
+`enabled: false`, so the two pipelines never deploy the same server. Switching
+over is in [DEVOPS.md](DEVOPS.md#switching-newsmast-production-to-this-flow).
 
 > **GitHub limitation:** "Run workflow" (`workflow_dispatch`) only appears for
 > workflows that exist on the default branch. During the POC, either copy the
@@ -110,17 +114,17 @@ until the cutover in [DEVOPS.md](DEVOPS.md#cutover-of-newsmast-production-from-a
 
 1. **Settle the shared code.** Move the shared differences into the base: the
    `newsmast_mastodon` gem branch, the Dockerfile changes and `compose_form`.
-   Create `release/4.6` from it. Anything that still has to differ per project
+   Create `release/4.7` from it. Anything that still has to differ per project
    becomes config (ENV or engine settings), or a build variant as a last resort.
-2. **Bring the POC over.** Cherry-pick the POC commit onto `release/4.6` and `main`.
+2. **Bring the POC over.** Cherry-pick the POC commit onto `release/4.7` and `main`.
    Change the `branches:` filter in `deploy.yml` to `main`.
-3. **Move the OVH projects one at a time.** For each of csidnet, democracy-book-club,
-   mo-me, nithecs, lhumanite-social, ouest-france-social and pouetfrance-social:
+3. **Move the OVH projects one at a time.** For each of newsmast, csidnet,
+   democracy-book-club, mo-me, nithecs, lhumanite-social, ouest-france-social and pouetfrance-social:
    add `deploy/projects/<name>/project.yml`, create its environment and pull
    robot, then deploy once. `ovh-deploy.sh` uses the same compose project name
    (`mastodon`) and the same upload volume as the old compose files, so it takes
    over the running containers. Then delete that project's old
    `build-push-*-ovh-harbor.yml` workflow.
-4. **Then the AWS projects,** one cutover at a time (newsmast first, as the pilot).
+4. **Then the projects still on AWS ECS,** one migration at a time.
 5. **Archive old branches.** Turn the old `<project>-<version>*` branches into
    tags, then delete them.
