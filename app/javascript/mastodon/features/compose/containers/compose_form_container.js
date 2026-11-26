@@ -9,9 +9,11 @@ import {
   changeComposeSpoilerText,
   insertEmojiCompose,
   uploadCompose,
+  fetchLocalOnlySetting,
 } from 'mastodon/actions/compose';
 import { pasteLinkCompose, PRIVATE_QUOTE_MODAL_ID } from 'mastodon/actions/compose_typed';
 import { openModal } from 'mastodon/actions/modal';
+import { fetchServer } from 'mastodon/actions/server';
 import { me } from 'mastodon/initial_state';
 
 import ComposeForm from '../components/compose_form';
@@ -41,6 +43,8 @@ const mapStateToProps = state => ({
   spoiler: state.getIn(['compose', 'spoiler']),
   spoilerText: state.getIn(['compose', 'spoiler_text']),
   privacy: state.getIn(['compose', 'privacy']),
+  federated: state.getIn(['compose', 'federated']),
+  localOnlyEnabled: state.getIn(['compose', 'localOnlyFeatureEnabled'], false),
   focusDate: state.getIn(['compose', 'focusDate']),
   caretPosition: state.getIn(['compose', 'caretPosition']),
   preselectDate: state.getIn(['compose', 'preselectDate']),
@@ -61,6 +65,13 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
+  fetchLocalOnlySetting: () => {
+    dispatch(fetchLocalOnlySetting());
+  },
+
+  refreshInstanceConfiguration: () => {
+    dispatch(fetchServer());
+  },
 
   onChange (text) {
     dispatch(changeCompose(text));
