@@ -54,6 +54,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true # plan-deploy refuses pins whose git tag does not exist
           filter: blob:none
           sparse-checkout: deploy
 

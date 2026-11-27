@@ -41,6 +41,11 @@ class PatchworkDeployTest < Minitest::Test
     PatchworkDeploy::Catalog.new(defaults_text: DEFAULTS, project_texts: projects.transform_keys(&:to_s))
   end
 
+  # Pretends every tag was pushed, except the ones listed in missing.
+  def planner(cat, missing: [])
+    PatchworkDeploy::Planner.new(cat, image_source_exists: ->(tag) { !missing.include?(tag) })
+  end
+
   def base
     catalog(alpha: project(wave: 'canary', tags: ['small']), beta: project(wave: 1), gamma: project(wave: 'last', tags: ['large']))
   end
@@ -65,14 +70,14 @@ class PatchworkDeployTest < Minitest::Test
   def test_push_deploys_only_changed_environments
     old = base
     new = catalog(alpha: project(wave: 'canary', tags: ['small'], production: 'v4.7.6-pw.2'), beta: project(wave: 1), gamma: project(wave: 'last', tags: ['large']))
-    result = PatchworkDeploy::Planner.new(new).plan_push(old)
+    result = planner(new).plan_push(old)
     assert_empty result.errors
     assert_equal([%w(alpha production v4.7.6-pw.2)], result.deploys.map { |e| e.values_at('project', 'environment', 'image_tag') })
     assert_includes result.deploys.first['release_env'], 'WEB_IMAGE=reg.example/patchwork/web:v4.7.6-pw.2'
   end
 
   def test_push_without_previous_revision_deploys_nothing
-    result = PatchworkDeploy::Planner.new(base).plan_push(nil)
+    result = planner(base).plan_push(nil)
     assert_empty result.deploys
     assert result.notices.any?
   end
@@ -81,36 +86,50 @@ class PatchworkDeployTest < Minitest::Test
     changed_defaults = PatchworkDeploy::Catalog.new(defaults_text: DEFAULTS.sub('memory: 2G', 'memory: 3G'),
                                                     project_texts: { 'alpha' => project(wave: 'canary') })
     old = PatchworkDeploy::Catalog.new(defaults_text: DEFAULTS, project_texts: { 'alpha' => project(wave: 'canary') })
-    result = PatchworkDeploy::Planner.new(changed_defaults).plan_push(old)
+    result = planner(changed_defaults).plan_push(old)
     assert_empty result.deploys
     assert(result.notices.any? { |n| n.include?('_defaults.yml changed') })
   end
 
   def test_new_project_is_not_deployed_automatically
     new = catalog(alpha: project(wave: 'canary'), delta: project(wave: 1))
-    result = PatchworkDeploy::Planner.new(new).plan_push(catalog(alpha: project(wave: 'canary')))
+    result = planner(new).plan_push(catalog(alpha: project(wave: 'canary')))
     assert_empty result.deploys
     assert(result.notices.any? { |n| n.include?('delta is a new project') })
   end
 
   def test_disabled_environment_is_skipped
     cat = catalog(alpha: project(wave: 1, production_enabled: false))
-    result = PatchworkDeploy::Planner.new(cat).plan_dispatch('alpha', 'production')
+    result = planner(cat).plan_dispatch('alpha', 'production')
     assert_empty result.deploys
     assert(result.notices.any? { |n| n.include?('disabled') })
   end
 
   def test_dispatch_with_tag_override
-    result = PatchworkDeploy::Planner.new(base).plan_dispatch('wave:canary,beta', 'staging', 'sha-0123abcd')
+    result = planner(base).plan_dispatch('wave:canary,beta', 'staging', 'sha-0123abcd')
     assert_empty result.errors
     assert_equal(%w(alpha beta), result.deploys.map { |e| e.fetch('project') })
     assert(result.deploys.all? { |e| e['image_tag'] == 'sha-0123abcd' })
   end
 
   def test_production_rejects_sha_builds
-    result = PatchworkDeploy::Planner.new(base).plan_dispatch('alpha', 'production', 'sha-0123abcd')
+    result = planner(base).plan_dispatch('alpha', 'production', 'sha-0123abcd')
     assert_empty result.deploys
     assert_match(/only accepts release or hotfix/, result.errors.first)
+  end
+
+  def test_pin_without_pushed_tag_is_an_error
+    old = base
+    new = catalog(alpha: project(wave: 'canary', tags: ['small'], staging: 'v4.7.6-pw.9'), beta: project(wave: 1), gamma: project(wave: 'last', tags: ['large']))
+    result = planner(new, missing: ['v4.7.6-pw.9']).plan_push(old)
+    assert_empty result.deploys
+    assert_match(/no git tag or commit/, result.errors.first)
+  end
+
+  def test_image_source_exists_checks_git
+    assert PatchworkDeploy.image_source_exists?("sha-#{`git -C #{PatchworkDeploy::ROOT} rev-parse --short=12 HEAD`.strip}")
+    assert_equal false, PatchworkDeploy.image_source_exists?('v0.0.0-pw.0')
+    assert_equal false, PatchworkDeploy.image_source_exists?('latest')
   end
 
   def test_tag_kinds

@@ -17,6 +17,11 @@ How to ship code with the new flow. For the overview, see [README.md](README.md)
 Production only accepts release tags (`v4.7.6-pw.N`) and hotfix tags
 (`v4.7.6-pw.N-<project>.M`). `sha-*` builds are refused there, and so is `latest`.
 
+A pin must name a tag that already exists in the repository (or, for `sha-*`,
+a commit that exists). Push the tag first, so that **Release build** has made
+the images, and pin it afterwards. Otherwise the Plan job fails with "has no git
+tag or commit", and nothing is deployed.
+
 ## Cutting a release
 
 ```bash
@@ -159,3 +164,4 @@ deploy/bin/rollout v4.7.6-pw.2 --env production --select tag:small --dry-run
 ```
 
 The scripts need only the Ruby standard library (Ruby 3.0 or later); no bundle install.
+Run `git fetch --tags` first: the planner checks pinned tags against your local tags.

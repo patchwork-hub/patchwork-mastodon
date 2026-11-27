@@ -73,6 +73,19 @@ module PatchworkDeploy
     end
   end
 
+  # Images are only ever built from a pushed git tag (release, hotfix) or from
+  # a commit (sha-). If neither exists in the repository, the image cannot
+  # exist either, so pinning it would only produce a deploy that fails to pull.
+  def image_source_exists?(tag, root = ROOT)
+    ref = case tag_kind(tag.to_s)
+          when :release, :hotfix then "refs/tags/#{tag}"
+          when :sha then "#{tag.to_s.delete_prefix('sha-')}^{commit}"
+          else return false
+          end
+    _, status = Open3.capture2e('git', '-C', root, 'rev-parse', '--quiet', '--verify', ref)
+    status.success?
+  end
+
   # Returns an error string, or nil when the tag may run in that environment.
   def tag_error(tag, environment)
     kind = tag_kind(tag.to_s)
@@ -201,8 +214,10 @@ module PatchworkDeploy
   class Planner
     Result = Struct.new(:deploys, :notices, :errors, keyword_init: true)
 
-    def initialize(catalog)
+    # image_source_exists: callable(tag) -> bool; tests replace the git lookup.
+    def initialize(catalog, image_source_exists: PatchworkDeploy.method(:image_source_exists?))
       @catalog = catalog
+      @image_source_exists = image_source_exists
     end
 
     # A push to deploy/projects/**: deploy every environment whose own settings changed.
@@ -282,7 +297,11 @@ module PatchworkDeploy
       problems = []
       problems << "project name must match #{NAME.source}" unless cfg['name'].match?(NAME)
       tag_problem = PatchworkDeploy.tag_error(cfg['image_tag'], cfg['environment'])
-      problems << tag_problem if tag_problem
+      if tag_problem
+        problems << tag_problem
+      elsif !@image_source_exists.call(cfg['image_tag'])
+        problems << "image_tag #{cfg['image_tag']} has no git tag or commit in this repository, so no image was built for it. Push the tag first (it runs Release build), then pin it."
+      end
       %w(runner).each { |k| problems << "#{k} is required" if cfg[k].to_s.empty? }
       %w(registry harbor_project pull_username).each do |k|
         problems << "image.#{k} is required" if cfg.dig('image', k).to_s.empty?
