@@ -1,0 +1,97 @@
+name: Deploy
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+      && format('Deploy {0} to {1} by @{2}', inputs.projects, inputs.environment, github.actor)
+      || format('Deploy changed pins by @{0}', github.actor) }}
+
+# Decides which projects to deploy, then deploys each one with ovh-deploy.yml.
+#
+# Automatic: merging a change to deploy/projects/<name>/project.yml deploys only
+# the environments whose settings changed (usually an image_tag pin).
+# Manual: "Run workflow" with a project selection, e.g.
+#   newsmast | newsmast,csidnet | wave:canary | tag:small | provider=ovh | all
+#
+# Projects are config, not branches. See docs/deploy/README.md.
+
+on:
+  push:
+    # POC: the config lives on this branch. When the flow is adopted, change
+    # this to the branch that holds deploy/projects (main).
+    branches:
+      - poc/ovh-release-deploy-flow
+    paths:
+      - 'deploy/projects/**'
+  workflow_dispatch:
+    inputs:
+      projects:
+        description: 'Projects: names (newsmast,csidnet), wave:<n>, tag:<t>, provider=ovh or all'
+        required: true
+        type: string
+      environment:
+        description: 'Environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Image tag to deploy instead of the pinned one (optional; for redeploys and hotfixes)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - name: Checkout deploy config
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true # plan-deploy refuses pins whose git tag does not exist
+          filter: blob:none
+          sparse-checkout: deploy
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler: none
+
+      - name: Plan deploy
+        id: plan
+        env:
+          PLAN_EVENT: ${{ github.event_name }}
+          PLAN_BEFORE: ${{ github.event.before }}
+          PLAN_PROJECTS: ${{ inputs.projects }}
+          PLAN_ENVIRONMENT: ${{ inputs.environment }}
+          PLAN_IMAGE_TAG: ${{ inputs.image_tag }}
+        run: ruby deploy/bin/plan-deploy
+
+  deploy:
+    name: ${{ matrix.project }}/${{ matrix.environment }}
+    needs: plan
+    if: needs.plan.outputs.count != '0'
+    strategy:
+      fail-fast: false # one failing project never stops the others
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    uses: ./.github/workflows/ovh-deploy.yml
+    with:
+      project: ${{ matrix.project }}
+      environment: ${{ matrix.environment }}
+      image_tag: ${{ matrix.image_tag }}
+      runner: ${{ matrix.runner }}
+      registry: ${{ matrix.registry }}
+      pull_username: ${{ matrix.pull_username }}
+      deploy_dir: ${{ matrix.deploy_dir }}
+      public_url: ${{ matrix.public_url }}
+      override_file: ${{ matrix.override_file }}
+      release_env: ${{ matrix.release_env }}
+    secrets: inherit

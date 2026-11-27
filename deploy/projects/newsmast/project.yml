@@ -1,0 +1,42 @@
+# newsmast.social
+#
+# POC project for the release/deploy flow (docs/deploy/README.md).
+# Production already runs on OVH (since 2026-11-20) and is deployed by
+# .github/workflows/build-push-newsmast-ovh-harbor.yml on every push to
+# newsmast-4.7.6-production. The production block below stays disabled so the
+# two pipelines never deploy the same server; see docs/deploy/DEVOPS.md,
+# "Switching newsmast production to this flow".
+#
+# To move an environment to another release, edit image_tag (or run
+# deploy/bin/rollout) and merge the PR. Only that environment deploys.
+
+display_name: Newsmast
+wave: last # largest instance: always the final rollout wave
+tags: [large]
+
+runtime:
+  # newsmast reads FCM credentials from this path (as in docker-compose.newsmast.ovh.yml)
+  firebase_container_path: /opt/mastodon/config/fcm_newsmast_service.json
+
+# Same limits as the current production compose file (docker-compose.newsmast.ovh.yml).
+resources:
+  web: { cpus: '2', memory: 4G }
+  sidekiq: { cpus: '2', memory: 4G, replicas: 1 }
+  streaming: { cpus: '0.25', memory: 512M }
+
+environments:
+  staging:
+    enabled: true
+    runner: newsmast-staging # self-hosted runner label on the staging VM. CHANGE_ME if different
+    public_url: https://staging.newsmast.social # CHANGE_ME: confirm the staging hostname
+    # Staging is smaller than production.
+    resources:
+      web: { cpus: '1', memory: 2G }
+      sidekiq: { cpus: '1', memory: 2G }
+    image_tag: v4.7.6-pw.1
+
+  production:
+    enabled: false # flip to true only when switching over (docs/deploy/DEVOPS.md)
+    runner: newsmast-production # runner to install on the existing production VM. CHANGE_ME if different
+    public_url: https://newsmast.social
+    image_tag: v4.7.6-pw.1

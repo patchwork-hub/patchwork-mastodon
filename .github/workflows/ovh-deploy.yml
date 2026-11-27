@@ -1,0 +1,85 @@
+name: OVH deploy (reusable)
+
+# Deploys one project/environment on its OVH VM. Called by deploy.yml; never
+# triggered on its own. All project-specific values come from
+# deploy/projects/<name>/project.yml through deploy/bin/plan-deploy.
+#
+# GitHub environment "<project>-<environment>" (e.g. newsmast-staging) holds:
+#   secret HARBOR_PULL_PASSWORD   password of the pull robot (image.pull_username)
+#   protection rules              e.g. required reviewers for *-production
+
+on:
+  workflow_call:
+    inputs:
+      project: { type: string, required: true }
+      environment: { type: string, required: true }
+      image_tag: { type: string, required: true }
+      runner:
+        {
+          type: string,
+          required: true,
+          description: 'Self-hosted runner label on the VM',
+        }
+      registry: { type: string, required: true }
+      pull_username: { type: string, required: true }
+      deploy_dir: { type: string, required: true }
+      public_url: { type: string, required: false, default: '' }
+      override_file: { type: string, required: false, default: '' }
+      release_env:
+        {
+          type: string,
+          required: true,
+          description: 'Generated .env for the release',
+        }
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.image_tag }}
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 45
+    environment:
+      name: ${{ inputs.project }}-${{ inputs.environment }}
+      url: ${{ inputs.public_url }}
+    concurrency:
+      # One deploy at a time per project/environment; others run in parallel.
+      group: ovh-deploy-${{ inputs.project }}-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout deploy files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: deploy
+
+      - name: Login to Harbor (pull only)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.pull_username }}
+          password: ${{ secrets.HARBOR_PULL_PASSWORD }}
+
+      - name: Deploy
+        env:
+          DEPLOY_DIR: ${{ inputs.deploy_dir }}
+          RELEASE_TAG: ${{ inputs.image_tag }}
+          RELEASE_ENV: ${{ inputs.release_env }}
+          PUBLIC_URL: ${{ inputs.public_url }}
+          OVERRIDE_FILE: ${{ inputs.override_file }}
+          SOURCE_DIR: ${{ github.workspace }}
+        run: bash deploy/bin/ovh-deploy.sh deploy
+
+      - name: Summary
+        if: always()
+        env:
+          DEPLOY_DIR: ${{ inputs.deploy_dir }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "### ${{ inputs.project }}/${{ inputs.environment }}: $JOB_STATUS"
+            echo
+            echo "Requested: \`${{ inputs.image_tag }}\`"
+            echo
+            echo "Live release on the VM: \`$(basename "$(readlink "$DEPLOY_DIR/current" 2>/dev/null)" 2>/dev/null || echo none)\`"
+          } >> "$GITHUB_STEP_SUMMARY"

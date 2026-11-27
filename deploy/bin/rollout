@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Moves the image_tag pin of selected projects to a new tag. It only edits
+# deploy/projects/*/project.yml; you review, commit and open a PR. Merging the
+# PR deploys exactly the environments whose pin changed.
+#
+# Usage:
+#   deploy/bin/rollout TAG --env ENV --select SELECTORS [--dry-run]
+#
+# Examples:
+#   deploy/bin/rollout v4.7.6-pw.2 --env staging --select newsmast
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select wave:canary
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select csidnet,nithecs
+#   deploy/bin/rollout v4.7.6-pw.2 --env production --select provider=ovh --dry-run
+
+require 'optparse'
+require_relative '../lib/patchwork_deploy'
+
+# These are CLI messages for operators, not Rails UI strings.
+# rubocop:disable I18n/RailsI18n/DecorateString
+
+options = { dry_run: false }
+parser = OptionParser.new do |o|
+  o.banner = 'Usage: deploy/bin/rollout TAG --env ENV --select SELECTORS [--dry-run]'
+  o.on('--env ENV', 'staging | production') { |v| options[:env] = v }
+  o.on('--select SELECTORS', 'names, wave:<n>, tag:<t>, key=value or all') { |v| options[:select] = v }
+  o.on('--dry-run', 'show what would change, write nothing') { options[:dry_run] = true }
+end
+parser.parse!
+tag = ARGV.shift
+
+abort(parser.to_s) if tag.nil? || options[:env].nil? || options[:select].nil?
+
+# Rewrites "    image_tag: ..." inside "environments: / <env>:" without touching
+# comments or formatting elsewhere in the file.
+def set_pin(text, env, tag)
+  lines = text.lines
+  envs_at = lines.index { |l| l.match?(/\Aenvironments:\s*(#.*)?\z/) } or return [nil, 'no environments: block']
+  env_at = nil
+  ((envs_at + 1)...lines.size).each do |i|
+    break if lines[i].match?(/\A\S/) # next top-level key
+
+    if lines[i].match?(/\A  #{Regexp.escape(env)}:\s*(#.*)?\z/)
+      env_at = i
+      break
+    end
+  end
+  return [nil, "no #{env}: environment"] unless env_at
+
+  ((env_at + 1)...lines.size).each do |i|
+    line = lines[i]
+    break if line.match?(/\A {0,2}\S/) # next environment or top-level key
+
+    next unless (m = line.match(/\A(    image_tag:\s*)(\S+)(.*)\z/m))
+
+    old = m[2]
+    lines[i] = "#{m[1]}#{tag}#{m[3]}"
+    return [lines.join, old]
+  end
+  [nil, "no image_tag: line under #{env}:"]
+end
+
+begin
+  problem = PatchworkDeploy.tag_error(tag, options[:env])
+  abort("error: #{problem}") if problem
+
+  catalog = PatchworkDeploy::Catalog.from_dir
+  names = catalog.select(options[:select])
+  changed = []
+  names.each do |name|
+    unless catalog.environments(name).include?(options[:env])
+      puts "skip  #{name}: no #{options[:env]} environment"
+      next
+    end
+    path = File.join(PatchworkDeploy::ROOT, PatchworkDeploy::PROJECTS_REL, name, PatchworkDeploy::PROJECT_FILE)
+    new_text, old = set_pin(File.read(path), options[:env], tag)
+    abort("error: #{name}: #{old}") if new_text.nil?
+    if old == tag
+      puts "same  #{name}/#{options[:env]} already on #{tag}"
+      next
+    end
+
+    # Re-parse to be sure the edit produced the intended YAML.
+    check = PatchworkDeploy.parse_yaml(new_text, path).dig('environments', options[:env], 'image_tag')
+    abort("error: #{name}: edit check failed (got #{check.inspect})") unless check == tag
+
+    disabled = catalog.config(name, options[:env])['enabled'] == false
+    File.write(path, new_text) unless options[:dry_run]
+    changed << path
+    puts "pin   #{name}/#{options[:env]}: #{old} -> #{tag}#{'   (environment disabled: will not deploy)' if disabled}"
+  end
+
+  if changed.empty?
+    puts 'Nothing changed.'
+  elsif options[:dry_run]
+    puts "\nDry run: #{changed.size} file(s) would change."
+  else
+    rel = changed.map { |p| p.delete_prefix("#{PatchworkDeploy::ROOT}/") }
+    puts "\nNext:"
+    puts "  git switch -c rollout/#{options[:env]}-#{tag}"
+    puts "  git add #{rel.join(' ')}"
+    puts "  git commit -m \"Roll out #{tag} to #{options[:env]}: #{options[:select]}\""
+    puts '  git push -u origin HEAD   # then open a PR; merging it deploys'
+  end
+rescue PatchworkDeploy::Error => e
+  abort("error: #{e.message}")
+end
+# rubocop:enable I18n/RailsI18n/DecorateString

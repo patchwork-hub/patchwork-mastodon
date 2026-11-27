@@ -1,0 +1,109 @@
+# Shared docker compose file for every OVH project.
+#
+# deploy/bin/ovh-deploy.sh copies this file into a release folder on the VM,
+# next to a generated .env that fills in the ${...} values below (image tags,
+# resources, paths). Nothing project-specific belongs here: put it in
+# deploy/projects/<name>/project.yml, or as a last resort in
+# deploy/projects/<name>/compose.override.yml.
+#
+# On the VM, from <deploy_dir>/current:
+#   docker compose ps
+#   docker compose logs -f web
+#   docker compose up -d --wait      # re-apply the current release
+
+name: mastodon # same project name as the old per-project compose files, so volumes carry over
+
+x-mastodon: &mastodon
+  restart: unless-stopped
+  env_file:
+    - ${CREDENTIAL_DIR:?CREDENTIAL_DIR is not set}/.env.production
+  working_dir: /opt/mastodon
+  ulimits:
+    nofile: { soft: 1024, hard: 4096 }
+    memlock: { soft: 64, hard: 64 }
+    msgqueue: { soft: 819200, hard: 819200 }
+    nproc: { soft: 15471, hard: 15471 }
+    sigpending: { soft: 15471, hard: 15471 }
+
+x-app-volumes: &app-volumes
+  - mastodon_uploads:/opt/mastodon/public/system
+  - type: bind
+    source: ${CREDENTIAL_DIR}/firebase/firebase.json
+    target: ${FIREBASE_CONTAINER_PATH:-/opt/mastodon/config/firebase-adminsdk.json}
+    read_only: true
+
+services:
+  web:
+    <<: *mastodon
+    image: ${WEB_IMAGE:?WEB_IMAGE is not set}
+    # Migrations are NOT run here. deploy/bin/ovh-deploy.sh runs them as
+    # separate steps (pre-deploy before the switch, post-deploy after it).
+    command: bundle exec puma -C config/puma.rb
+    deploy:
+      resources:
+        limits: { cpus: '${WEB_CPUS:-1}', memory: '${WEB_MEMORY:-2G}' }
+    ports:
+      - '127.0.0.1:3000:3000'
+    networks: [external_network, internal_network]
+    volumes: *app-volumes
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  streaming:
+    <<: *mastodon
+    image: ${STREAMING_IMAGE:?STREAMING_IMAGE is not set}
+    command: node ./streaming/index.js
+    environment:
+      DB_SSLMODE: ${STREAMING_DB_SSLMODE:-no-verify}
+    deploy:
+      resources:
+        limits:
+          {
+            cpus: '${STREAMING_CPUS:-0.25}',
+            memory: '${STREAMING_MEMORY:-512M}',
+          }
+    ports:
+      - '127.0.0.1:4000:4000'
+    networks: [external_network, internal_network]
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  sidekiq:
+    <<: *mastodon
+    image: ${WEB_IMAGE}
+    command: bundle exec sidekiq
+    deploy:
+      replicas: ${SIDEKIQ_REPLICAS:-1}
+      resources:
+        limits: { cpus: '${SIDEKIQ_CPUS:-1}', memory: '${SIDEKIQ_MEMORY:-2G}' }
+    networks: [external_network, internal_network]
+    volumes: *app-volumes
+    healthcheck:
+      test: ['CMD-SHELL', "ps aux | grep -q '[s]idekiq [0-9]' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mastodon_uploads:
+
+networks:
+  external_network:
+  internal_network:
